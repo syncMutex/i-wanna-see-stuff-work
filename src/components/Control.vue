@@ -6,8 +6,16 @@ const props = defineProps<{
 	curSorter: { sorter: Sorter },
 	changeAlgorithm: (alg:SortingAlgorithm) => void,
 }>();
-
 const elementCount = ref(5);
+
+const speeds: Array<[string, number]> = [
+	['0.25x', 100],
+	['0.5', 75],
+	['1x', 50],
+	['1.5', 25],
+	['2x', 10],
+	['2.5x', 1]
+];
 
 onMounted(() => {
 	props.curSorter.sorter.changeElementsCount(elementCount.value);
@@ -33,6 +41,16 @@ function incElementCount(mag: number) {
 			<button @pointerdown="incElementCount(-1)">-</button>
 			<input type="number" v-model="elementCount" @input="numberInput" />
 			<button @pointerdown="incElementCount(1)">+</button>
+		</div>
+		<div>
+			<span>speed</span>
+			<button
+				@click="props.curSorter.sorter.setAnimationDelay(delay)"
+				v-for="([speed, delay], index) in speeds"
+				:key="index"
+			>
+				{{speed}}
+			</button>
 		</div>
 		<div>
 			<span>sorting algorithm</span>

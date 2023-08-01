@@ -26,6 +26,7 @@ function changeAlgorithm(alg:SortingAlgorithm) {
 	curSorter.sorter.changeElementsCount(5);
 	curSorter.sorter.setElements(arr);
 }
+
 </script>
 
 <template>

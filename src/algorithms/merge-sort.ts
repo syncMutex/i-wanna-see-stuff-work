@@ -1,45 +1,38 @@
-import { ListElement, Sorter, AnimationState, randomInt } from "./sorter-iface.ts";
+import { ListElement, Sorter, AnimationState } from "./sorter-iface.ts";
 
-export default class MergeSort implements Sorter {
-	public elements: Array<ListElement>;
-
-	setElements(elements: Array<ListElement>) {
-		this.elements = elements;
-	}
-
+export default class MergeSort extends Sorter {
 	constructor() {
+		super();
 		this.elements = Array<ListElement>(0);
 	}
 
-	changeElementsCount(count: number) {
-		let newElements = Array<ListElement>(count);
-		for(let i = 0; i < count; i++) {
-			newElements[i] = { value: randomInt(10, 600), state: AnimationState.None };
+	private i = 0;
+	private j = 0;
+
+	*sortGenerator() {
+		let n = this.elements.length;
+		for(this.i = 0; this.i < n - 1; this.i++) {
+			for(this.j = 0; this.j < n - this.i - 1; this.j++) {
+				this.elements[this.j].state = AnimationState.Traversing;
+				yield null;
+				this.elements[this.j].state = AnimationState.Compare;
+				this.elements[this.j + 1].state = AnimationState.Compare;
+				yield null;
+				if(this.elements[this.j].value > this.elements[this.j + 1].value) {
+					this.elements[this.j].state = AnimationState.Swap;
+					this.elements[this.j + 1].state = AnimationState.Swap;
+					yield null;
+					let temp = this.elements[this.j];
+					this.elements[this.j] = this.elements[this.j + 1];
+					this.elements[this.j + 1] = temp;
+					this.elements[this.j].state = AnimationState.SwapDone;
+					this.elements[this.j + 1].state = AnimationState.SwapDone;
+					yield null;
+				}
+				this.elements[this.j].state = AnimationState.None;
+				this.elements[this.j + 1].state = AnimationState.None;
+				yield null;
+			}
 		}
-		this.elements = newElements;
-	}
-
-	get elementsCount() {
-		return this.elements.length;
-	}
-
-	shuffle() {
-	}
-
-	play() {
-	}
-
-	pause() {
-	}
-
-	next() {
-	}
-
-	reset() {
-		this.changeElementsCount(5);
-	}
-
-	changeValues() {
-		this.changeElementsCount(this.elementsCount);
 	}
 }

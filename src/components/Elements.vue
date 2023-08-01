@@ -15,7 +15,7 @@ const elementsDivHeight = computed(() => elementsDiv.value?.clientHeight || 1);
 			<div
 				v-for="el in props.elements"
 				:style="{height: `${(el.value / elementsDivHeight) * 100}%`}"
-				class="element"
+				:class="['element', el.state]"
 			>
 				{{el.value}}
 			</div>
@@ -24,7 +24,7 @@ const elementsDivHeight = computed(() => elementsDiv.value?.clientHeight || 1);
 			<div
 				v-for="el in props.elements"
 				:style="{height: `${(el.value / elementsDivHeight) * 100}%`}"
-				class="element"
+				:class="['element', el.state]"
 			>
 			</div>
 		</template>
@@ -50,5 +50,25 @@ const elementsDivHeight = computed(() => elementsDiv.value?.clientHeight || 1);
 	justify-content: center;
 	align-items: center;
 	overflow: hidden;
+}
+
+.traversing {
+	background-color: blue;
+	color: white;
+}
+
+.compare {
+	background-color: yellow;
+	color: black;
+}
+
+.swap {
+	background-color: red;
+	color: white;
+}
+
+.swap-done {
+	background-color: green;
+	color: white;
 }
 </style>
