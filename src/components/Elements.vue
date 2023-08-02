@@ -71,4 +71,9 @@ const elementsDivHeight = computed(() => elementsDiv.value?.clientHeight || 1);
 	background-color: green;
 	color: white;
 }
+
+.moving {
+	background-color: purple;
+	color: white;
+}
 </style>

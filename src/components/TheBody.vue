@@ -6,12 +6,15 @@ import { Sorter, SortingAlgorithm } from "../algorithms/sorter-iface.ts";
 
 import BubbleSort from "../algorithms/bubble-sort.ts";
 import MergeSort from "../algorithms/merge-sort.ts";
+import InsertionSort from "../algorithms/insertion-sort.ts";
+import QuickSort from "../algorithms/quick-sort.ts";
 
 const curSorterName = ref<SortingAlgorithm>(SortingAlgorithm.BubbleSort);
 
-const curSorter = reactive<{sorter: Sorter}>({ sorter: new BubbleSort() });
+const curSorter = reactive<{sorter: Sorter}>({ sorter: new InsertionSort() });
 
 function changeAlgorithm(alg:SortingAlgorithm) {
+	curSorter.sorter.reset();
 	curSorterName.value = alg;
 	const arr = [...curSorter.sorter.elements];
 	switch(alg) {
@@ -20,6 +23,12 @@ function changeAlgorithm(alg:SortingAlgorithm) {
 			break;
 		case SortingAlgorithm.MergeSort:
 			curSorter.sorter = new MergeSort();
+			break;
+		case SortingAlgorithm.InsertionSort:
+			curSorter.sorter = new InsertionSort();
+			break;
+		case SortingAlgorithm.QuickSort:
+			curSorter.sorter = new QuickSort();
 			break;
 	}
 

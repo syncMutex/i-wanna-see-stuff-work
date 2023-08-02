@@ -56,7 +56,7 @@ function incElementCount(mag: number) {
 			<span>sorting algorithm</span>
 			<select @input="(e) => props.changeAlgorithm(+(e.target as any).value)">
 				<option :value="SortingAlgorithm.BubbleSort">bubble sort</option>
-				<option :value="SortingAlgorithm.InsertionSort">insertion sort</option>
+				<option selected :value="SortingAlgorithm.InsertionSort">insertion sort</option>
 				<option :value="SortingAlgorithm.SelectionSort">selection sort</option>
 				<option :value="SortingAlgorithm.MergeSort">merge sort</option>
 				<option :value="SortingAlgorithm.QuickSort">quick sort</option>

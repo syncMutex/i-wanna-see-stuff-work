@@ -1,4 +1,4 @@
-import { ListElement, Sorter, AnimationState } from "./sorter-iface.ts";
+import { ListElement, Sorter, AnimationState, Animate } from "./sorter-iface.ts";
 
 export default class BubbleSort extends Sorter {
 	constructor() {
@@ -13,30 +13,26 @@ export default class BubbleSort extends Sorter {
 		let n = this.elements.length;
 		for(this.i = 0; this.i < n - 1; this.i++) {
 			for(this.j = 0; this.j < n - this.i - 1; this.j++) {
-				this.elements[this.j].state = AnimationState.Traversing;
+				Animate.Traversing(this.elements[this.j]);
 				yield null;
-				this.elements[this.j].state = AnimationState.Compare;
-				this.elements[this.j + 1].state = AnimationState.Compare;
+				Animate.Compare(this.elements[this.j], this.elements[this.j + 1]);
 				yield null;
 				if(this.elements[this.j].value > this.elements[this.j + 1].value) {
-					this.elements[this.j].state = AnimationState.Swap;
-					this.elements[this.j + 1].state = AnimationState.Swap;
+					Animate.Swap(this.elements[this.j], this.elements[this.j + 1]);
 					yield null;
 					let temp = this.elements[this.j];
 					this.elements[this.j] = this.elements[this.j + 1];
 					this.elements[this.j + 1] = temp;
-					this.elements[this.j].state = AnimationState.SwapDone;
-					this.elements[this.j + 1].state = AnimationState.SwapDone;
+					Animate.SwapDone(this.elements[this.j], this.elements[this.j + 1]);
 					yield null;
 				}
-				this.elements[this.j].state = AnimationState.None;
-				this.elements[this.j + 1].state = AnimationState.None;
+				Animate.None(this.elements[this.j], this.elements[this.j + 1]);
 				yield null;
 			}
 		}
 	}
 
-	private resetElements() {
+	resetElements() {
 		if(this.elementsCount > 0) {
 			this.elements[this.j].state = AnimationState.None;
 		}

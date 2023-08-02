@@ -3,7 +3,37 @@ export enum AnimationState {
 	Traversing = "traversing",
 	Compare = "compare",
 	Swap = "swap",
-	SwapDone = "swap-done"
+	SwapDone = "swap-done",
+	Moving = "moving"
+};
+
+function animationSet(args: Array<ListElement>, state: AnimationState) {
+	for(let i = 0; i < args.length; i++) {
+		if(args[i] != undefined) {
+			args[i].state = state;
+		}
+	}
+}
+
+export const Animate = {
+	None(...args: Array<ListElement>) {
+		animationSet(args, AnimationState.None);
+	},
+	Traversing(...args: Array<ListElement>) {
+		animationSet(args, AnimationState.Traversing);
+	},
+	Compare(...args: Array<ListElement>) {
+		animationSet(args, AnimationState.Compare)
+	},
+	Swap(...args: Array<ListElement>) {
+		animationSet(args, AnimationState.Swap);
+	},
+	SwapDone(...args: Array<ListElement>) {
+		animationSet(args, AnimationState.SwapDone);
+	},
+	Moving(...args: Array<ListElement>) {
+		animationSet(args, AnimationState.Moving);
+	},
 };
 
 export interface ListElement {
