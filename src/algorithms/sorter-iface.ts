@@ -7,35 +7,6 @@ export enum AnimationState {
 	Moving = "moving"
 };
 
-function animationSet(args: Array<ListElement>, state: AnimationState) {
-	for(let i = 0; i < args.length; i++) {
-		if(args[i] != undefined) {
-			args[i].state = state;
-		}
-	}
-}
-
-export const Animate = {
-	None(...args: Array<ListElement>) {
-		animationSet(args, AnimationState.None);
-	},
-	Traversing(...args: Array<ListElement>) {
-		animationSet(args, AnimationState.Traversing);
-	},
-	Compare(...args: Array<ListElement>) {
-		animationSet(args, AnimationState.Compare)
-	},
-	Swap(...args: Array<ListElement>) {
-		animationSet(args, AnimationState.Swap);
-	},
-	SwapDone(...args: Array<ListElement>) {
-		animationSet(args, AnimationState.SwapDone);
-	},
-	Moving(...args: Array<ListElement>) {
-		animationSet(args, AnimationState.Moving);
-	},
-};
-
 export interface ListElement {
 	value: number;
 	state: AnimationState;
@@ -58,6 +29,31 @@ export class Sorter {
 		this.elements = Array<ListElement>(0);
 	}
 
+	private notNones = new Set<number>();
+
+	animate(state: AnimationState, ...args: number[]) {
+		for(let i = 0; i < args.length; i++) {
+			if(this.elements[args[i]] != undefined) {
+				this.elements[args[i]].state = state;
+				if(state !== AnimationState.None) {
+					this.notNones.add(args[i]);
+				} else {
+					this.notNones.delete(args[i]);
+				}
+			}
+		}
+	}
+
+	resetElements() {
+		this.notNones.forEach(v => {
+			if(this.elements[v] === undefined) {
+				return;
+			}
+			this.elements[v].state = AnimationState.None;
+		});
+		this.notNones.clear();
+	}
+
 	setAnimationDelay(d: number) {
 		if(d <= 0) {
 			return;
@@ -66,6 +62,7 @@ export class Sorter {
 	}
 
 	changeElementsCount(count: number) {
+		this.resetElements();
 		this.stop();
 
 		let newElements = Array<ListElement>(count);
@@ -86,6 +83,7 @@ export class Sorter {
 	}
 
 	shuffle() {
+		this.resetElements();
 		this.stop();
 
 		let elements = [...this.elements];
@@ -145,10 +143,12 @@ export class Sorter {
 	}
 
 	reset() {
+		this.resetElements();
 		this.changeElementsCount(5);
 	}
 
 	changeValues() {
+		this.resetElements();
 		this.changeElementsCount(this.elementsCount);
 	}
 }

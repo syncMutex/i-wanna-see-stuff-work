@@ -11,7 +11,7 @@ import QuickSort from "../algorithms/quick-sort.ts";
 
 const curSorterName = ref<SortingAlgorithm>(SortingAlgorithm.BubbleSort);
 
-const curSorter = reactive<{sorter: Sorter}>({ sorter: new InsertionSort() });
+const curSorter = reactive<{sorter: Sorter}>({ sorter: new QuickSort() });
 
 function changeAlgorithm(alg:SortingAlgorithm) {
 	curSorter.sorter.reset();
