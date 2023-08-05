@@ -70,7 +70,6 @@ export class Sorter {
 			newElements[i] = { value: randomInt(10, 600), state: AnimationState.None };
 		}
 		this.setElements(newElements);
-		this.elements = newElements;
 	}
 
 	setElements(elements: Array<ListElement>) {
@@ -125,7 +124,7 @@ export class Sorter {
 		this.state = SorterState.Paused;
 	}
 
-	private stop() {
+	stop() {
 		if(this.state === SorterState.Stopped || this.state === SorterState.NotBegun) return;
 		this.state = SorterState.Stopped;
 		this.generator = null;
@@ -143,7 +142,6 @@ export class Sorter {
 	}
 
 	reset() {
-		this.resetElements();
 		this.changeElementsCount(5);
 	}
 
@@ -158,9 +156,9 @@ export function randomInt(min: number, max: number): number {
 }
 
 export enum SortingAlgorithm {
-	BubbleSort,
-	InsertionSort,
-	SelectionSort,
-	MergeSort,
-	QuickSort
+	BubbleSort = "bubble sort",
+	InsertionSort = "insertion sort",
+	SelectionSort = "selection sort",
+	MergeSort = "merge sort",
+	QuickSort = "quick sort"
 }

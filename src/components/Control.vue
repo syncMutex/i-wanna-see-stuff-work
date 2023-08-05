@@ -3,8 +3,8 @@ import { ref, onMounted } from 'vue';
 import { Sorter, SortingAlgorithm } from "../algorithms/sorter-iface.ts";
 
 const props = defineProps<{
-	curSorter: { sorter: Sorter },
-	changeAlgorithm: (alg:SortingAlgorithm) => void,
+	curSorter: { sorter: Sorter, name: SortingAlgorithm },
+	changeAlgorithm: (newAlg:SortingAlgorithm) => void,
 }>();
 const elementCount = ref(5);
 
@@ -18,7 +18,6 @@ const speeds: Array<[string, number]> = [
 ];
 
 onMounted(() => {
-	props.changeAlgorithm(SortingAlgorithm.QuickSort);
 	props.curSorter.sorter.changeElementsCount(elementCount.value);
 });
 
@@ -55,12 +54,8 @@ function incElementCount(mag: number) {
 		</div>
 		<div>
 			<span>sorting algorithm</span>
-			<select @input="(e) => props.changeAlgorithm(+(e.target as any).value)">
-				<option :value="SortingAlgorithm.BubbleSort">bubble sort</option>
-				<option :value="SortingAlgorithm.InsertionSort">insertion sort</option>
-				<option :value="SortingAlgorithm.SelectionSort">selection sort</option>
-				<option :value="SortingAlgorithm.MergeSort">merge sort</option>
-				<option selected :value="SortingAlgorithm.QuickSort">quick sort</option>
+			<select @input="(e) => props.changeAlgorithm((e.target as any).value)">
+				<option :selected="alg === curSorter.name" v-for="alg in SortingAlgorithm">{{alg}}</option>
 			</select>
 		</div>
 		<div>

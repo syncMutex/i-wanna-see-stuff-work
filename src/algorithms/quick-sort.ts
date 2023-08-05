@@ -1,21 +1,17 @@
-import { AnimationState, ListElement, Sorter } from "./sorter-iface.ts";
+import { AnimationState, Sorter } from "./sorter-iface.ts";
 
 export default class QuickSort extends Sorter {
-	constructor() {
-		super();
-		this.elements = Array<ListElement>(0);
-	}
-
 	*partition(low: number, high: number): Generator<null, number, unknown> {
 		this.animate(AnimationState.Traversing, high);
 		yield null;
 		let pivot = this.elements[high].value;
 		let i = low - 1;
+		this.animate(AnimationState.Compare, high);
 
 		for(let j = low; j <= high - 1; j++) {
-			this.animate(AnimationState.Compare, j, high);
+			this.animate(AnimationState.Compare, j);
 			yield null;
-			this.animate(AnimationState.None, j, high);
+			this.animate(AnimationState.None, j);
 			if(this.elements[j].value < pivot) {
 				i++;
 				this.animate(AnimationState.Swap, j, i);

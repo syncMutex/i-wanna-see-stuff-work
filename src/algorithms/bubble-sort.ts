@@ -1,11 +1,6 @@
-import { ListElement, Sorter, AnimationState } from "./sorter-iface.ts";
+import { Sorter, AnimationState } from "./sorter-iface.ts";
 
 export default class BubbleSort extends Sorter {
-	constructor() {
-		super();
-		this.elements = Array<ListElement>(0);
-	}
-
 	*sortGenerator() {
 		let n = this.elements.length;
 		for(let i = 0; i < n - 1; i++) {
