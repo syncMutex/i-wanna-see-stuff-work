@@ -16,8 +16,8 @@ type CurSorter = {
 }
 
 const curSorter = reactive<CurSorter>({
-	name: SortingAlgorithm.QuickSort,
-	sorter: new QuickSort()
+	name: SortingAlgorithm.MergeSort,
+	sorter: new MergeSort()
 });
 
 function changeAlgorithm(newAlg: SortingAlgorithm) {
