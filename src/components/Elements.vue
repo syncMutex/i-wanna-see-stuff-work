@@ -38,42 +38,65 @@ const elementsDivHeight = computed(() => elementsDiv.value?.clientHeight || 1);
 	display: flex;
 	flex-direction: row;
 	align-items: flex-end;
-	background-color: #565656;
+	background-color: #101010;
 }
 
 .element {
+	--bg: rgb(150, 150, 150);
+	background-color: rgb(30, 30, 30);
+	border: 1px solid var(--bg);
+	color: white;
+	border-bottom: none;
 	min-width: 1px;
 	max-width: 100%;
 	width: 100%;
-	background-color: white;
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	overflow: hidden;
+	margin-left: 2px;
+	border-radius: 4px 4px 0 0;
 }
 
 .traversing {
-	background-color: blue;
+	--bg: rgb(0, 101, 252);
+	background-color: var(--bg);
+	box-shadow: 0 0 12px var(--bg);
 	color: white;
 }
 
 .compare {
-	background-color: yellow;
+	--bg: yellow;
+	background-color: var(--bg);
+	box-shadow: 0 0 12px var(--bg);
 	color: black;
 }
 
 .swap {
-	background-color: red;
+	--bg: rgb(255, 0, 51);
+	background-color: var(--bg);
+	box-shadow: 0 0 12px var(--bg);
 	color: white;
 }
 
 .swap-done {
-	background-color: green;
+	--bg: rgb(0, 255, 110);
+	background-color: var(--bg);
+	box-shadow: 0 0 12px var(--bg);
 	color: white;
 }
 
 .moving {
-	background-color: purple;
+	--bg: rgb(106, 0, 255);
+	background-color: var(--bg);
+	box-shadow: 0 0 12px var(--bg);
 	color: white;
+}
+
+.done{
+	--bg: rgb(20, 255, 20);
+	background-color: var(--bg);
+	box-shadow: 0 0 12px var(--bg);
+	color: transparent;
 }
 </style>

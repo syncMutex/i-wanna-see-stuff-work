@@ -4,7 +4,8 @@ export enum AnimationState {
 	Compare = "compare",
 	Swap = "swap",
 	SwapDone = "swap-done",
-	Moving = "moving"
+	Moving = "moving",
+	Done = "done"
 };
 
 export interface ListElement {
@@ -133,6 +134,14 @@ export class Sorter {
 	next() {
 		if(this.generator?.next().done) {
 			this.stop();
+			for(let i = 0; i < this.elements.length; i++) {
+				this.elements[i].state = AnimationState.Done;
+			}
+			setTimeout(() => {
+				for(let i = 0; i < this.elements.length; i++) {
+					this.elements[i].state = AnimationState.None;
+				}
+			}, 1000);
 		}
 	}
 
