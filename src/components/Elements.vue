@@ -38,13 +38,12 @@ const elementsDivHeight = computed(() => elementsDiv.value?.clientHeight || 1);
 	display: flex;
 	flex-direction: row;
 	align-items: flex-end;
-	background-color: #101010;
+	background-color: rgb(10, 0, 20);
 }
 
 .element {
-	--bg: rgb(150, 150, 150);
-	background-color: rgb(30, 30, 30);
-	border: 1px solid var(--bg);
+	--bg: rgb(40, 40, 40);
+	background-color: var(--bg);
 	color: white;
 	border-bottom: none;
 	min-width: 1px;
@@ -56,6 +55,8 @@ const elementsDivHeight = computed(() => elementsDiv.value?.clientHeight || 1);
 	overflow: hidden;
 	margin-left: 2px;
 	border-radius: 4px 4px 0 0;
+	font-family: monospace;
+	font-size: 1rem;
 }
 
 .traversing {
