@@ -34,11 +34,13 @@ const elementsDivHeight = computed(() => elementsDiv.value?.clientHeight || 1);
 <style scoped>
 .elements {
 	width: 100%;
-	height: calc(100% - 6rem);
+	height: 100%;
+	position: relative;
 	display: flex;
 	flex-direction: row;
 	align-items: flex-end;
 	background-color: rgb(10, 0, 20);
+	overflow: hidden;
 }
 
 .element {

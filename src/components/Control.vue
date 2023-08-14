@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { Sorter, SortingAlgorithm } from "../algorithms/sorter-iface.ts";
 
 const props = defineProps<{
@@ -11,22 +11,30 @@ const props = defineProps<{
 	isPlaying: boolean,
 	changeAlgorithm: (newAlg:SortingAlgorithm) => void
 }>();
+
 const elementCount = ref(5);
+let max = Math.floor(window.innerWidth / 3);
 
-onMounted(() => {
-	props.curSorter.sorter.changeElementsCount(elementCount.value);
-});
-
-function numberInput() {
-	if(elementCount.value > 0) {
-		props.curSorter.sorter.changeElementsCount(elementCount.value);
-	}
-}
-
-function focusOut() {
+function validateNumberInput() {
 	if(+elementCount.value <= 0) {
 		elementCount.value = 1;
 		numberInput();
+	}
+
+	if(+elementCount.value > max) {
+		elementCount.value = max;
+		numberInput();
+	}
+}
+
+function resizeEvent() {
+	max = Math.floor(window.innerWidth / 3);
+	validateNumberInput();
+}
+
+function numberInput() {
+	if(elementCount.value > 0 && elementCount.value <= max) {
+		props.curSorter.sorter.changeElementsCount(elementCount.value);
 	}
 }
 
@@ -34,6 +42,16 @@ function incElementCount(mag: number) {
 	elementCount.value += mag;
 	numberInput();
 }
+
+onMounted(() => {
+	props.curSorter.sorter.changeElementsCount(elementCount.value);
+	window.addEventListener('resize', resizeEvent);
+});
+
+onUnmounted(() => {
+	window.removeEventListener('resize', resizeEvent);
+});
+
 </script>
 
 <template>
@@ -42,7 +60,7 @@ function incElementCount(mag: number) {
 			<span>element count</span>
 			<div class="element-count">
 				<button @pointerdown="incElementCount(-1)"></button>
-				<input type="number" v-model="elementCount" @focusout="focusOut" @input="numberInput" />
+				<input type="number" v-model="elementCount" @focusout="validateNumberInput" @input="numberInput" />
 				<button @pointerdown="incElementCount(1)"></button>
 			</div>
 		</div>
@@ -76,13 +94,6 @@ function incElementCount(mag: number) {
 				}">reset</button>
 				<button @click="props.curSorter.sorter.shuffle">shuffle</button>
 				<button @click="props.curSorter.sorter.changeValues">change values</button>
-				<div class="play-pause-btns">
-					<button class="play-btn" v-if="!props.isPlaying" @click="props.togglePlay"></button>
-					<button class="pause-btn" v-else @click="props.togglePlay"></button>
-				</div>
-				<button class="next-btn" :disabled="props.isPlaying" @click="props.curSorter.sorter.next">
-					<div></div>
-				</button>
 			</div>
 		</div>
 
@@ -247,7 +258,7 @@ function incElementCount(mag: number) {
 	appearance: none;
 	-webkit-appearance: none;
 	outline: 0;
-	width: 7rem;
+	width: 7.5rem;
 	height: 1.7rem;
 	border: none;
 	border-radius: 4px;
@@ -294,7 +305,8 @@ function incElementCount(mag: number) {
 	width: max-content;
 }
 
-.control-btns > button {
+.control-btns button {
+	height: var(--element-height);
 	padding: 0 0.5rem;
 	outline: none;
 	border-radius: 4px;
@@ -314,82 +326,6 @@ function incElementCount(mag: number) {
 
 .control-btns > *{
 	margin: 0 0.3rem;
-}
-
-.play-pause-btns{
-	width: var(--element-height);
-	height: var(--element-height);
-	display: inline-block;
-}
-
-.play-pause-btns button{
-	display: flex;
-	position: relative;
-	width: 100%;
-	height: 100%;
-	border: none;
-	outline: none;
-	cursor: pointer;
-	border-radius: 2px;
-}
-
-.play-btn{
-	background: var(--aqua);
-	clip-path: polygon(100% 50%, 0% 0, 0% 100%);
-}
-
-.pause-btn{
-	background-color: transparent;
-}
-
-.pause-btn::after, .pause-btn::before{
-	content: "";
-	background-color: var(--aqua);
-	width: 20%;
-	height: 100%;
-	position: absolute;
-}
-
-.pause-btn::after{
-	right: 10%;
-}
-
-.pause-btn::before{
-	left: 10%;
-}
-
-.control-btns .next-btn{
-	--div-color: var(--aqua);
-	width: var(--element-height);
-	height: var(--element-height);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	position: relative;
-	border: none;
-	outline: none;
-	cursor: pointer;
-	background-color: transparent;
-	padding: 0;
-}
-
-.next-btn > div{
-	width: 100%;
-	height: 100%;
-	background: var(--div-color);
-	-webkit-clip-path: polygon(40% 0, 100% 50%, 40% 100%, 0 100%, 60% 50%, 0 0);
-	clip-path: polygon(40% 0, 100% 50%, 40% 100%, 0 100%, 60% 50%, 0 0);
-	border-radius: 10px;
-	transition: 0.5s all;
-}
-
-.control-btns .next-btn:hover{
-	background-color: transparent;
-}
-
-.next-btn:disabled{
-	--div-color: grey;
-	pointer-events: none;
 }
 
 </style>

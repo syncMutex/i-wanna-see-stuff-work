@@ -34,6 +34,10 @@ export class Sorter {
 
 	private notNones = new Set<number>();
 
+	public getDelay() {
+		return this.delay;
+	}
+
 	animate(state: AnimationState, ...args: number[]) {
 		for(let i = 0; i < args.length; i++) {
 			if(this.elements[args[i]] != undefined) {
