@@ -1,6 +1,10 @@
 import { AnimationState, Sorter } from "./sorter-iface.ts";
 
 export default class MergeSort extends Sorter {
+	constructor(cb: () => void) {
+		super(cb);
+	}
+
 	*merge(low: number, mid: number, high: number) {
 		const n1 = mid - low + 1;
 		const n2 = high - mid;

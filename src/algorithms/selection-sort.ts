@@ -1,6 +1,10 @@
 import { AnimationState, Sorter } from "./sorter-iface.ts";
 
 export default class SelectionSort extends Sorter {
+	constructor(cb: () => void) {
+		super(cb);
+	}
+
 	*sortGenerator() {
 		let n = this.elementsCount;
 		for(let i = 0; i < n - 1; i++) {

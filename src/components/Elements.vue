@@ -34,7 +34,7 @@ const elementsDivHeight = computed(() => elementsDiv.value?.clientHeight || 1);
 <style scoped>
 .elements {
 	width: 100%;
-	height: calc(100% - 5rem);
+	height: calc(100% - 6rem);
 	display: flex;
 	flex-direction: row;
 	align-items: flex-end;
@@ -96,6 +96,7 @@ const elementsDivHeight = computed(() => elementsDiv.value?.clientHeight || 1);
 
 .done{
 	--bg: rgb(20, 255, 20);
+	--bg: rgb(255, 255, 255);
 	background-color: var(--bg);
 	box-shadow: 0 0 12px var(--bg);
 	color: transparent;

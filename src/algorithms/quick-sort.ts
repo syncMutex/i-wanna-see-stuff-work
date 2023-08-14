@@ -1,6 +1,10 @@
 import { AnimationState, Sorter } from "./sorter-iface.ts";
 
 export default class QuickSort extends Sorter {
+	constructor(cb: () => void) {
+		super(cb);
+	}
+
 	*partition(low: number, high: number): Generator<null, number, unknown> {
 		this.animate(AnimationState.Traversing, high);
 		yield null;

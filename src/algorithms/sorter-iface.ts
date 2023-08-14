@@ -25,9 +25,11 @@ export class Sorter {
 	private delay: number = 50;
 	private state: SorterState = SorterState.NotBegun;
 	private generator: Generator<null, void, unknown> | null = null;
+	private callBack: () => void;
 
-	constructor() {
+	constructor(callBack: () => void) {
 		this.elements = Array<ListElement>(0);
+		this.callBack = callBack;
 	}
 
 	private notNones = new Set<number>();
@@ -129,6 +131,7 @@ export class Sorter {
 		if(this.state === SorterState.Stopped || this.state === SorterState.NotBegun) return;
 		this.state = SorterState.Stopped;
 		this.generator = null;
+		this.callBack();
 	}
 
 	next() {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive } from "vue";
+import { reactive, ref } from "vue";
 import Control from "./Control.vue";
 import Elements from "./Elements.vue";
 import { Sorter, SortingAlgorithm } from "../algorithms/sorter-iface.ts";
@@ -17,8 +17,22 @@ type CurSorter = {
 
 const curSorter = reactive<CurSorter>({
 	name: SortingAlgorithm.MergeSort,
-	sorter: new MergeSort()
+	sorter: new MergeSort(playComplete),
 });
+const isPlaying = ref<boolean>(false);
+
+function togglePlay() {
+	if(isPlaying.value) {
+		curSorter.sorter.pause();
+	} else {
+		curSorter.sorter.play();
+	}
+	isPlaying.value = !isPlaying.value;
+}
+
+function playComplete() {
+	isPlaying.value = false;
+}
 
 function changeAlgorithm(newAlg: SortingAlgorithm) {
 	curSorter.sorter.stop();
@@ -26,19 +40,19 @@ function changeAlgorithm(newAlg: SortingAlgorithm) {
 	const arr = [...curSorter.sorter.elements];
 	switch(newAlg) {
 		case SortingAlgorithm.BubbleSort:
-			curSorter.sorter = new BubbleSort();
+			curSorter.sorter = new BubbleSort(playComplete);
 			break;
 		case SortingAlgorithm.MergeSort:
-			curSorter.sorter = new MergeSort();
+			curSorter.sorter = new MergeSort(playComplete);
 			break;
 		case SortingAlgorithm.InsertionSort:
-			curSorter.sorter = new InsertionSort();
+			curSorter.sorter = new InsertionSort(playComplete);
 			break;
 		case SortingAlgorithm.SelectionSort:
-			curSorter.sorter = new SelectionSort();
+			curSorter.sorter = new SelectionSort(playComplete);
 			break;
 		case SortingAlgorithm.QuickSort:
-			curSorter.sorter = new QuickSort();
+			curSorter.sorter = new QuickSort(playComplete);
 			break;
 	}
 
@@ -52,6 +66,8 @@ function changeAlgorithm(newAlg: SortingAlgorithm) {
 	<Control
 		:curSorter="curSorter"
 		:changeAlgorithm="changeAlgorithm"
+		:togglePlay="togglePlay"
+		:isPlaying="isPlaying"
 	/>
 	<Elements :elements="curSorter.sorter.elements" />
 </template>
