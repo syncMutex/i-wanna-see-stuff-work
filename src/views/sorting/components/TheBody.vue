@@ -10,9 +10,9 @@ import InsertionSort from "../algorithms/insertion-sort.ts";
 import QuickSort from "../algorithms/quick-sort.ts";
 import SelectionSort from "../algorithms/selection-sort.ts";
 
-type CurSorter = {
-	sorter: Sorter,
-	name: SortingAlgorithm
+interface CurSorter {
+	name: SortingAlgorithm,
+	sorter: Sorter
 }
 
 const curSorter = reactive<CurSorter>({
@@ -69,7 +69,7 @@ function changeAlgorithm(newAlg: SortingAlgorithm) {
 <template>
 	<div class="body-container">
 		<Control
-			:curSorter="curSorter"
+			:curSorter="curSorter as CurSorter"
 			:changeAlgorithm="changeAlgorithm"
 			:togglePlay="togglePlay"
 			:isPlaying="isPlaying"

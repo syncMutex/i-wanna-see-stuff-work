@@ -51,7 +51,6 @@ onMounted(() => {
 onUnmounted(() => {
 	window.removeEventListener('resize', resizeEvent);
 });
-
 </script>
 
 <template>
@@ -99,6 +98,7 @@ onUnmounted(() => {
 
 	</div>
 </template>
+
 
 <style scoped>
 *{

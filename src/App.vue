@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import TheBody from "./components/TheBody.vue";
 </script>
 
 <template>
 	<div id="app-body">
-		<TheBody />
+		<router-view></router-view>
 	</div>
 </template>
 
 <style scoped>
 #app-body{
-	width: 100vw;
-	height: 100vh;
-	background-color: #212121
+	width: 100%;
+	height: 100%;
+	background-color: #212121;
+	position: relative;
 }
 </style>
