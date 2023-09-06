@@ -1,5 +1,3 @@
-import { Tool } from "./tools/tool";
-
 export const GAP = 10;
 
 export function setCanvasSize(canvas: HTMLCanvasElement, width: number, height: number) {
@@ -15,22 +13,5 @@ export function setCanvasSize(canvas: HTMLCanvasElement, width: number, height: 
 export interface CanvasSize {
 	width: number,
 	height: number
-}
-
-export class ElementGroup {
-	scroll = { x: 0, y: 0 };
-	elements: Array<Tool> = [];
-	canvas: null | HTMLCanvasElement = null;
-
-	add(tool: Tool) {
-		this.elements.push(tool);
-		tool.draw(this.canvas as HTMLCanvasElement);
-	}
-
-	draw(canvas: HTMLCanvasElement) {
-		for(let i = 0; i < this.elements.length; i++) {
-			this.elements[i].draw(canvas);
-		}
-	}
 }
 

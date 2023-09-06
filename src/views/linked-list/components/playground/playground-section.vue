@@ -2,21 +2,19 @@
 import { ref, onMounted, onUnmounted } from "vue";
 import PlaygroundLines from "./playground-lines.vue";
 import Playground from "./playground.vue";
-import { CanvasSize, GAP } from "./canvas";
-import { Tool } from "./tools/tool.ts";
+import { CanvasSize, GAP } from "../canvas";
 
 const props = defineProps<{
-	tool: null | Tool,
-	toolCanvas: null | HTMLCanvasElement
-	moveTool: (x:number, y: number) => void,
-	hideTool: () => void
-	showTool: () => void
+	toolIdx: { value: number },
+	toolCanvas: { value: null | HTMLCanvasElement }
 }>();
 const playgroundSection = ref<null | HTMLElement>(null);
 const canvasSize = ref<CanvasSize>({
 	width: -1,
 	height: -1
 });
+const toolCanvas = ref<null | HTMLCanvasElement>(null);
+
 
 function resizeCanvas() {
 	if(playgroundSection.value === null) throw "playgroundSection not found";
@@ -40,12 +38,10 @@ onUnmounted(() => {
 	<Playground
 		:GAP="GAP"
 		:canvasSize="canvasSize"
-		:tool="props.tool"
-		:moveTool="props.moveTool"
-		:hideTool="props.hideTool"
-		:showTool="props.showTool"
+		:toolIdx="props.toolIdx"
+		:toolCanvas="props.toolCanvas"
 	/>
-	<slot></slot>
+	<slot ref="toolCanvas"></slot>
 </section>
 </template>
 
