@@ -1,4 +1,4 @@
-import { Node, Arrow } from "./tools/tool.ts";
+import { ToolNode } from "./tools/tool-handler";
 
 
 export interface ToolType {
@@ -7,6 +7,6 @@ export interface ToolType {
 }
 
 export const ToolList: ToolType[] = [
-	{ name: "Node", toolClass: Node },
-	{ name: "Arrow", toolClass: Arrow },
+	{ name: "Node", toolClass: ToolNode },
+	// { name: "Arrow", toolClass: Arrow },
 ]

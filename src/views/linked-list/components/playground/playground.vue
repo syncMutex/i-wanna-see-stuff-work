@@ -16,7 +16,7 @@ const playground = new Playground();
 const eventHandler = new EventHandler();
 
 watch(props.toolCanvas, c => {
-	playground.toolCanvas = c.value;
+	playground.canvas.toolCanvas = c.value as HTMLCanvasElement;
 })
 
 watch(props.toolIdx, idx => {
@@ -33,8 +33,8 @@ function resizePlayground({ width, height }: CanvasSize) {
 }
 
 onMounted(() => {
-	playground.playgroundCanvas = playgroundCanvas.value;
-	playground.toolCanvas = props.toolCanvas.value;
+	playground.canvas.playgroundCanvas = playgroundCanvas.value as HTMLCanvasElement;
+	playground.canvas.toolCanvas = props.toolCanvas.value as HTMLCanvasElement;
 	playground.setTool(props.toolIdx.value);
 })
 

@@ -20,12 +20,14 @@ function selectTool(idx: number) {
 
 <template>
 <section id="tool-bar-section">
-	<div class="tools">
+	<div class="tools-list">
 		<div
 			v-for="(tool, idx) in ToolList"
 			:class="['node', idx === curToolIdx ? 'selected' : '']"
 			@click="selectTool(idx)"
 		>{{tool.name}}</div>
+	</div>
+	<div class="selected-item">
 	</div>
 </section>
 </template>
@@ -38,19 +40,19 @@ function selectTool(idx: number) {
 	background-color: rgb(50, 40, 50);
 }
 
-.tools{
+.tools-list{
 	display: flex;
 	flex-wrap: wrap;
 }
 
-.tools div{
+.tools-list div{
 	width: 5rem;
 	height: 5rem;
 	background: white;
 	margin-right: 1rem;
 }
 
-.tools div.selected{
+.tools-list div.selected{
 	background-color: red;
 }
 

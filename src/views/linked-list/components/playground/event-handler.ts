@@ -21,33 +21,30 @@ export class EventHandler {
 		return { x, y };
 	}
 
-	pointerEnter(_e: MouseEvent, playground: Playground) {
-		playground.tool?.pointerEnter(playground);
+	pointerEnter(_e: MouseEvent, pgnd: Playground) {
+		pgnd.toolHandler?.pointerEnter(this.state, pgnd.canvas);
 	}
 
-	pointerLeave(_e: MouseEvent, playground: Playground) {
-		playground.tool?.pointerLeave(playground);
+	pointerLeave(_e: MouseEvent, pgnd: Playground) {
+		pgnd.toolHandler?.pointerLeave(this.state, pgnd.canvas);
 	}
 
 	pointerDown(e: PointerEvent, pgnd: Playground) {
-		if(pgnd.playgroundCanvas === null || pgnd.toolCanvas === null || pgnd.tool === null) return;
 		if(e.target === null) return;
 		this.state.pointerDown = this.getRelXY(e);
-		pgnd.tool.pointerDown(pgnd, this.state);
+		pgnd.toolHandler?.pointerDown(this.state, pgnd.canvas);
 	}
 
 	pointerUp(e: PointerEvent, pgnd: Playground) {
-		if(pgnd.playgroundCanvas === null || pgnd.toolCanvas === null || pgnd.tool === null) return;
 		if(e.target === null) return;
 		this.state.pointerUp = this.getRelXY(e);
-		pgnd.tool.pointerUp(pgnd, this.state);
+		pgnd.toolHandler?.pointerUp(this.state, pgnd.canvas);
 	}
 
 	pointerMove(e: PointerEvent, pgnd: Playground) {
-		if(pgnd.playgroundCanvas === null || pgnd.toolCanvas === null || pgnd.tool === null) return;
 		if(e.target === null) return;
 		this.state.pointerMove = this.getRelXY(e);
-		pgnd.tool.pointerMove(pgnd, this.state);
+		pgnd.toolHandler?.pointerMove(this.state, pgnd.canvas);
 	}
 }
 
