@@ -1,7 +1,6 @@
 import { ToolList } from "../common-utils";
 import { ElementHandler } from "../elements/element-handler";
 import { ToolHandler } from "../tools/tool-handler";
-import { EventHandler } from "./event-handler";
 
 export class CanvasHandler {
 	playgroundCanvas: HTMLCanvasElement = document.createElement("canvas");
@@ -15,9 +14,24 @@ export class CanvasHandler {
 		element.draw(this.playgroundCanvas);
 	}
 
-	draw(canvas: HTMLCanvasElement) {
+	findIntersection(x: number, y: number): ElementHandler | null {
 		for(let i = 0; i < this.elements.length; i++) {
-			this.elements[i].draw(canvas);
+			if(this.elements[i].isIntersect(x, y)) {
+				return this.elements[i];
+			}
+		}
+		return null;
+	}
+
+	clear() {
+		const ctx = this.playgroundCanvas.getContext("2d");
+		if(ctx === null) return;
+		ctx.clearRect(0, 0, this.playgroundCanvas.width, this.playgroundCanvas.height);
+	}
+
+	draw() {
+		for(let i = 0; i < this.elements.length; i++) {
+			this.elements[i].draw(this.playgroundCanvas);
 		}
 	}
 }
@@ -25,8 +39,7 @@ export class CanvasHandler {
 export class Playground {
 	canvas: CanvasHandler = new CanvasHandler();
 	toolHandler: ToolHandler | null = null;
-	itemHandler: ElementHandler | null  = null;
-	eventHandler: EventHandler = new EventHandler();
+	elementHandler: ElementHandler | null  = null;
 
 	setTool(toolIdx: number) {
 		if(toolIdx < 0) {
