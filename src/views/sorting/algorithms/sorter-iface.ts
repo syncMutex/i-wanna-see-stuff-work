@@ -93,7 +93,7 @@ export class Sorter {
 		this.stop();
 
 		let elements = [...this.elements];
-		for(let i = 0; i < 20; i++) {
+		for(let i = 0; i < this.elements.length; i++) {
 			let i = randomInt(0, elements.length);
 			let j = randomInt(0, elements.length);
 			[elements[i], elements[j]] = [elements[j], elements[i]];
