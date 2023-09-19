@@ -12,22 +12,23 @@ export class ElementHandler {
 	pointerEnter(_state: EventState, _canvas: CanvasHandler) {}
 	pointerLeave(_state: EventState, _canvas: CanvasHandler) {}
 	pointerDown(_state: EventState, _canvas: CanvasHandler) {}
-	pointerUp(_state: EventState, _canvas: CanvasHandler) {}
+	pointerUp(_state: EventState, _canvas: CanvasHandler): null | ElementHandler { return null }
 
-	isIntersect(_x: number, _y: number): boolean { return false; }
+	isIntersect(_x: number, _y: number): null | ElementHandler { return null; }
 
 	draw(_canvas: HTMLCanvasElement) {}
 }
 
-class ElementArrow {
-	arrow: Arrow;
+export class ElementArrow extends ElementHandler {
+	el: Arrow;
 	parentNode: Node;
 	
 	constructor(node: Node) {
-		this.arrow = new Arrow();
+		super();
+		this.el = new Arrow();
 		this.parentNode = node;
 		this.updateTail();
-		this.arrow.head = { ...this.arrow.tail };
+		this.el.head = { ...this.el.tail };
 	}
 
 	absX() {
@@ -35,7 +36,7 @@ class ElementArrow {
 	}
 	
 	updateTail() {
-		this.arrow.tail = {
+		this.el.tail = {
 			x: (this.absX() + this.parentNode.right) / 2,
 			y: (this.parentNode.y + this.parentNode.bottom) / 2
 		};
@@ -47,27 +48,39 @@ class ElementArrow {
 		x = Math.floor(x / GAP) * GAP + (GAP / 2);
 		y = Math.floor(y / GAP) * GAP + (GAP / 2);
 
-		this.arrow.head.x = x;
-		this.arrow.head.y = y;
+		this.el.head.x = x;
+		this.el.head.y = y;
+
+		const el = canvas.findIntersectionExcept(x, y, [this]);
+		
+		if(el === null) {
+			canvas.clear();
+			canvas.draw();
+			return;
+		}
+
+		console.log(el);
 
 		canvas.clear();
 		canvas.draw();
 	}
 
-	isIntersect(x: number, y: number): boolean {
-		return this.arrow.isIntersect(x, y);
+	isIntersect(x: number, y: number): null | ElementHandler {
+		return this.el.isIntersect(x, y) ? this as any : null;
 	}
 
-	draw(ctx: CanvasRenderingContext2D) {
+	draw(canvas: HTMLCanvasElement) {
+		const ctx = canvas.getContext("2d");
+		if(ctx == null) return;
 		const x = this.absX();
 
 		line(ctx, x, this.parentNode.y, x, this.parentNode.y + Node.height, 3, "#FF0000");
 		circleFill(ctx, (x + this.parentNode.right) / 2, (this.parentNode.y + this.parentNode.bottom) / 2, 5);
 
-		if(this.arrow.head.x < 0) return;
+		if(this.el.head.x < 0) return;
 
-		const { x: fromx, y: fromy } = this.arrow.tail;
-		const { x: tox, y: toy } = this.arrow.head;
+		const { x: fromx, y: fromy } = this.el.tail;
+		const { x: tox, y: toy } = this.el.head;
 		const headlen = 15;
 		const dx = tox - fromx;
 		const dy = toy - fromy;
@@ -93,38 +106,28 @@ class ElementArrow {
 }
 
 export class ElementNode extends ElementHandler {
-	element: Node;
+	el: Node;
 	arrow: ElementArrow;
 	next: ElementNode | null = null;
 	prev: ElementNode | null = null;
-	isHandleArrow: boolean = false;
 
-	constructor(node: Node) {
+	constructor(node: Node, arrow: ElementArrow) {
 		super();
-		this.element = node;
-		this.arrow = new ElementArrow(node);
+		this.el = node;
+		this.arrow = arrow;
 	}
 
-	isSelected = false;
 	pointerDy: number = -1;
 	pointerDx: number = -1;
 
-	pointerUp(_state: EventState, _canvas: CanvasHandler): void {
-		if(this.isHandleArrow) this.isHandleArrow = false;
-	}
-
 	pointerMove(state: EventState, canvas: CanvasHandler): void {
-		if(this.isHandleArrow) {
-			this.arrow.pointerMove(state, canvas);
-			return;
-		}
 		if(state.pointerDown.x === -1) return;
 		let { x, y } = state.pointerMove;
 
 		x = Math.floor(x / GAP) * GAP - this.pointerDx;
 		y = Math.floor(y / GAP) * GAP - this.pointerDy;
 
-		this.element.setXY(x, y);
+		this.el.setXY(x, y);
 		this.arrow.updateTail();
 
 		canvas.clear();
@@ -132,17 +135,16 @@ export class ElementNode extends ElementHandler {
 	}
 
 	pointerDown(state: EventState): void {
-		let { x: nodex, y: nodey } = this.element;
+		let { x: nodex, y: nodey } = this.el;
 		let { x: statex, y: statey } = state.pointerDown;
 		this.pointerDx = Math.floor((statex - nodex) / GAP) * GAP;
 		this.pointerDy = Math.floor((statey - nodey) / GAP) * GAP;
-		if(this.arrow.isIntersect(statex, statey)) {
-			this.isHandleArrow = true;
-		}
 	}
 
-	isIntersect(x: number, y: number): boolean {
-		return this.element.isIntersect(x, y) || this.arrow.isIntersect(x, y);
+	isIntersect(x: number, y: number): null | ElementHandler {
+		if(this.arrow.isIntersect(x, y)) return this.arrow;
+		if(this.el.isIntersect(x, y)) return this;
+		return null;
 	}
 
 	draw(canvas: HTMLCanvasElement) {
@@ -150,9 +152,9 @@ export class ElementNode extends ElementHandler {
 		if(ctx === null) return;
 
 		ctx.fillStyle = "#FFFF00";
-		ctx.fillRect(this.element.x, this.element.y, Node.width, Node.height);
+		ctx.fillRect(this.el.x, this.el.y, Node.width, Node.height);
 
-		this.arrow.draw(ctx);
+		this.arrow.draw(canvas);
 	}
 }
 

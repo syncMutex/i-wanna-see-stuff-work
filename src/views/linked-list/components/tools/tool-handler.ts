@@ -2,7 +2,7 @@ import { GAP, setCanvasSize } from "../canvas";
 import { EventState } from "../playground/event-handler";
 import { CanvasHandler } from "../playground/playground-handler";
 import { Node } from "../element-types";
-import { ElementNode } from "../elements/element-handler";
+import { ElementArrow, ElementNode } from "../elements/element-handler";
 
 export class ToolHandler {
 	constructor() {}
@@ -44,7 +44,11 @@ export class ToolNode extends ToolHandler {
 		x = Math.floor(x / GAP) * GAP - Node.halfWidth;
 		y = Math.floor(y / GAP) * GAP - Node.halfHeight;
 		node.setXY(x, y);
-		canvas.add(new ElementNode(node));
+
+		const arrow = new ElementArrow(node);
+		const enode = new ElementNode(node, arrow);
+		canvas.add(enode);
+		canvas.add(arrow);
 	}
 
 	pointerMove(state: EventState, canvas: CanvasHandler) {

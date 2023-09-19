@@ -16,8 +16,19 @@ export class CanvasHandler {
 
 	findIntersection(x: number, y: number): ElementHandler | null {
 		for(let i = 0; i < this.elements.length; i++) {
-			if(this.elements[i].isIntersect(x, y)) {
-				return this.elements[i];
+			const e = this.elements[i].isIntersect(x, y);
+			if(e) {
+				return e;
+			}
+		}
+		return null;
+	}
+	
+	findIntersectionExcept(x: number, y: number, except: Array<ElementHandler>): ElementHandler | null {
+		for(let i = 0; i < this.elements.length; i++) {
+			const e = this.elements[i].isIntersect(x, y);
+			if(e && !except.includes(e)) {
+				return e;
 			}
 		}
 		return null;
