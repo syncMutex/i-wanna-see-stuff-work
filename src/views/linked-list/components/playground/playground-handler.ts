@@ -2,20 +2,49 @@ import { ToolList } from "../common-utils";
 import { ElementHandler } from "../elements/element-handler";
 import { ToolHandler } from "../tools/tool-handler";
 
+class Finder {
+	private exceptList: Array<ElementHandler> = [];
+	private typeList: Array<string> = [];
+
+	except(...args: Array<ElementHandler>) {
+		this.exceptList = args;
+		return this;
+	}
+
+	ofTypes(...args: Array<string>) {
+		this.typeList = args;
+		return this;
+	}
+
+	find(elements: Array<ElementHandler>, x: number, y: number): ElementHandler | null {
+		for(let i = elements.length - 1; i >= 0; i--) {
+			const e = elements[i].isIntersect(x, y);
+			if(e && !this.exceptList.includes(e) && this.typeList.includes(e.constructor.name)) {
+				return e;
+			}
+		}
+		return null;
+	}
+}
+
 export class CanvasHandler {
 	playgroundCanvas: HTMLCanvasElement = document.createElement("canvas");
 	toolCanvas: HTMLCanvasElement = document.createElement("canvas");
 
+	finder: Finder = new Finder();
+
 	scroll = { x: 0, y: 0 };
 	elements: Array<ElementHandler> = [];
 
-	add(element: ElementHandler) {
-		this.elements.push(element);
-		element.draw(this.playgroundCanvas);
+	add(...element: Array<ElementHandler>) {
+		for(let el of element) {
+			this.elements.push(el);
+			el.draw(this.playgroundCanvas);
+		}
 	}
 
 	findIntersection(x: number, y: number): ElementHandler | null {
-		for(let i = 0; i < this.elements.length; i++) {
+		for(let i = this.elements.length - 1; i >= 0; i--) {
 			const e = this.elements[i].isIntersect(x, y);
 			if(e) {
 				return e;
@@ -25,7 +54,7 @@ export class CanvasHandler {
 	}
 	
 	findIntersectionExcept(x: number, y: number, except: Array<ElementHandler>): ElementHandler | null {
-		for(let i = 0; i < this.elements.length; i++) {
+		for(let i = this.elements.length - 1; i >= 0; i--) {
 			const e = this.elements[i].isIntersect(x, y);
 			if(e && !except.includes(e)) {
 				return e;
@@ -38,6 +67,11 @@ export class CanvasHandler {
 		const ctx = this.playgroundCanvas.getContext("2d");
 		if(ctx === null) return;
 		ctx.clearRect(0, 0, this.playgroundCanvas.width, this.playgroundCanvas.height);
+	}
+
+	redraw() {
+		this.clear();
+		this.draw();
 	}
 
 	draw() {

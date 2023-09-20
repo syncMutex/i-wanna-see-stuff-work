@@ -6,7 +6,7 @@ import { CanvasHandler } from "../playground/playground-handler";
 export class ElementHandler {
 	constructor() {}
 
-	element: ELEMENT = new Empty;
+	el: ELEMENT = new Empty;
 
 	pointerMove(_state: EventState, _canvas: CanvasHandler) {}
 	pointerEnter(_state: EventState, _canvas: CanvasHandler) {}
@@ -19,11 +19,21 @@ export class ElementHandler {
 	draw(_canvas: HTMLCanvasElement) {}
 }
 
+class Point {
+	x: number = 0;
+	y: number = 0;
+
+	constructor(x: number, y: number) {
+		this.x = x;
+		this.y = y;
+	}
+}
+
 export class ElementArrow extends ElementHandler {
 	el: Arrow;
-	parentNode: Node;
+	parentNode: ElementNode;
 	
-	constructor(node: Node) {
+	constructor(node: ElementNode) {
 		super();
 		this.el = new Arrow();
 		this.parentNode = node;
@@ -32,14 +42,34 @@ export class ElementArrow extends ElementHandler {
 	}
 
 	absX() {
-		return this.parentNode.right - GAP * 3;
+		return this.parentNode.el.right - GAP * 3;
 	}
-	
+
 	updateTail() {
 		this.el.tail = {
-			x: (this.absX() + this.parentNode.right) / 2,
-			y: (this.parentNode.y + this.parentNode.bottom) / 2
+			x: (this.absX() + this.parentNode.el.right) / 2,
+			y: (this.parentNode.el.y + this.parentNode.el.bottom) / 2
 		};
+	}
+
+	pointOfIntersect(A: Point, B: Point, C: Point, D: Point) {
+		const a1 = B.y - A.y;
+		const b1 = A.x - B.x;
+		const c1 = a1*(A.x) + b1*(A.y);
+
+		const a2 = D.y - C.y;
+		const b2 = C.x - D.x;
+		const c2 = a2*(C.x)+ b2*(C.y);
+
+		const determinant = a1*b2 - a2*b1;
+
+		if (determinant == 0) {
+			return new Point(Number.MAX_VALUE, Number.MAX_VALUE);
+		} else {
+			const x = (b2*c1 - b1*c2)/determinant;
+			const y = (a1*c2 - a2*c1)/determinant;
+			return new Point(x, y);
+		}
 	}
 
 	pointerMove(state: EventState, canvas: CanvasHandler): void {
@@ -51,18 +81,25 @@ export class ElementArrow extends ElementHandler {
 		this.el.head.x = x;
 		this.el.head.y = y;
 
-		const el = canvas.findIntersectionExcept(x, y, [this]);
+		const el = canvas.finder
+							.except(this)
+							.ofTypes(ElementNode.name)
+							.find(canvas.elements, x, y);
 		
 		if(el === null) {
-			canvas.clear();
-			canvas.draw();
+			if(this.parentNode.next) {
+				this.parentNode.next.prev = null;
+				this.parentNode.next = null;
+			}
+			canvas.redraw();
 			return;
 		}
 
-		console.log(el);
-
-		canvas.clear();
-		canvas.draw();
+		if(!((el as ElementNode)?.prev)) {
+			this.parentNode.next = el as ElementNode;
+			this.parentNode.next.prev = this.parentNode;
+		}
+		canvas.redraw();
 	}
 
 	isIntersect(x: number, y: number): null | ElementHandler {
@@ -74,8 +111,8 @@ export class ElementArrow extends ElementHandler {
 		if(ctx == null) return;
 		const x = this.absX();
 
-		line(ctx, x, this.parentNode.y, x, this.parentNode.y + Node.height, 3, "#FF0000");
-		circleFill(ctx, (x + this.parentNode.right) / 2, (this.parentNode.y + this.parentNode.bottom) / 2, 5);
+		line(ctx, x, this.parentNode.el.y, x, this.parentNode.el.y + Node.height, 3, "#FF0000");
+		circleFill(ctx, (x + this.parentNode.el.right) / 2, (this.parentNode.el.y + this.parentNode.el.bottom) / 2, 5);
 
 		if(this.el.head.x < 0) return;
 
@@ -86,8 +123,13 @@ export class ElementArrow extends ElementHandler {
 		const dy = toy - fromy;
 		const angle = Math.atan2(dy, dx);
 
-		ctx.fillStyle = "#FFFFFF";
-		ctx.strokeStyle = "#FFFFFF";
+		if(this.parentNode.next === null) {
+			ctx.fillStyle = "#999999";
+			ctx.strokeStyle = "#999999";
+		} else {
+			ctx.fillStyle = "#FFFFFF";
+			ctx.strokeStyle = "#FFFFFF";
+		}
 
 		ctx.beginPath();
 		ctx.moveTo(fromx, fromy);
@@ -108,13 +150,15 @@ export class ElementArrow extends ElementHandler {
 export class ElementNode extends ElementHandler {
 	el: Node;
 	arrow: ElementArrow;
-	next: ElementNode | null = null;
-	prev: ElementNode | null = null;
 
-	constructor(node: Node, arrow: ElementArrow) {
+	prev: ElementNode | null = null;
+	next: ElementNode | null = null;
+
+	constructor(node: Node) {
 		super();
 		this.el = node;
-		this.arrow = arrow;
+		this.arrow = new ElementArrow(this);
+		this.arrow.parentNode = this;
 	}
 
 	pointerDy: number = -1;
@@ -123,15 +167,21 @@ export class ElementNode extends ElementHandler {
 	pointerMove(state: EventState, canvas: CanvasHandler): void {
 		if(state.pointerDown.x === -1) return;
 		let { x, y } = state.pointerMove;
+		let { x: prevx, y: prevy } = this.el;
 
 		x = Math.floor(x / GAP) * GAP - this.pointerDx;
 		y = Math.floor(y / GAP) * GAP - this.pointerDy;
 
 		this.el.setXY(x, y);
-		this.arrow.updateTail();
+		this.arrow.el.tail.x += x - prevx;
+		this.arrow.el.tail.y += y - prevy;
 
-		canvas.clear();
-		canvas.draw();
+		if(this.prev) {
+			this.prev.arrow.el.head.x += x - prevx;
+			this.prev.arrow.el.head.y += y - prevy;
+		}
+
+		canvas.redraw();
 	}
 
 	pointerDown(state: EventState): void {
