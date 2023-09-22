@@ -2,7 +2,7 @@ import { GAP, setCanvasSize } from "../canvas";
 import { EventState } from "../playground/event-handler";
 import { CanvasHandler } from "../playground/playground-handler";
 import { Node } from "../element-types";
-import { ElementNode } from "../elements/element-handler";
+import { ElementNode } from "../elements/node";
 
 export class ToolHandler {
 	constructor() {}
