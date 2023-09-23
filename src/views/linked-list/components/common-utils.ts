@@ -8,5 +8,9 @@ export interface ToolType {
 
 export const ToolList: ToolType[] = [
 	{ name: "Node", toolClass: ToolNode },
-	// { name: "Arrow", toolClass: Arrow },
 ]
+
+export function randInt(min: number, max: number): number {
+	return Math.floor(Math.random() * (max - min) + min);
+}
+

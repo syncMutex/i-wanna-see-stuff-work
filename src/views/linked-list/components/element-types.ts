@@ -8,17 +8,27 @@ export class Node implements Intersect {
 	static width = GAP * 9;
 	static height = GAP * 3;
 
+	static dividerColor = "#47008a";
+	static bg = "#8400ff";
+
 	static halfWidth = (Math.floor((Node.width / GAP) / 2) * GAP);
 	static halfHeight = (Math.floor((Node.height / GAP) / 2) * GAP);
 
 	x = -1;
 	y = -1;
+	value: string = "";
 
-	value: null | string = null;
-
+	constructor(value: string) {
+		this.value = value;
+	}
+	
 	setXY(x: number, y: number) {
 		this.x = x;
 		this.y = y;
+	}
+
+	dividerX() {
+		return this.right - GAP * 3;
 	}
 	
 	get top() {
@@ -49,6 +59,9 @@ export class Node implements Intersect {
 export class Arrow implements Intersect {
 	head = { x: -1, y: -1 };
 	tail = { x: -1, y: -1 };
+
+	static notPointingColor = "#AAAAAA";
+	static pointingColor = "#FFFFFF";
 
 	isIntersect(x: number, y: number): boolean {
 		const lowx = this.head.x - 20;

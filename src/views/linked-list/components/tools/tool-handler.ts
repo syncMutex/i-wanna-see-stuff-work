@@ -1,8 +1,9 @@
-import { GAP, setCanvasSize } from "../canvas";
+import { GAP, circleFill, line, setCanvasSize } from "../canvas";
 import { EventState } from "../playground/event-handler";
 import { CanvasHandler } from "../playground/playground-handler";
-import { Node } from "../element-types";
+import { Arrow, Node } from "../element-types";
 import { ElementNode } from "../elements/node";
+import { randInt } from "../common-utils";
 
 export class ToolHandler {
 	constructor() {}
@@ -38,7 +39,7 @@ export class ToolNode extends ToolHandler {
 			state.pointerDown.y !== state.pointerUp.y ||
 			state.pointerUp.x !== state.pointerDown.x
 		) return;
-		const node = new Node();
+		const node = new Node(String(randInt(1, 500)));
 		let { x, y } = state.pointerUp;
 
 		x = Math.floor(x / GAP) * GAP - Node.halfWidth;
@@ -63,7 +64,14 @@ export class ToolNode extends ToolHandler {
 		const ctx = canvas.getContext("2d");
 		if(ctx === null) return;
 
-		ctx.fillStyle = "#FFFF00";
+		ctx.fillStyle = Node.bg;
 		ctx.fillRect(0, 0, Node.width, Node.height);
+
+		const x = Node.width - (GAP * 3);
+		line(ctx, x, 0, x, Node.height, 3, Node.dividerColor);
+
+		const c = Arrow.pointingColor;
+		circleFill(ctx, (x + Node.width) / 2, (0 + Node.height) / 2, 4, c);
 	}
 }
+

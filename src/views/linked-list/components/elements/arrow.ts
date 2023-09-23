@@ -1,4 +1,4 @@
-import { GAP, circleFill, line } from "../canvas";
+import { GAP, circleFill } from "../canvas";
 import { Arrow, Node } from "../element-types";
 import { Line, Point } from "../geometry";
 import { EventState } from "../playground/event-handler";
@@ -15,16 +15,12 @@ export class ElementArrow extends ElementHandler {
 		this.el = new Arrow();
 		this.parentNode = node;
 		this.updateTail();
-		this.el.head = { ...this.el.tail };
-	}
-
-	absX() {
-		return this.parentNode.el.right - GAP * 3;
+		this.el.head = { x: this.el.tail.x + GAP, y: this.el.tail.y };
 	}
 
 	updateTail() {
 		this.el.tail = {
-			x: (this.absX() + this.parentNode.el.right) / 2,
+			x: (this.parentNode.el.dividerX() + this.parentNode.el.right) / 2,
 			y: (this.parentNode.el.y + this.parentNode.el.bottom) / 2
 		};
 	}
@@ -93,10 +89,6 @@ export class ElementArrow extends ElementHandler {
 	draw(canvas: HTMLCanvasElement) {
 		const ctx = canvas.getContext("2d");
 		if(ctx == null) return;
-		const x = this.absX();
-
-		line(ctx, x, this.parentNode.el.y, x, this.parentNode.el.y + Node.height, 3, "#FF0000");
-		circleFill(ctx, (x + this.parentNode.el.right) / 2, (this.parentNode.el.y + this.parentNode.el.bottom) / 2, 5);
 
 		if(this.el.head.x < 0) return;
 
@@ -107,13 +99,15 @@ export class ElementArrow extends ElementHandler {
 		const dy = toy - fromy;
 		const angle = Math.atan2(dy, dx);
 
+		let c = Arrow.pointingColor;
+
 		if(this.parentNode.next === null) {
-			ctx.fillStyle = "#999999";
-			ctx.strokeStyle = "#999999";
-		} else {
-			ctx.fillStyle = "#FFFFFF";
-			ctx.strokeStyle = "#FFFFFF";
+			c = Arrow.notPointingColor;
 		}
+
+		ctx.fillStyle = c;
+		ctx.strokeStyle = c;
+		circleFill(ctx, (this.parentNode.el.dividerX() + this.parentNode.el.right) / 2, (this.parentNode.el.y + this.parentNode.el.bottom) / 2, 4, c);
 
 		ctx.beginPath();
 		ctx.moveTo(fromx, fromy);

@@ -1,4 +1,4 @@
-import { GAP } from "../canvas";
+import { GAP, line } from "../canvas";
 import { Node } from "../element-types";
 import { EventState } from "../playground/event-handler";
 import { CanvasHandler } from "../playground/playground-handler";
@@ -66,9 +66,29 @@ export class ElementNode extends ElementHandler {
 		const ctx = canvas.getContext("2d");
 		if(ctx === null) return;
 
-		ctx.fillStyle = "#FFFF00";
-		ctx.fillRect(this.el.x, this.el.y, Node.width, Node.height);
+		const { x, y } = this.el;
+
+		ctx.fillStyle = Node.bg;
+		ctx.fillRect(x, y, Node.width, Node.height);
+
+		const divx = this.el.dividerX();
+		line(ctx, divx, y, divx, y + Node.height, 3, Node.dividerColor);
 
 		this.arrow.draw(canvas);
+
+		ctx.fillStyle = "#FFFFFF";
+		ctx.textBaseline = "middle";
+		ctx.textAlign = "center";
+		ctx.font = "16px monospace";
+		let text = this.el.value;
+		const tlen = text.length;
+		if(tlen > 4) {
+			text = text.slice(0, 4) + " ";
+		}
+		ctx.fillText(text, (this.el.left + divx) / 2, (this.el.top + this.el.bottom) / 2);
+		if(tlen > 4) {
+			ctx.font = "9px monospace";
+			ctx.fillText("...", (this.el.left + divx) / 2 + 20, (this.el.top + this.el.bottom) / 2 + 2);
+		}
 	}
 }
