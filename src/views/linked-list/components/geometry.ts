@@ -63,7 +63,7 @@ export class Line {
 		return false;
 	}
 
-	findIntersection(l: Line): Point {
+	pointOfIntersect(l: Line): Point {
 		const denom = (this.a * l.b) - (l.a * this.b);
 		const x = ((this.b * l.c) - (l.b * this.c)) / denom;
 		const y = ((this.c * l.a) - (l.c * this.a)) / denom;

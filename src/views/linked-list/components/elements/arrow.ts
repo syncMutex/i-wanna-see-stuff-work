@@ -29,8 +29,34 @@ export class ElementArrow extends ElementHandler {
 		};
 	}
 
-	pointOfIntersect(l1: Line, l2: Line) {
-		return l1.findIntersection(l2);
+	rectifyPosition() {
+		if(this.parentNode.next === null) return;
+
+		const node = this.parentNode.next.el as Node;
+		const arrow = new Line(this.el.tail, this.el.head);
+
+		const rectLines = [
+			// top
+			[new Point(node.left, node.top), new Point(node.right, node.top)],
+			// right
+			[new Point(node.right, node.top), new Point(node.right, node.bottom)],
+			// left
+			[new Point(node.left, node.top), new Point(node.left, node.bottom)],
+			// bottom
+			[new Point(node.left, node.bottom), new Point(node.right, node.bottom)],
+		];
+
+		for(let i = 0; i < rectLines.length; i++) {
+			const a = rectLines[i][0];
+			const b = rectLines[i][1];
+			const sideOfRect = new Line(a, b);
+
+			if(sideOfRect.doIntersect(arrow)) {
+				const o = sideOfRect.pointOfIntersect(arrow);
+				this.el.head = o;
+				break;
+			}
+		}
 	}
 
 	pointerMove(state: EventState, canvas: CanvasHandler): void {
@@ -55,32 +81,7 @@ export class ElementArrow extends ElementHandler {
 			this.parentNode.next.prev = this.parentNode;
 		}
 
-		const node = el.el as Node;
-		const h = new Point(Math.round(state.pointerMove.x), Math.round(state.pointerMove.y));
-		const arrow = new Line(this.el.tail, h);
-
-		const rectLines = [
-			// top
-			[new Point(node.left, node.top), new Point(node.right, node.top)],
-			// right
-			[new Point(node.right, node.top), new Point(node.right, node.bottom)],
-			// left
-			[new Point(node.left, node.top), new Point(node.left, node.bottom)],
-			// bottom
-			[new Point(node.left, node.bottom), new Point(node.right, node.bottom)],
-		];
-
-		for(let i = 0; i < rectLines.length; i++) {
-			const a = rectLines[i][0];
-			const b = rectLines[i][1];
-			const sideOfRect = new Line(a, b);
-
-			if(sideOfRect.doIntersect(arrow)) {
-				const o = this.pointOfIntersect(sideOfRect, arrow);
-				this.el.head = o;
-				break;
-			}
-		}
+		this.rectifyPosition();
 
 		canvas.redraw();
 	}

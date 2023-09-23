@@ -34,9 +34,16 @@ export class ElementNode extends ElementHandler {
 		this.arrow.el.tail.x += x - prevx;
 		this.arrow.el.tail.y += y - prevy;
 
+		if(this.next) {
+			this.arrow.el.head.x = this.next.el.left + GAP;
+			this.arrow.el.head.y = (this.next.el.top + this.next.el.bottom) / 2;
+			this.arrow.rectifyPosition();
+		}
+
 		if(this.prev) {
-			this.prev.arrow.el.head.x += x - prevx;
-			this.prev.arrow.el.head.y += y - prevy;
+			this.prev.arrow.el.head.x = this.el.left + GAP;
+			this.prev.arrow.el.head.y = (this.el.top + this.el.bottom) / 2;
+			this.prev.arrow.rectifyPosition();
 		}
 
 		canvas.redraw();
