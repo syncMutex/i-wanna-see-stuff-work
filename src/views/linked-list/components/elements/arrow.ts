@@ -81,24 +81,24 @@ export class ElementArrow extends ElementHandler {
 			this.parentNode.next.prev = this.parentNode;
 			this.el.bg = Arrow.pointingColor;
 		} else if(el && el.prev !== this.parentNode) {
-			this.el.bg = "#FFFF00";
+			this.el.bg = Arrow.insertColor;
 		}
 
 		this.rectifyPosition();
 		canvas.redraw();
 	}
 
-	async animateArrowHeadTo(canvas: CanvasHandler, arrow: Arrow, to: Point) {
-		const line = new Line(arrow.head, to);
+	async animateArrowHeadTo(canvas: CanvasHandler, to: Point) {
+		const line = new Line(this.el.head, to);
 		let p = 0;
 
 		return new Promise<void>((resolve, _reject) => {
 			const fn = () => {
-				arrow.head = line.getPositionAlongTheLine(p);
+				this.el.head = line.getPositionAlongTheLine(p);
 				p += 0.1;
 				canvas.redraw();
 				if(p >= 1) {
-					arrow.head = line.getPositionAlongTheLine(1);
+					this.el.head = line.getPositionAlongTheLine(1);
 					resolve();
 				} else {
 					requestAnimationFrame(fn);
@@ -108,23 +108,20 @@ export class ElementArrow extends ElementHandler {
 		});
 	}
 
-	async insertNode(node: ElementNode, canvas: CanvasHandler) {
+	async insertNode(toInsertStart: ElementNode, node: ElementNode, canvas: CanvasHandler) {
 		this.el.bg = Arrow.notPointingColor;
-		await this.animateArrowHeadTo(canvas, this.el, new Point(this.el.tail.x + GAP, this.el.tail.y));
-
-		let toInsertStart = this.parentNode;
-		while(toInsertStart.prev !== null) toInsertStart = toInsertStart.prev;
+		await this.animateArrowHeadTo(canvas, new Point(this.el.tail.x + GAP, this.el.tail.y));
 
 		let prev = node.prev as ElementNode;
 		const prevArrow = prev.arrow;
 
 		let rectified = prevArrow.getRectifiedPos(toInsertStart.el, new Line(prevArrow.el.tail, toInsertStart.defaultArrowPointPos()));
-		await this.animateArrowHeadTo(canvas, prevArrow.el, rectified);
+		await prevArrow.animateArrowHeadTo(canvas, rectified);
 
 		prev.next = toInsertStart;
 		
 		rectified = this.getRectifiedPos(node.el, new Line(this.el.tail, node.defaultArrowPointPos()));
-		await this.animateArrowHeadTo(canvas, this.el, rectified);
+		await this.animateArrowHeadTo(canvas, rectified);
 
 		this.parentNode.next = node;
 		toInsertStart.prev = prev;
@@ -134,17 +131,42 @@ export class ElementArrow extends ElementHandler {
 		canvas.redraw();
 	}
 
-	pointerUp(_state: EventState, canvas: CanvasHandler): ElementHandler | null {
+	pointerUp(state: EventState, canvas: CanvasHandler): ElementHandler | null {
 		let { x, y } = this.el.head;
 
-		const el = canvas.finder.except(this.parentNode).ofTypes(ElementNode.name).find<ElementNode>(canvas.elements, x, y);
+		if(this.el.bg !== Arrow.insertColor) return null;
+
+		const node = canvas.finder.except(this.parentNode).ofTypes(ElementNode.name).find<ElementNode>(canvas.elements, x, y);
 		
-		if(el === null) {
+		if(node === null) {
 			return null;
 		}
 
-		if(el && el.prev !== this.parentNode) {
-			this.insertNode(el, canvas);
+		let toInsertStart = this.parentNode;
+		while(toInsertStart.prev !== null) {
+			if(toInsertStart === node) {
+				this.el.head = { ...state.pointerDown };
+				this.el.bg = Arrow.notPointingColor;
+				canvas.redraw();
+
+				let count = 4;
+				let int = setInterval(() => {
+					if(count === 0) {
+						this.el.bg = Arrow.notPointingColor;
+						canvas.redraw();
+						return clearInterval(int);
+					}
+					this.el.bg = this.el.bg === Arrow.invalidInsert ? Arrow.notPointingColor : Arrow.invalidInsert;
+					canvas.redraw();
+					count--;
+				}, 200);
+				return null;
+			}
+			toInsertStart = toInsertStart.prev;
+		}
+
+		if(node.prev !== this.parentNode) {
+			this.insertNode(toInsertStart, node, canvas);
 			canvas.redraw();
 		}
 		return null;

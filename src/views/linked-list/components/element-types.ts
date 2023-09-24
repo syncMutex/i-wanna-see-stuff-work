@@ -64,6 +64,8 @@ export class Arrow implements Intersect {
 
 	static notPointingColor = "#AAAAAA";
 	static pointingColor = "#FFFFFF";
+	static insertColor = "#FFFF00"
+	static invalidInsert = "#FF0000";
 
 	bg: string = Arrow.notPointingColor;
 

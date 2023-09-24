@@ -1,6 +1,6 @@
 import { GAP, line } from "../canvas";
-import { Node } from "../element-types";
-import { Point } from "../geometry";
+import { Arrow, Node } from "../element-types";
+import { Line, Point } from "../geometry";
 import { EventState } from "../playground/event-handler";
 import { CanvasHandler } from "../playground/playground-handler";
 import { ElementArrow } from "./arrow";
@@ -54,6 +54,51 @@ export class ElementNode extends ElementHandler {
 			this.prev.arrow.rectifyPosition();
 		}
 
+		canvas.redraw();
+	}
+
+	remove(canvas: CanvasHandler) {
+		canvas.removeElements(this, this.arrow);
+	}
+
+	async deleteNode(canvas: CanvasHandler) {
+		const arrow = this.arrow;
+
+		arrow.el.bg = Arrow.notPointingColor;
+		await arrow.animateArrowHeadTo(canvas, new Point(arrow.el.tail.x + GAP, arrow.el.tail.y));
+
+		if(this.prev === null && this.next === null) {
+			this.remove(canvas);
+			canvas.redraw();
+			return;
+		}
+
+		let prev = this.prev;
+		if(prev === null) {
+			this.remove(canvas);
+			(this.next as ElementNode).prev = null;
+			canvas.redraw();
+			return;
+		}
+
+		const prevArrow = prev.arrow;
+
+		if(this.next === null) {
+			this.remove(canvas);
+			if(this.prev) {
+				this.prev.next = null;
+				this.prev.arrow.el.bg = Arrow.notPointingColor;
+			}
+			canvas.redraw();
+			return;
+		}
+
+		let rectified = prevArrow.getRectifiedPos(this.next.el, new Line(prevArrow.el.tail, this.next.defaultArrowPointPos()));
+		await prevArrow.animateArrowHeadTo(canvas, rectified);
+
+		prev.next = this.next;
+		this.next.prev = prev;
+		this.remove(canvas);
 		canvas.redraw();
 	}
 

@@ -43,6 +43,14 @@ export class CanvasHandler {
 		}
 	}
 
+	removeElements(...args: Array<ElementHandler>) {
+		if(args.length === 1) {
+			args[0].remove(this);
+		} else {
+			this.elements = this.elements.filter(e => !args.includes(e));
+		}
+	}
+
 	findIntersection(x: number, y: number): ElementHandler | null {
 		for(let i = this.elements.length - 1; i >= 0; i--) {
 			const e = this.elements[i].isIntersect(x, y);

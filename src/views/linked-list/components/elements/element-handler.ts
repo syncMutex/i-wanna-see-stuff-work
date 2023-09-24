@@ -15,6 +15,10 @@ export class ElementHandler {
 
 	isIntersect(_x: number, _y: number): null | ElementHandler { return null; }
 
+	remove(canvas: CanvasHandler) {
+		canvas.elements.splice(canvas.elements.indexOf(this), 1);
+	}
+
 	draw(_canvas: HTMLCanvasElement) {}
 }
 
