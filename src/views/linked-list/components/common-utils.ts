@@ -1,4 +1,4 @@
-import { ToolNode } from "./tools/tool-handler";
+import { ToolNode, ToolHeadNode } from "./tools/tool-handler";
 
 
 export interface ToolType {
@@ -8,6 +8,7 @@ export interface ToolType {
 
 export const ToolList: ToolType[] = [
 	{ name: "Node", toolClass: ToolNode },
+	{ name: "head", toolClass: ToolHeadNode },
 ]
 
 export function randInt(min: number, max: number): number {

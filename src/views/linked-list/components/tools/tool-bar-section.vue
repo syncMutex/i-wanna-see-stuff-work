@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { ToolList } from "../common-utils";
+import ToolNode from "./tool-node.vue";
+import { selectedElement } from "../selected-item.ts";
 
 const props = defineProps<{
 	setTool: (t: number) => void;
@@ -27,7 +29,9 @@ function selectTool(idx: number) {
 			@click="selectTool(idx)"
 		>{{tool.name}}</div>
 	</div>
+
 	<div class="selected-item">
+		<ToolNode v-if="selectedElement.constructor.name === 'ElementNode'" />
 	</div>
 </section>
 </template>

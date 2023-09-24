@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { onMounted, ref, watch } from "vue";
 import { CanvasSize, setCanvasSize } from "../canvas";
-import { Playground } from "./playground-handler";
+import { playground } from "./playground-handler";
 import { EventHandler } from "./event-handler";
 
 const props = defineProps<{
@@ -12,7 +12,6 @@ const props = defineProps<{
 }>();
 
 const playgroundCanvas = ref<null | HTMLCanvasElement>(null);
-const playground = new Playground();
 const eventHandler = new EventHandler();
 
 watch(props.toolCanvas, c => {

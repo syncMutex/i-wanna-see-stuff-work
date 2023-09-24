@@ -11,6 +11,8 @@ export class Node implements Intersect {
 	static dividerColor = "#47008a";
 	static bg = "#8400ff";
 
+	static head = { dividerColor: "#AA0022",  bg: "#FF0000" } ;
+
 	static halfWidth = (Math.floor((Node.width / GAP) / 2) * GAP);
 	static halfHeight = (Math.floor((Node.height / GAP) / 2) * GAP);
 
@@ -63,6 +65,8 @@ export class Arrow implements Intersect {
 	static notPointingColor = "#AAAAAA";
 	static pointingColor = "#FFFFFF";
 
+	bg: string = Arrow.notPointingColor;
+
 	isIntersect(x: number, y: number): boolean {
 		const lowx = this.head.x - 20;
 		const lowy = this.head.y - 20;
@@ -72,7 +76,6 @@ export class Arrow implements Intersect {
 	}
 }
 
-export class Empty {
-}
+export class Empty {}
 
 export type ELEMENT = Node | Empty;

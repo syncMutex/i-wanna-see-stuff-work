@@ -31,6 +31,10 @@ export class Line {
 		return Math.sqrt((dx*dx) + (dy*dy));
 	}
 
+	getPositionAlongTheLine(percentage: number) {
+		return {x : this.p1.x * (1.0 - percentage) + this.p2.x * percentage, y : this.p1.y * (1.0 - percentage) + this.p2.y * percentage};
+	}
+
 	static orientation(p: Point, q: Point, r: Point) {
 		let val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
 		if (val == 0) return 0;

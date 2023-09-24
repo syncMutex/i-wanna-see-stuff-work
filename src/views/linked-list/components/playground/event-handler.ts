@@ -1,3 +1,5 @@
+import { ElementHandler } from "../elements/element-handler";
+import { selectedElement } from "../selected-item";
 import { Playground } from "./playground-handler";
 
 export type EventState = {
@@ -41,12 +43,14 @@ export class EventHandler {
 		if(e.target === null) return;
 		this.state.pointerDown = this.getRelXY(e);
 		pgnd.elementHandler = pgnd.canvas.findIntersection(this.state.pointerDown.x, this.state.pointerDown.y);
+
 		if(pgnd.toolHandler) {
 			pgnd.toolHandler.pointerDown(this.state, pgnd.canvas);
 		} else if(pgnd.elementHandler) {
 			pgnd.elementHandler.pointerDown(this.state, pgnd.canvas);
+			selectedElement.value = pgnd.elementHandler;
 		} else {
-			pgnd.elementHandler = pgnd.canvas.findIntersection(this.state.pointerDown.x, this.state.pointerDown.y);
+			selectedElement.value = new ElementHandler;
 		}
 	}
 

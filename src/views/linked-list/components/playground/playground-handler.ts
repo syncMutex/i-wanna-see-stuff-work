@@ -16,12 +16,12 @@ class Finder {
 		return this;
 	}
 
-	find(elements: Array<ElementHandler>, x: number, y: number): ElementHandler | null {
+	find<T>(elements: Array<ElementHandler>, x: number, y: number): T | null {
 		for(let i = elements.length - 1; i >= 0; i--) {
 			const e = elements[i].isIntersect(x, y);
 			if(e && !this.exceptList.includes(e) && this.typeList.includes(e.constructor.name)) {
-				return e;
-			}
+				return e as T;
+ 			}
 		}
 		return null;
 	}
@@ -95,3 +95,4 @@ export class Playground {
 	}
 }
 
+export const playground = new Playground();
