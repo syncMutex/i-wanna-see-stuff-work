@@ -10,7 +10,7 @@ export class ElementNode extends ElementHandler {
 	el: Node;
 	arrow: ElementArrow;
 
-	prev: ElementNode | null = null;
+	referedBy: Set<ElementNode> = new Set();
 	next: ElementNode | null = null;
 
 	constructor(node: Node) {
@@ -48,10 +48,12 @@ export class ElementNode extends ElementHandler {
 			this.arrow.rectifyPosition();
 		}
 
-		if(this.prev) {
-			this.prev.arrow.el.head.x = this.el.left + GAP;
-			this.prev.arrow.el.head.y = (this.el.top + this.el.bottom) / 2;
-			this.prev.arrow.rectifyPosition();
+		if(this.referedBy.size > 0) {
+			for(let r of this.referedBy) {
+				r.arrow.el.head.x = this.el.left + GAP;
+				r.arrow.el.head.y = (this.el.top + this.el.bottom) / 2;
+				r.arrow.rectifyPosition();
+			}
 		}
 
 		canvas.redraw();
@@ -61,44 +63,50 @@ export class ElementNode extends ElementHandler {
 		canvas.removeElements(this, this.arrow);
 	}
 
+	removeRefs(...args: Array<ElementNode>) {
+		for(let a of args) {
+			this.referedBy.delete(a);
+		}
+	}
+
 	async deleteNode(canvas: CanvasHandler) {
 		const arrow = this.arrow;
 
 		arrow.el.bg = Arrow.notPointingColor;
 		await arrow.animateArrowHeadTo(canvas, new Point(arrow.el.tail.x + GAP, arrow.el.tail.y));
 
-		if(this.prev === null && this.next === null) {
+		if(this.referedBy.size === 0 && this.next === null) {
 			this.remove(canvas);
 			canvas.redraw();
 			return;
 		}
 
-		let prev = this.prev;
-		if(prev === null) {
+		if(this.referedBy.size === 0) {
 			this.remove(canvas);
-			(this.next as ElementNode).prev = null;
+			(this.next as ElementNode).referedBy.delete(this);
 			canvas.redraw();
 			return;
 		}
 
-		const prevArrow = prev.arrow;
-
-		if(this.next === null) {
-			this.remove(canvas);
-			if(this.prev) {
-				this.prev.next = null;
-				this.prev.arrow.el.bg = Arrow.notPointingColor;
+		const next = this.next;
+		if(next === null) {
+			for(let r of this.referedBy) {
+				r.next = null;
+				r.arrow.el.bg = Arrow.pointingColor;
 			}
-			canvas.redraw();
-			return;
+		} else {
+			for(let r of this.referedBy) {
+				r.next = null;
+				r.arrow.el.bg = Arrow.pointingColor;
+				let rectified = r.arrow.getRectifiedPos(next.el, new Line(r.arrow.el.tail, next.defaultArrowPointPos()));
+				await r.arrow.animateArrowHeadTo(canvas, rectified);
+				canvas.redraw();
+				r.next = this.next;
+				next.referedBy.add(r);
+			}
 		}
-
-		let rectified = prevArrow.getRectifiedPos(this.next.el, new Line(prevArrow.el.tail, this.next.defaultArrowPointPos()));
-		await prevArrow.animateArrowHeadTo(canvas, rectified);
-
-		prev.next = this.next;
-		this.next.prev = prev;
 		this.remove(canvas);
+
 		canvas.redraw();
 	}
 
