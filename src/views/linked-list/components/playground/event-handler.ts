@@ -1,5 +1,4 @@
-import { ElementHandler } from "../elements/element-handler";
-import { selectedElement } from "../selected-item";
+import { selectedElement, unselectElement } from "../selected-item";
 import { Playground } from "./playground-handler";
 
 export type EventState = {
@@ -49,8 +48,10 @@ export class EventHandler {
 		} else if(pgnd.elementHandler) {
 			pgnd.elementHandler.pointerDown(this.state, pgnd.canvas);
 			selectedElement.value = pgnd.elementHandler;
+			pgnd.canvas.redraw();
 		} else {
-			selectedElement.value = new ElementHandler;
+			unselectElement();
+			pgnd.canvas.redraw();
 		}
 	}
 

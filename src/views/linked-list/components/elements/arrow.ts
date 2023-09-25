@@ -4,7 +4,7 @@ import { Line, Point } from "../geometry";
 import { EventState } from "../playground/event-handler";
 import { CanvasHandler } from "../playground/playground-handler";
 import { ElementHandler } from "./element-handler";
-import { ElementHeadNode, ElementNode } from "./node";
+import { ElementNode } from "./node";
 
 export class ElementArrow extends ElementHandler {
 	el: Arrow;
@@ -66,8 +66,8 @@ export class ElementArrow extends ElementHandler {
 
 		const el = canvas.finder
 							.except(this.parentNode)
-							.ofTypes(ElementNode.name, ElementHeadNode.name)
-							.find<ElementNode | ElementHeadNode>(canvas.elements, x, y);
+							.ofTypes(ElementNode.name)
+							.find<ElementNode>(canvas.elements, x, y);
 		
 		if(el === null) {
 			if(this.parentNode.next) {

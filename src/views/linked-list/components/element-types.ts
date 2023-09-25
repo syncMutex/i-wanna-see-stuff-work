@@ -1,4 +1,5 @@
 import { GAP } from "./canvas";
+import { Line } from "./geometry";
 
 interface Intersect {
 	isIntersect: (x: number, y: number) => boolean;
@@ -10,8 +11,6 @@ export class Node implements Intersect {
 
 	static dividerColor = "#47008a";
 	static bg = "#8400ff";
-
-	static head = { dividerColor: "#AA0022",  bg: "#FF0000" } ;
 
 	static halfWidth = (Math.floor((Node.width / GAP) / 2) * GAP);
 	static halfHeight = (Math.floor((Node.height / GAP) / 2) * GAP);
@@ -70,10 +69,12 @@ export class Arrow implements Intersect {
 	bg: string = Arrow.notPointingColor;
 
 	isIntersect(x: number, y: number): boolean {
-		const lowx = this.head.x - 20;
-		const lowy = this.head.y - 20;
-		const highx = this.head.x + 20;
-		const highy = this.head.y + 20;
+		const p = new Line(this.tail, this.head).getPositionAlongTheLine(0.98);
+		const mag = 10;
+		const lowx = p.x - mag;
+		const lowy = p.y - mag;
+		const highx = p.x + mag;
+		const highy = p.y + mag;
 		return x >= lowx && x <= highx && y >= lowy && y <= highy;
 	}
 }

@@ -2,7 +2,7 @@ import { GAP, circleFill, line, setCanvasSize } from "../canvas";
 import { EventState } from "../playground/event-handler";
 import { CanvasHandler } from "../playground/playground-handler";
 import { Arrow, Node } from "../element-types";
-import { ElementHeadNode, ElementNode } from "../elements/node";
+import { ElementNode } from "../elements/node";
 import { randInt } from "../common-utils";
 
 export class ToolHandler {
@@ -75,34 +75,3 @@ export class ToolNode extends ToolHandler {
 	}
 }
 
-export class ToolHeadNode extends ToolNode {
-	pointerUp(state: EventState, canvas: CanvasHandler) {
-		if(
-			state.pointerDown.y !== state.pointerUp.y ||
-			state.pointerUp.x !== state.pointerDown.x
-		) return;
-		const node = new Node(String(randInt(1, 500)));
-		let { x, y } = state.pointerUp;
-
-		x = Math.floor(x / GAP) * GAP - Node.halfWidth;
-		y = Math.floor(y / GAP) * GAP - Node.halfHeight;
-		node.setXY(x, y);
-
-		const enode = new ElementHeadNode(node);
-		canvas.add(enode, enode.arrow);
-	}
-
-	draw(canvas: HTMLCanvasElement) {
-		const ctx = canvas.getContext("2d");
-		if(ctx === null) return;
-
-		ctx.fillStyle = Node.head.bg;
-		ctx.fillRect(0, 0, Node.width, Node.height);
-
-		const x = Node.width - (GAP * 3);
-		line(ctx, x, 0, x, Node.height, 3, Node.head.dividerColor);
-
-		const c = Arrow.pointingColor;
-		circleFill(ctx, (x + Node.width) / 2, (0 + Node.height) / 2, 4, c);
-	}
-}

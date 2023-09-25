@@ -15,6 +15,17 @@ function deleteNode() {
 	unselectElement();
 }
 
+function next() {
+	if(selectedElement.value === null) return;
+	if(selectedElement.value.next === null) {
+		unselectElement();
+		playground.canvas.redraw();
+		return;
+	}
+	selectedElement.value = selectedElement.value.next;
+	playground.canvas.redraw();
+}
+
 </script>
 
 <template>
@@ -24,6 +35,7 @@ function deleteNode() {
 		<input type="text" :value="selectedElement.el.value" @input="setNodeValue(($event.target as any).value)">
 		<div>
 			<button @click="deleteNode()">delete</button>
+			<button @click="next()">next</button>
 		</div>
 	</div>
 </div>

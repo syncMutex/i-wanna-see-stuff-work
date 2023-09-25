@@ -3,6 +3,7 @@ import { Arrow, Node } from "../element-types";
 import { Line, Point } from "../geometry";
 import { EventState } from "../playground/event-handler";
 import { CanvasHandler } from "../playground/playground-handler";
+import { selectedElement } from "../selected-item";
 import { ElementArrow } from "./arrow";
 import { ElementHandler } from "./element-handler";
 
@@ -92,7 +93,7 @@ export class ElementNode extends ElementHandler {
 		if(next === null) {
 			for(let r of this.referedBy) {
 				r.next = null;
-				r.arrow.el.bg = Arrow.pointingColor;
+				r.arrow.el.bg = Arrow.notPointingColor;
 			}
 		} else {
 			for(let r of this.referedBy) {
@@ -131,6 +132,14 @@ export class ElementNode extends ElementHandler {
 		ctx.fillStyle = Node.bg;
 		ctx.fillRect(x, y, Node.width, Node.height);
 
+		if(selectedElement.value === this) {
+			ctx.strokeStyle = "#FFF000";
+			ctx.lineWidth = 3;
+			const wb2 = ctx.lineWidth / 2;
+			ctx.strokeRect(x - wb2, y - wb2, Node.width + ctx.lineWidth, Node.height + ctx.lineWidth);
+			ctx.lineWidth = 1;
+		}
+
 		const divx = this.el.dividerX();
 		line(ctx, divx, y, divx, y + Node.height, 3, Node.dividerColor);
 
@@ -142,45 +151,14 @@ export class ElementNode extends ElementHandler {
 		ctx.font = "16px monospace";
 		let text = this.el.value;
 		const tlen = text.length;
-		if(tlen > 4) {
-			text = text.slice(0, 4) + " ";
+		if(tlen > 5) {
+			text = text.slice(0, 5) + " ";
 		}
 		ctx.fillText(text, (this.el.left + divx) / 2, (this.el.top + this.el.bottom) / 2);
-		if(tlen > 4) {
+		if(tlen > 5) {
 			ctx.font = "9px monospace";
-			ctx.fillText("...", (this.el.left + divx) / 2 + 20, (this.el.top + this.el.bottom) / 2 + 2);
+			ctx.fillText("..", (this.el.left + divx) / 2 + 22, (this.el.top + this.el.bottom) / 2 + 2);
 		}
 	}
 }
 
-export class ElementHeadNode extends ElementNode {
-	draw(canvas: HTMLCanvasElement) {
-		const ctx = canvas.getContext("2d");
-		if(ctx === null) return;
-
-		const { x, y } = this.el;
-
-		ctx.fillStyle = Node.head.bg;
-		ctx.fillRect(x, y, Node.width, Node.height);
-
-		const divx = this.el.dividerX();
-		line(ctx, divx, y, divx, y + Node.height, 3, Node.head.dividerColor);
-
-		this.arrow.draw(canvas);
-
-		ctx.fillStyle = "#FFFFFF";
-		ctx.textBaseline = "middle";
-		ctx.textAlign = "center";
-		ctx.font = "16px monospace";
-		let text = this.el.value;
-		const tlen = text.length;
-		if(tlen > 4) {
-			text = text.slice(0, 4) + " ";
-		}
-		ctx.fillText(text, (this.el.left + divx) / 2, (this.el.top + this.el.bottom) / 2);
-		if(tlen > 4) {
-			ctx.font = "9px monospace";
-			ctx.fillText("...", (this.el.left + divx) / 2 + 20, (this.el.top + this.el.bottom) / 2 + 2);
-		}
-	}
-}
