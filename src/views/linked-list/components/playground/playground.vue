@@ -3,6 +3,7 @@ import { onMounted, ref, watch } from "vue";
 import { CanvasSize, setCanvasSize } from "../canvas";
 import { playground } from "./playground-handler";
 import { EventHandler } from "./event-handler";
+import { createSampleLinkedList } from "../common-utils";
 
 const props = defineProps<{
 	GAP: number,
@@ -24,6 +25,7 @@ watch(props.toolIdx, idx => {
 
 watch(props.canvasSize, size => {
 	resizePlayground(size);
+	playground.canvas.redraw();
 })
 
 function resizePlayground({ width, height }: CanvasSize) {
@@ -35,6 +37,7 @@ onMounted(() => {
 	playground.canvas.playgroundCanvas = playgroundCanvas.value as HTMLCanvasElement;
 	playground.canvas.toolCanvas = props.toolCanvas.value as HTMLCanvasElement;
 	playground.setTool(props.toolIdx.value);
+	createSampleLinkedList(playground.canvas);
 })
 
 </script>

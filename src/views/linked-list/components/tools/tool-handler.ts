@@ -1,4 +1,4 @@
-import { GAP, circleFill, line, setCanvasSize } from "../canvas";
+import { GAP, circleFill, setCanvasSize } from "../canvas";
 import { EventState } from "../playground/event-handler";
 import { CanvasHandler } from "../playground/playground-handler";
 import { Arrow, Node } from "../element-types";
@@ -60,18 +60,21 @@ export class ToolNode extends ToolHandler {
 		canvas.toolCanvas.style.left = x + "px";
 	}
 
+	static node = new Node("");
+
+	static {
+		ToolNode.node.x = 0;
+		ToolNode.node.y = 0;
+	}
+
 	draw(canvas: HTMLCanvasElement) {
 		const ctx = canvas.getContext("2d");
 		if(ctx === null) return;
 
-		ctx.fillStyle = Node.bg;
-		ctx.fillRect(0, 0, Node.width, Node.height);
+		ToolNode.node.draw(ctx);
 
 		const x = Node.width - (GAP * 3);
-		line(ctx, x, 0, x, Node.height, 3, Node.dividerColor);
-
 		const c = Arrow.pointingColor;
 		circleFill(ctx, (x + Node.width) / 2, (0 + Node.height) / 2, 4, c);
 	}
 }
-

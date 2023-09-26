@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import { ref } from 'vue';
 import { ElementNode } from '../elements/node';
 import { playground } from '../playground/playground-handler';
 import { useSelectedElement, unselectElement } from '../selected-item';
 
 const selectedElement = useSelectedElement<ElementNode>();
+const toFindValue = ref('');
 
 function setNodeValue(value: string) {
 	selectedElement.value.el.value = value;
@@ -26,6 +28,14 @@ function next() {
 	playground.canvas.redraw();
 }
 
+function deleteAll() {
+	selectedElement.value.deleteAllReachable(playground.canvas);
+}
+
+function find() {
+	selectedElement.value.find(toFindValue.value, playground.canvas);
+}
+
 </script>
 
 <template>
@@ -35,7 +45,13 @@ function next() {
 		<input type="text" :value="selectedElement.el.value" @input="setNodeValue(($event.target as any).value)">
 		<div>
 			<button @click="deleteNode()">delete</button>
+			<button @click="deleteAll()">delete all</button>
 			<button @click="next()">next</button>
+		</div>
+		<div>
+			<h2>find</h2>
+			<input type="text" v-model="toFindValue" />
+			<button @click="find()">find</button>
 		</div>
 	</div>
 </div>
@@ -43,6 +59,6 @@ function next() {
 
 <style scoped>
 .tool-node {
-	background: red;
+	color: white;
 }
 </style>

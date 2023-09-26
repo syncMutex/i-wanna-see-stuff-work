@@ -1,4 +1,4 @@
-import { GAP, line } from "../canvas";
+import { GAP } from "../canvas";
 import { Arrow, Node } from "../element-types";
 import { Line, Point } from "../geometry";
 import { EventState } from "../playground/event-handler";
@@ -18,11 +18,28 @@ export class ElementNode extends ElementHandler {
 		super();
 		this.el = node;
 		this.arrow = new ElementArrow(this);
+		this.updateArrowTail();
+		this.arrow.el.head = { x: this.arrow.el.tail.x + GAP, y: this.arrow.el.tail.y };
 		this.arrow.parentNode = this;
 	}
 
 	pointerDy: number = -1;
 	pointerDx: number = -1;
+
+	updateArrowTail() {
+		this.arrow.el.tail = {
+			x: ((this.el as Node).dividerX() + this.el.right) / 2,
+			y: (this.el.y + this.el.bottom) / 2
+		};
+	}
+
+	updateArrowHead() {
+		if(this.next) {
+			this.arrow.el.head.x = this.next.el.left + GAP;
+			this.arrow.el.head.y = (this.next.el.top + this.next.el.bottom) / 2;
+			this.arrow.rectifyPosition();
+		}
+	}
 
 	defaultArrowPointPos(): Point {
 		return new Point(this.el.left + GAP, (this.el.top + this.el.bottom) / 2);
@@ -43,11 +60,7 @@ export class ElementNode extends ElementHandler {
 		this.arrow.el.tail.x += x - prevx;
 		this.arrow.el.tail.y += y - prevy;
 
-		if(this.next) {
-			this.arrow.el.head.x = this.next.el.left + GAP;
-			this.arrow.el.head.y = (this.next.el.top + this.next.el.bottom) / 2;
-			this.arrow.rectifyPosition();
-		}
+		this.updateArrowHead();
 
 		if(this.referedBy.size > 0) {
 			for(let r of this.referedBy) {
@@ -70,11 +83,47 @@ export class ElementNode extends ElementHandler {
 		}
 	}
 
+	setNext(next: ElementNode | null) {
+		this.next = next;
+		if(next === null) {
+			this.arrow.el.bg = Arrow.notPointingColor;
+		} else {
+			this.arrow.el.bg = Arrow.pointingColor;
+			next.referedBy.add(this);
+		}
+	}
+
+	async insertNode(toInsertStart: ElementNode, canvas: CanvasHandler) {
+		const arrow = this.arrow;
+		const toInsertArrow = toInsertStart.arrow;
+		const next = this.next;
+
+		if(next === null) throw "next is a null";
+
+		toInsertArrow.el.bg = Arrow.notPointingColor;
+		await toInsertArrow.animateArrowHeadTo(canvas, new Point(toInsertArrow.el.tail.x + GAP, toInsertArrow.el.tail.y));
+
+		let rectified = arrow.getRectifiedPos(toInsertStart.el, new Line(arrow.el.tail, toInsertStart.defaultArrowPointPos()));
+		await arrow.animateArrowHeadTo(canvas, rectified);
+
+		rectified = toInsertArrow.getRectifiedPos(next.el, new Line(toInsertArrow.el.tail, next.defaultArrowPointPos()));
+		await toInsertArrow.animateArrowHeadTo(canvas, rectified);
+
+		toInsertStart.setNext(next);
+		next.removeRefs(this);
+		this.setNext(toInsertStart);
+
+		toInsertArrow.el.bg = Arrow.pointingColor;
+		canvas.redraw();
+	}
+
 	async deleteNode(canvas: CanvasHandler) {
 		const arrow = this.arrow;
 
 		arrow.el.bg = Arrow.notPointingColor;
 		await arrow.animateArrowHeadTo(canvas, new Point(arrow.el.tail.x + GAP, arrow.el.tail.y));
+
+		this.remove(canvas);
 
 		if(this.referedBy.size === 0 && this.next === null) {
 			this.remove(canvas);
@@ -101,14 +150,105 @@ export class ElementNode extends ElementHandler {
 				r.arrow.el.bg = Arrow.pointingColor;
 				let rectified = r.arrow.getRectifiedPos(next.el, new Line(r.arrow.el.tail, next.defaultArrowPointPos()));
 				await r.arrow.animateArrowHeadTo(canvas, rectified);
-				canvas.redraw();
 				r.next = this.next;
 				next.referedBy.add(r);
 			}
 		}
-		this.remove(canvas);
 
 		canvas.redraw();
+	}
+
+	async deleteAllReachable(canvas: CanvasHandler) {
+		let node: ElementNode = this;
+
+		while(node) {
+			const next = node.next;
+			const arrow = node.arrow;
+
+			arrow.el.bg = Arrow.notPointingColor;
+			await arrow.animateArrowHeadTo(canvas, new Point(arrow.el.tail.x + GAP, arrow.el.tail.y));
+
+			if(node.referedBy.size === 0 && next === null) {
+				node.remove(canvas);
+				canvas.redraw();
+				return;
+			}
+
+			if(next && node.referedBy.size === 0) {
+				node.remove(canvas);
+				next.referedBy.delete(this);
+				node = next;
+				continue;
+			}
+
+			for(let r of node.referedBy) {
+				r.next = null;
+				r.arrow.el.bg = Arrow.notPointingColor;
+			}
+
+			node.remove(canvas);
+			node = next as ElementNode;
+		}
+
+		canvas.redraw();
+	}
+
+	wait(ms: number) {
+		return new Promise((r) => {
+			setTimeout(r, ms);
+		});
+	}
+
+	delay = 500;
+
+	async find(value: string, canvas: CanvasHandler) {
+		const ctx = canvas.playgroundCanvas.getContext("2d");
+		if(ctx === null) return;
+		const visited = new Set<ElementNode>();
+		let node: ElementNode | null = this;
+
+		while(node !== null) {
+			if(visited.has(node)) {
+				break;
+			}
+			visited.add(node);
+
+			node.el.setBg("#FFFFFF");
+			node.el.color = "#000000";
+			node.draw(canvas.playgroundCanvas);
+
+			await this.wait(this.delay);
+
+			node.el.setBg("#03f8fc");
+			node.draw(canvas.playgroundCanvas);
+
+			await this.wait(this.delay);
+
+			if(node.el.value === value) {
+				break;
+			}
+
+			node.el.setBg("#FF0000");
+			node.el.color = "#FFFFFF";
+			node.draw(canvas.playgroundCanvas);
+
+			await this.wait(this.delay);
+
+			node.el.resetStyle();
+
+			canvas.redraw();
+			node = node.next;
+		}
+
+		if(node === null) {
+			console.log("not found");
+		} else if(node.el.value !== value) {
+			console.log("cycle detected");
+		} else {
+			node.el.bg = "#00FF00";
+			node.draw(canvas.playgroundCanvas);
+			node.el.resetStyle();
+		}
 	}
 
 	pointerDown(state: EventState): void {
@@ -123,42 +263,23 @@ export class ElementNode extends ElementHandler {
 		return null;
 	}
 
+	drawBorder(ctx: CanvasRenderingContext2D, color: string) {
+		ctx.strokeStyle = color;
+		ctx.lineWidth = 3;
+		const wb2 = ctx.lineWidth / 2;
+		ctx.strokeRect(this.el.x - wb2, this.el.y - wb2, Node.width + ctx.lineWidth, Node.height + ctx.lineWidth);
+	}
+
 	draw(canvas: HTMLCanvasElement) {
 		const ctx = canvas.getContext("2d");
 		if(ctx === null) return;
 
-		const { x, y } = this.el;
-
-		ctx.fillStyle = Node.bg;
-		ctx.fillRect(x, y, Node.width, Node.height);
-
-		if(selectedElement.value === this) {
-			ctx.strokeStyle = "#FFF000";
-			ctx.lineWidth = 3;
-			const wb2 = ctx.lineWidth / 2;
-			ctx.strokeRect(x - wb2, y - wb2, Node.width + ctx.lineWidth, Node.height + ctx.lineWidth);
-			ctx.lineWidth = 1;
+		if(this === selectedElement.value) {
+			this.drawBorder(ctx, "#FFFF00");
 		}
 
-		const divx = this.el.dividerX();
-		line(ctx, divx, y, divx, y + Node.height, 3, Node.dividerColor);
-
+		this.el.draw(ctx);
 		this.arrow.draw(canvas);
-
-		ctx.fillStyle = "#FFFFFF";
-		ctx.textBaseline = "middle";
-		ctx.textAlign = "center";
-		ctx.font = "16px monospace";
-		let text = this.el.value;
-		const tlen = text.length;
-		if(tlen > 5) {
-			text = text.slice(0, 5) + " ";
-		}
-		ctx.fillText(text, (this.el.left + divx) / 2, (this.el.top + this.el.bottom) / 2);
-		if(tlen > 5) {
-			ctx.font = "9px monospace";
-			ctx.fillText("..", (this.el.left + divx) / 2 + 22, (this.el.top + this.el.bottom) / 2 + 2);
-		}
 	}
 }
 

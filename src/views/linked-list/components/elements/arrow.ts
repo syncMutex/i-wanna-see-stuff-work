@@ -14,15 +14,7 @@ export class ElementArrow extends ElementHandler {
 		super();
 		this.el = new Arrow();
 		this.parentNode = node;
-		this.updateTail();
 		this.el.head = { x: this.el.tail.x + GAP, y: this.el.tail.y };
-	}
-
-	updateTail() {
-		this.el.tail = {
-			x: (this.parentNode.el.dividerX() + this.parentNode.el.right) / 2,
-			y: (this.parentNode.el.y + this.parentNode.el.bottom) / 2
-		};
 	}
 
 	getRectifiedPos(node: Node, line: Line) {
@@ -56,7 +48,7 @@ export class ElementArrow extends ElementHandler {
 		this.el.head = this.getRectifiedPos(this.parentNode.next.el as Node, arrow);
 	}
 
-	toInsertNodePrev: null | ElementNode = null;
+	insertAfterNode: null | ElementNode = null;
 
 	pointerMove(state: EventState, canvas: CanvasHandler): void {
 		let { x, y } = state.pointerMove;
@@ -71,7 +63,7 @@ export class ElementArrow extends ElementHandler {
 		
 		if(el === null) {
 			if(this.parentNode.next) {
-				this.parentNode.next.removeRefs(this.parentNode);
+				this.parentNode.next.removeRefs(this.parentNode as any);
 				this.parentNode.next = null;
 			}
 			if(this.el.bg !== Arrow.notPointingColor) {
@@ -81,21 +73,21 @@ export class ElementArrow extends ElementHandler {
 			return;
 		}
 
-		this.toInsertNodePrev = null;
+		this.insertAfterNode = null;
 
 		for(let r of el.referedBy) {
 			const h = r.arrow.el.head;
 			if(h !== this.el.head && Math.abs(h.x - this.el.head.x) < 5 && Math.abs(h.y - this.el.head.y) < 5) {
-				this.toInsertNodePrev = r;
+				this.insertAfterNode = r;
 				break;
 			}
 		}
 
-		if(this.toInsertNodePrev) {
+		if(this.insertAfterNode) {
 			this.el.bg = Arrow.insertColor;
 		} else {
 			this.parentNode.next = el;
-			el.referedBy.add(this.parentNode);
+			el.referedBy.add(this.parentNode as any);
 			this.el.bg = Arrow.pointingColor;
 		}
 
@@ -123,43 +115,10 @@ export class ElementArrow extends ElementHandler {
 		});
 	}
 
-	async insertNode(toInsertStart: ElementNode, prev: ElementNode, canvas: CanvasHandler) {
-		const next = prev.next;
-
-		if(next === null) throw "next is a null";
-
-		this.el.bg = Arrow.notPointingColor;
-		await this.animateArrowHeadTo(canvas, new Point(this.el.tail.x + GAP, this.el.tail.y));
-
-		const prevArrow = prev.arrow;
-
-		let rectified = prevArrow.getRectifiedPos(toInsertStart.el, new Line(prevArrow.el.tail, toInsertStart.defaultArrowPointPos()));
-		await prevArrow.animateArrowHeadTo(canvas, rectified);
-
-		prev.next = toInsertStart;
-		
-		rectified = this.getRectifiedPos(next.el, new Line(this.el.tail, next.defaultArrowPointPos()));
-		await this.animateArrowHeadTo(canvas, rectified);
-
-		this.parentNode.next = next;
-		toInsertStart.referedBy.add(prev);
-		next.referedBy.add(this.parentNode);
-		next.removeRefs(prev);
-
-		this.el.bg = Arrow.pointingColor;
-		canvas.redraw();
-	}
-
 	pointerUp(_state: EventState, canvas: CanvasHandler): ElementHandler | null {
 		if(this.el.bg !== Arrow.insertColor) return null;
-		
-		if(this.toInsertNodePrev === null) {
-			return null;
-		}
-
-		if(this.toInsertNodePrev) {
-			this.insertNode(this.parentNode, this.toInsertNodePrev, canvas);
-			canvas.redraw();
+		if(this.insertAfterNode) {
+			this.insertAfterNode.insertNode(this.parentNode as any, canvas);
 		}
 		return null;
 	}
