@@ -1,12 +1,12 @@
 import { GAP } from "../canvas";
 import { Line, Point } from "../geometry";
-import { EventState } from "../playground/event-handler";
-import { CanvasHandler } from "../playground/playground-handler";
+import { EventState } from "../event-handler";
+import { CanvasHandler } from "../playground-handler";
 import { selectedElement } from "../selected-item";
 import { Arrow } from "./element-types/arrow";
 import { Node } from "./element-types/node";
 import { ElementArrow } from "./el-arrow";
-import { ElementHandler } from "./element-handler";
+import { ElementHandler } from "../element-handler";
 
 export class ElementNode extends Node implements ElementHandler {
 	arrow: ElementArrow;

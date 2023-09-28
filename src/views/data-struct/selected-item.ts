@@ -1,6 +1,5 @@
 import { Ref, shallowRef } from "vue";
-import { ElementHandler } from "./elements/element-handler";
-import { Empty } from "./elements/element-handler.ts";
+import { ElementHandler, Empty } from "./element-handler";
 
 export const selectedElement = shallowRef<ElementHandler>(new Empty);
 

@@ -1,7 +1,7 @@
 import { GAP } from "./canvas";
-import { ElementNode } from "./elements/el-node";
-import { CanvasHandler } from "./playground/playground-handler";
-import { ToolNode } from "./tools/tool-handler";
+import { ElementNode } from "./linked-list/el-node";
+import { ToolNode } from "./linked-list/tool-node";
+import { CanvasHandler } from "./playground-handler";
 
 export interface ToolType {
 	name: string,
@@ -17,7 +17,7 @@ export function randInt(min: number, max: number): number {
 }
 
 export function createSampleLinkedList(canvas: CanvasHandler) {
-	let y = 5;
+	let y = 10;
 
 	const nodes = [];
 

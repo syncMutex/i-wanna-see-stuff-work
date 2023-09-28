@@ -1,5 +1,5 @@
-import { EventState } from "../playground/event-handler";
-import { CanvasHandler } from "../playground/playground-handler";
+import { EventState } from "./event-handler";
+import { CanvasHandler } from "./playground-handler";
 
 export interface ElementHandler {
 	pointerMove: (_state: EventState, _canvas: CanvasHandler) => void;
@@ -22,3 +22,4 @@ export class Empty implements ElementHandler {
 	remove(_canvas: CanvasHandler) {}
 	draw(_canvas: HTMLCanvasElement) {}
 }
+

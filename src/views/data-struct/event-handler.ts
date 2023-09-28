@@ -1,4 +1,4 @@
-import { selectedElement, unselectElement } from "../selected-item";
+import { selectedElement, unselectElement } from "./selected-item";
 import { Playground } from "./playground-handler";
 
 export type EventState = {

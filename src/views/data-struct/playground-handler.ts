@@ -1,6 +1,6 @@
-import { ToolList } from "../common-utils";
-import { ElementHandler } from "../elements/element-handler";
-import { ToolHandler } from "../tools/tool-handler";
+import { ToolList } from "./common-utils";
+import { ElementHandler } from "./element-handler";
+import { ToolHandler } from "./tool-handler";
 
 class Finder {
 	private exceptList: Array<ElementHandler> = [];

@@ -1,22 +1,11 @@
 import { GAP, circleFill, setCanvasSize } from "../canvas";
-import { EventState } from "../playground/event-handler";
-import { CanvasHandler } from "../playground/playground-handler";
 import { randInt } from "../common-utils";
-import { ElementNode } from "../elements/el-node";
-import { Node } from "../elements/element-types/node";
-import { Arrow } from "../elements/element-types/arrow";
-
-export class ToolHandler {
-	constructor() {}
-
-	pointerMove(_state: EventState, _canvas: CanvasHandler) {}
-	pointerEnter(_state: EventState, _canvas: CanvasHandler) {}
-	pointerLeave(_state: EventState, _canvas: CanvasHandler) {}
-	pointerDown(_state: EventState, _canvas: CanvasHandler) {}
-	pointerUp(_state: EventState, _canvas: CanvasHandler) {}
-
-	draw(_canvas: HTMLCanvasElement) {}
-}
+import { EventState } from "../event-handler";
+import { CanvasHandler } from "../playground-handler";
+import { ToolHandler } from "../tool-handler";
+import { ElementNode } from "./el-node";
+import { Arrow } from "./element-types/arrow";
+import { Node } from "./element-types/node";
 
 export class ToolNode extends ToolHandler {
 	constructor() {

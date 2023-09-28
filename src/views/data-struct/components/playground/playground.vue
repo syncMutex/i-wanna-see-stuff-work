@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { onMounted, ref, watch } from "vue";
-import { CanvasSize, setCanvasSize } from "../canvas";
-import { playground } from "./playground-handler";
-import { EventHandler } from "./event-handler";
-import { createSampleLinkedList } from "../common-utils";
+import { CanvasSize, setCanvasSize } from "../../canvas";
+import { playground } from "../../playground-handler";
+import { EventHandler } from "../../event-handler";
+import { createSampleLinkedList } from "../../common-utils";
 
 const props = defineProps<{
 	GAP: number,

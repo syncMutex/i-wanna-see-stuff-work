@@ -2,7 +2,7 @@
 import { ref, onMounted, onUnmounted } from "vue";
 import PlaygroundLines from "./playground-lines.vue";
 import Playground from "./playground.vue";
-import { CanvasSize, GAP } from "../canvas";
+import { CanvasSize, GAP } from "../../canvas";
 
 const props = defineProps<{
 	toolIdx: { value: number },

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { ElementNode } from '../elements/el-node';
-import { playground } from '../playground/playground-handler';
-import { useSelectedElement, unselectElement } from '../selected-item';
+import { ElementNode } from '../../linked-list/el-node';
+import { playground } from '../../playground-handler';
+import { useSelectedElement, unselectElement } from '../../selected-item';
 
 const selectedElement = useSelectedElement<ElementNode>();
 const toFindValue = ref('');

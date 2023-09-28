@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { ToolList } from "../common-utils";
-import ToolNode from "./tool-node.vue";
-import { selectedElement } from "../selected-item.ts";
+import { ToolList } from "../../common-utils";
 
 const props = defineProps<{
 	setTool: (t: number) => void;
@@ -29,29 +27,32 @@ function selectTool(idx: number) {
 			@click="selectTool(idx)"
 		>{{tool.name}}</div>
 	</div>
-
-	<div class="selected-item">
-		<ToolNode v-if="selectedElement.constructor.name === 'ElementNode'" />
-	</div>
 </section>
 </template>
 
 <style scoped>
 #tool-bar-section{
+	position: absolute;
+	top: 2%;
+	left: 50%;
+	transform: translateX(-50%);
 	width: 100%;
+	height: 2.5rem;
 	max-width: 20rem;
-	height: 100vh;
-	background-color: rgb(50, 40, 50);
+	background-color: rgb(100, 100, 100);
+	padding: 0.3rem;
+	z-index: 10;
 }
 
 .tools-list{
 	display: flex;
 	flex-wrap: wrap;
+	width: 100%;
+	height: 100%;
 }
 
 .tools-list div{
-	width: 5rem;
-	height: 5rem;
+	height: 100%;
 	background: white;
 	margin-right: 1rem;
 }

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
-import { setCanvasSize, CanvasSize } from "../canvas";
+import { setCanvasSize, CanvasSize } from "../../canvas";
 
 const { GAP, canvasSize } = defineProps<{
 	GAP: number,
