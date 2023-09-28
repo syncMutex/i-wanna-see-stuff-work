@@ -1,20 +1,26 @@
-import { GAP, circleFill } from "../canvas";
-import { Arrow, Node } from "../element-types";
+import { GAP } from "../canvas";
 import { Line, Point } from "../geometry";
 import { EventState } from "../playground/event-handler";
 import { CanvasHandler } from "../playground/playground-handler";
+import { Arrow } from "./element-types/arrow";
+import { Node } from "./element-types/node";
 import { ElementHandler } from "./element-handler";
-import { ElementNode } from "./node";
+import { ElementNode } from "./el-node";
 
-export class ElementArrow extends ElementHandler {
-	el: Arrow;
+export class ElementArrow extends Arrow implements ElementHandler {
 	parentNode: ElementNode;
+
+	pointerEnter(_state: EventState, _canvas: CanvasHandler) {};
+	pointerLeave(_state: EventState, _canvas: CanvasHandler) {};
+	pointerDown(_state: EventState, _canvas: CanvasHandler) {};
+	remove(canvas: CanvasHandler) {
+		canvas.removeElements(this);
+	}
 	
 	constructor(node: ElementNode) {
 		super();
-		this.el = new Arrow();
 		this.parentNode = node;
-		this.el.head = { x: this.el.tail.x + GAP, y: this.el.tail.y };
+		this.head = { x: this.tail.x + GAP, y: this.tail.y };
 	}
 
 	getRectifiedPos(node: Node, line: Line) {
@@ -44,8 +50,8 @@ export class ElementArrow extends ElementHandler {
 
 	rectifyPosition() {
 		if(this.parentNode.next === null) return;
-		const arrow = new Line(this.el.tail, this.el.head);
-		this.el.head = this.getRectifiedPos(this.parentNode.next.el as Node, arrow);
+		const arrow = new Line(this.tail, this.head);
+		this.head = this.getRectifiedPos(this.parentNode.next as Node, arrow);
 	}
 
 	insertAfterNode: null | ElementNode = null;
@@ -53,8 +59,8 @@ export class ElementArrow extends ElementHandler {
 	pointerMove(state: EventState, canvas: CanvasHandler): void {
 		let { x, y } = state.pointerMove;
 
-		this.el.head.x = x;
-		this.el.head.y = y;
+		this.head.x = x;
+		this.head.y = y;
 
 		const el = canvas.finder
 							.except(this.parentNode)
@@ -66,8 +72,8 @@ export class ElementArrow extends ElementHandler {
 				this.parentNode.next.removeRefs(this.parentNode as any);
 				this.parentNode.next = null;
 			}
-			if(this.el.bg !== Arrow.notPointingColor) {
-				this.el.bg = Arrow.notPointingColor;
+			if(this.bg !== Arrow.notPointingColor) {
+				this.bg = Arrow.notPointingColor;
 			}
 			canvas.redraw();
 			return;
@@ -76,19 +82,19 @@ export class ElementArrow extends ElementHandler {
 		this.insertAfterNode = null;
 
 		for(let r of el.referedBy) {
-			const h = r.arrow.el.head;
-			if(h !== this.el.head && Math.abs(h.x - this.el.head.x) < 5 && Math.abs(h.y - this.el.head.y) < 5) {
+			const h = r.arrow.head;
+			if(h !== this.head && Math.abs(h.x - this.head.x) < 5 && Math.abs(h.y - this.head.y) < 5) {
 				this.insertAfterNode = r;
 				break;
 			}
 		}
 
 		if(this.insertAfterNode) {
-			this.el.bg = Arrow.insertColor;
+			this.bg = Arrow.insertColor;
 		} else {
 			this.parentNode.next = el;
 			el.referedBy.add(this.parentNode as any);
-			this.el.bg = Arrow.pointingColor;
+			this.bg = Arrow.pointingColor;
 		}
 
 		this.rectifyPosition();
@@ -96,16 +102,16 @@ export class ElementArrow extends ElementHandler {
 	}
 
 	async animateArrowHeadTo(canvas: CanvasHandler, to: Point) {
-		const line = new Line(this.el.head, to);
+		const line = new Line(this.head, to);
 		let p = 0;
 
 		return new Promise<void>((resolve, _reject) => {
 			const fn = () => {
-				this.el.head = line.getPositionAlongTheLine(p);
+				this.head = line.getPositionAlongTheLine(p);
 				p += 0.1;
 				canvas.redraw();
 				if(p >= 1) {
-					this.el.head = line.getPositionAlongTheLine(1);
+					this.head = line.getPositionAlongTheLine(1);
 					resolve();
 				} else {
 					requestAnimationFrame(fn);
@@ -116,7 +122,7 @@ export class ElementArrow extends ElementHandler {
 	}
 
 	pointerUp(_state: EventState, canvas: CanvasHandler): ElementHandler | null {
-		if(this.el.bg !== Arrow.insertColor) return null;
+		if(this.bg !== Arrow.insertColor) return null;
 		if(this.insertAfterNode) {
 			this.insertAfterNode.insertNode(this.parentNode as any, canvas);
 		}
@@ -124,43 +130,16 @@ export class ElementArrow extends ElementHandler {
 	}
 
 	isIntersect(x: number, y: number): null | ElementHandler {
-		return this.el.isIntersect(x, y) ? this as any : null;
+		return this.intersects(x, y) ? this as any : null;
 	}
 
 	draw(canvas: HTMLCanvasElement) {
 		const ctx = canvas.getContext("2d");
 		if(ctx == null) return;
 
-		if(this.el.head.x < 0) return;
+		if(this.head.x < 0) return;
 
-		const { x: fromx, y: fromy } = this.el.tail;
-		const { x: tox, y: toy } = this.el.head;
-		const headlen = 15;
-		const dx = tox - fromx;
-		const dy = toy - fromy;
-		const angle = Math.atan2(dy, dx);
-
-		ctx.fillStyle = this.el.bg;
-		ctx.strokeStyle = this.el.bg;
-		circleFill(
-			ctx,
-			(this.parentNode.el.dividerX() + this.parentNode.el.right) / 2, (this.parentNode.el.y + this.parentNode.el.bottom) / 2,
-			4, this.el.bg
-		);
-
-		ctx.beginPath();
-		ctx.moveTo(fromx, fromy);
-		ctx.lineTo(tox, toy);
-		ctx.stroke();
-
-		ctx.beginPath();
-		ctx.lineWidth = 2;
-		ctx.moveTo(tox, toy);
-		ctx.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
-		ctx.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
-		ctx.closePath();
-		ctx.stroke();
-		ctx.fill();
+		this.paint(ctx);
 	}
 }
 

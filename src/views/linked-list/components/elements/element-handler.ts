@@ -1,24 +1,24 @@
-import { ELEMENT, Empty } from "../element-types";
 import { EventState } from "../playground/event-handler";
 import { CanvasHandler } from "../playground/playground-handler";
 
-export class ElementHandler {
-	constructor() {}
+export interface ElementHandler {
+	pointerMove: (_state: EventState, _canvas: CanvasHandler) => void;
+	pointerEnter: (_state: EventState, _canvas: CanvasHandler) => void;
+	pointerLeave: (_state: EventState, _canvas: CanvasHandler) => void;
+	pointerDown: (_state: EventState, _canvas: CanvasHandler) => void;
+	pointerUp: (_state: EventState, _canvas: CanvasHandler) => null | ElementHandler;
+	isIntersect: (_x: number, _y: number) => null | ElementHandler;
+	remove: (_canvas: CanvasHandler) => void;
+	draw: (_canvas: HTMLCanvasElement) => void;
+}
 
-	el: ELEMENT = new Empty;
-
+export class Empty implements ElementHandler {
 	pointerMove(_state: EventState, _canvas: CanvasHandler) {}
 	pointerEnter(_state: EventState, _canvas: CanvasHandler) {}
 	pointerLeave(_state: EventState, _canvas: CanvasHandler) {}
 	pointerDown(_state: EventState, _canvas: CanvasHandler) {}
-	pointerUp(_state: EventState, _canvas: CanvasHandler): null | ElementHandler { return null }
-
-	isIntersect(_x: number, _y: number): null | ElementHandler { return null; }
-
-	remove(canvas: CanvasHandler) {
-		canvas.elements.splice(canvas.elements.indexOf(this), 1);
-	}
-
+	pointerUp(_state: EventState, _canvas: CanvasHandler): null | ElementHandler { return this }
+	isIntersect(_x: number, _y: number): null | ElementHandler { return this }
+	remove(_canvas: CanvasHandler) {}
 	draw(_canvas: HTMLCanvasElement) {}
 }
-

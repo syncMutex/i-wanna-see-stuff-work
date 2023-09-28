@@ -1,9 +1,7 @@
 import { GAP } from "./canvas";
-import { Node } from "./element-types";
-import { ElementNode } from "./elements/node";
+import { ElementNode } from "./elements/el-node";
 import { CanvasHandler } from "./playground/playground-handler";
 import { ToolNode } from "./tools/tool-handler";
-
 
 export interface ToolType {
 	name: string,
@@ -29,9 +27,7 @@ export function createSampleLinkedList(canvas: CanvasHandler) {
 	for(let i = 0; i < row; i++) {
 		let x = 5;
 		for(let j = 0; j < col; j++) {
-			const node = new Node(String(randInt(1, 500)));
-			node.setXY(x * GAP, y * GAP);
-			const enode = new ElementNode(node);
+			const enode = new ElementNode(x * GAP, y * GAP, String(randInt(1, 500)));
 			canvas.add(enode, enode.arrow);
 			x += 12;
 			nodes.push(enode);

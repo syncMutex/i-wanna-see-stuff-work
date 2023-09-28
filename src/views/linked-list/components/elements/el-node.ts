@@ -1,54 +1,58 @@
 import { GAP } from "../canvas";
-import { Arrow, Node } from "../element-types";
 import { Line, Point } from "../geometry";
 import { EventState } from "../playground/event-handler";
 import { CanvasHandler } from "../playground/playground-handler";
 import { selectedElement } from "../selected-item";
-import { ElementArrow } from "./arrow";
+import { Arrow } from "./element-types/arrow";
+import { Node } from "./element-types/node";
+import { ElementArrow } from "./el-arrow";
 import { ElementHandler } from "./element-handler";
 
-export class ElementNode extends ElementHandler {
-	el: Node;
+export class ElementNode extends Node implements ElementHandler {
 	arrow: ElementArrow;
 
 	referedBy: Set<ElementNode> = new Set();
 	next: ElementNode | null = null;
 
-	constructor(node: Node) {
-		super();
-		this.el = node;
+	pointerEnter(_state: EventState, _canvas: CanvasHandler) {};
+	pointerUp(_state: EventState, _canvas: CanvasHandler): ElementHandler | null { return null };
+	pointerLeave(_state: EventState, _canvas: CanvasHandler) {};
+
+	constructor(x: number, y: number, value: string) {
+		super(value);
+		this.x = x;
+		this.y = y;
 		this.arrow = new ElementArrow(this);
 		this.updateArrowTail();
-		this.arrow.el.head = { x: this.arrow.el.tail.x + GAP, y: this.arrow.el.tail.y };
-		this.arrow.parentNode = this;
+		this.arrow.head = { x: this.arrow.tail.x + GAP, y: this.arrow.tail.y };
 	}
 
 	pointerDy: number = -1;
 	pointerDx: number = -1;
 
 	updateArrowTail() {
-		this.arrow.el.tail = {
-			x: ((this.el as Node).dividerX() + this.el.right) / 2,
-			y: (this.el.y + this.el.bottom) / 2
+		this.arrow.tail = {
+			x: (this.dividerX() + this.right) / 2,
+			y: (this.y + this.bottom) / 2
 		};
 	}
 
 	updateArrowHead() {
 		if(this.next) {
-			this.arrow.el.head.x = this.next.el.left + GAP;
-			this.arrow.el.head.y = (this.next.el.top + this.next.el.bottom) / 2;
+			this.arrow.head.x = this.next.left + GAP;
+			this.arrow.head.y = (this.next.top + this.next.bottom) / 2;
 			this.arrow.rectifyPosition();
 		}
 	}
 
 	defaultArrowPointPos(): Point {
-		return new Point(this.el.left + GAP, (this.el.top + this.el.bottom) / 2);
+		return new Point(this.left + GAP, (this.top + this.bottom) / 2);
 	}
 
 	pointerMove(state: EventState, canvas: CanvasHandler): void {
 		if(state.pointerDown.x === -1) return;
 		let { x, y } = state.pointerMove;
-		let { x: prevx, y: prevy } = this.el;
+		let { x: prevx, y: prevy } = this;
 
 		x = Math.floor(x / GAP) * GAP - this.pointerDx;
 		y = Math.floor(y / GAP) * GAP - this.pointerDy;
@@ -56,16 +60,16 @@ export class ElementNode extends ElementHandler {
 		if(x < 0) x = 0;
 		if(y < 0) y = 0;
 
-		this.el.setXY(x, y);
-		this.arrow.el.tail.x += x - prevx;
-		this.arrow.el.tail.y += y - prevy;
+		this.setXY(x, y);
+		this.arrow.tail.x += x - prevx;
+		this.arrow.tail.y += y - prevy;
 
 		this.updateArrowHead();
 
 		if(this.referedBy.size > 0) {
 			for(let r of this.referedBy) {
-				r.arrow.el.head.x = this.el.left + GAP;
-				r.arrow.el.head.y = (this.el.top + this.el.bottom) / 2;
+				r.arrow.head.x = this.left + GAP;
+				r.arrow.head.y = (this.top + this.bottom) / 2;
 				r.arrow.rectifyPosition();
 			}
 		}
@@ -86,9 +90,9 @@ export class ElementNode extends ElementHandler {
 	setNext(next: ElementNode | null) {
 		this.next = next;
 		if(next === null) {
-			this.arrow.el.bg = Arrow.notPointingColor;
+			this.arrow.bg = Arrow.notPointingColor;
 		} else {
-			this.arrow.el.bg = Arrow.pointingColor;
+			this.arrow.bg = Arrow.pointingColor;
 			next.referedBy.add(this);
 		}
 	}
@@ -100,28 +104,28 @@ export class ElementNode extends ElementHandler {
 
 		if(next === null) throw "next is a null";
 
-		toInsertArrow.el.bg = Arrow.notPointingColor;
-		await toInsertArrow.animateArrowHeadTo(canvas, new Point(toInsertArrow.el.tail.x + GAP, toInsertArrow.el.tail.y));
+		toInsertArrow.bg = Arrow.notPointingColor;
+		await toInsertArrow.animateArrowHeadTo(canvas, new Point(toInsertArrow.tail.x + GAP, toInsertArrow.tail.y));
 
-		let rectified = arrow.getRectifiedPos(toInsertStart.el, new Line(arrow.el.tail, toInsertStart.defaultArrowPointPos()));
+		let rectified = arrow.getRectifiedPos(toInsertStart, new Line(arrow.tail, toInsertStart.defaultArrowPointPos()));
 		await arrow.animateArrowHeadTo(canvas, rectified);
 
-		rectified = toInsertArrow.getRectifiedPos(next.el, new Line(toInsertArrow.el.tail, next.defaultArrowPointPos()));
+		rectified = toInsertArrow.getRectifiedPos(next, new Line(toInsertArrow.tail, next.defaultArrowPointPos()));
 		await toInsertArrow.animateArrowHeadTo(canvas, rectified);
 
 		toInsertStart.setNext(next);
 		next.removeRefs(this);
 		this.setNext(toInsertStart);
 
-		toInsertArrow.el.bg = Arrow.pointingColor;
+		toInsertArrow.bg = Arrow.pointingColor;
 		canvas.redraw();
 	}
 
 	async deleteNode(canvas: CanvasHandler) {
 		const arrow = this.arrow;
 
-		arrow.el.bg = Arrow.notPointingColor;
-		await arrow.animateArrowHeadTo(canvas, new Point(arrow.el.tail.x + GAP, arrow.el.tail.y));
+		arrow.bg = Arrow.notPointingColor;
+		await arrow.animateArrowHeadTo(canvas, new Point(arrow.tail.x + GAP, arrow.tail.y));
 
 		this.remove(canvas);
 
@@ -142,13 +146,13 @@ export class ElementNode extends ElementHandler {
 		if(next === null) {
 			for(let r of this.referedBy) {
 				r.next = null;
-				r.arrow.el.bg = Arrow.notPointingColor;
+				r.arrow.bg = Arrow.notPointingColor;
 			}
 		} else {
 			for(let r of this.referedBy) {
 				r.next = null;
-				r.arrow.el.bg = Arrow.pointingColor;
-				let rectified = r.arrow.getRectifiedPos(next.el, new Line(r.arrow.el.tail, next.defaultArrowPointPos()));
+				r.arrow.bg = Arrow.pointingColor;
+				let rectified = r.arrow.getRectifiedPos(next, new Line(r.arrow.tail, next.defaultArrowPointPos()));
 				await r.arrow.animateArrowHeadTo(canvas, rectified);
 				r.next = this.next;
 				next.referedBy.add(r);
@@ -165,8 +169,8 @@ export class ElementNode extends ElementHandler {
 			const next = node.next;
 			const arrow = node.arrow;
 
-			arrow.el.bg = Arrow.notPointingColor;
-			await arrow.animateArrowHeadTo(canvas, new Point(arrow.el.tail.x + GAP, arrow.el.tail.y));
+			arrow.bg = Arrow.notPointingColor;
+			await arrow.animateArrowHeadTo(canvas, new Point(arrow.tail.x + GAP, arrow.tail.y));
 
 			if(node.referedBy.size === 0 && next === null) {
 				node.remove(canvas);
@@ -183,7 +187,7 @@ export class ElementNode extends ElementHandler {
 
 			for(let r of node.referedBy) {
 				r.next = null;
-				r.arrow.el.bg = Arrow.notPointingColor;
+				r.arrow.bg = Arrow.notPointingColor;
 			}
 
 			node.remove(canvas);
@@ -191,6 +195,7 @@ export class ElementNode extends ElementHandler {
 		}
 
 		canvas.redraw();
+		console.log(canvas);
 	}
 
 	wait(ms: number) {
@@ -199,7 +204,12 @@ export class ElementNode extends ElementHandler {
 		});
 	}
 
-	delay = 500;
+	static delay = 500;
+
+	static setDelay(d: number) {
+		if(d < 1) return;
+		ElementNode.delay = d;
+	}
 
 	async find(value: string, canvas: CanvasHandler) {
 		const ctx = canvas.playgroundCanvas.getContext("2d");
@@ -213,28 +223,23 @@ export class ElementNode extends ElementHandler {
 			}
 			visited.add(node);
 
-			node.el.setBg("#FFFFFF");
-			node.el.color = "#000000";
+			node.setBg("#FFFFFF");
+			node.color = "#000000";
 			node.draw(canvas.playgroundCanvas);
 
-			await this.wait(this.delay);
+			await this.wait(ElementNode.delay);
 
-			node.el.setBg("#03f8fc");
-			node.draw(canvas.playgroundCanvas);
-
-			await this.wait(this.delay);
-
-			if(node.el.value === value) {
+			if(node.value === value) {
 				break;
 			}
 
-			node.el.setBg("#FF0000");
-			node.el.color = "#FFFFFF";
+			node.setBg("#FF0000");
+			node.color = "#FFFFFF";
 			node.draw(canvas.playgroundCanvas);
 
-			await this.wait(this.delay);
+			await this.wait(ElementNode.delay);
 
-			node.el.resetStyle();
+			node.resetStyle();
 
 			canvas.redraw();
 			node = node.next;
@@ -242,24 +247,24 @@ export class ElementNode extends ElementHandler {
 
 		if(node === null) {
 			console.log("not found");
-		} else if(node.el.value !== value) {
+		} else if(node.value !== value) {
 			console.log("cycle detected");
 		} else {
-			node.el.bg = "#00FF00";
+			node.bg = "#00FF00";
 			node.draw(canvas.playgroundCanvas);
-			node.el.resetStyle();
+			node.resetStyle();
 		}
 	}
 
 	pointerDown(state: EventState): void {
-		let { x: nodex, y: nodey } = this.el;
+		let { x: nodex, y: nodey } = this;
 		let { x: statex, y: statey } = state.pointerDown;
 		this.pointerDx = Math.floor((statex - nodex) / GAP) * GAP;
 		this.pointerDy = Math.floor((statey - nodey) / GAP) * GAP;
 	}
 
 	isIntersect(x: number, y: number): null | ElementHandler {
-		if(this.el.isIntersect(x, y)) return this;
+		if(this.intersects(x, y)) return this;
 		return null;
 	}
 
@@ -267,7 +272,7 @@ export class ElementNode extends ElementHandler {
 		ctx.strokeStyle = color;
 		ctx.lineWidth = 3;
 		const wb2 = ctx.lineWidth / 2;
-		ctx.strokeRect(this.el.x - wb2, this.el.y - wb2, Node.width + ctx.lineWidth, Node.height + ctx.lineWidth);
+		ctx.strokeRect(this.x - wb2, this.y - wb2, Node.width + ctx.lineWidth, Node.height + ctx.lineWidth);
 	}
 
 	draw(canvas: HTMLCanvasElement) {
@@ -278,7 +283,7 @@ export class ElementNode extends ElementHandler {
 			this.drawBorder(ctx, "#FFFF00");
 		}
 
-		this.el.draw(ctx);
+		this.paint(ctx);
 		this.arrow.draw(canvas);
 	}
 }

@@ -54,3 +54,4 @@ export function circleStroke(
 	ctx.strokeStyle = color;
 	ctx.stroke();
 }
+

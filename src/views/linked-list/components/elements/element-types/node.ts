@@ -1,11 +1,6 @@
-import { GAP, line } from "./canvas";
-import { Line } from "./geometry";
+import { GAP, circleFill, line } from "../../canvas";
 
-interface Intersect {
-	isIntersect: (x: number, y: number) => boolean;
-}
-
-export class Node implements Intersect {
+export class Node {
 	static width = GAP * 9;
 	static height = GAP * 3;
 
@@ -39,7 +34,7 @@ export class Node implements Intersect {
 		this.color = "#FFFFFF";
 	}
 
-	draw(ctx: CanvasRenderingContext2D) {
+	paint(ctx: CanvasRenderingContext2D) {
 		const { x, y } = this;
 
 		ctx.fillStyle = this.bg;
@@ -47,6 +42,7 @@ export class Node implements Intersect {
 
 		const divx = this.dividerX();
 		line(ctx, divx, y, divx, y + Node.height, 3, this.dividerColor);
+		circleFill(ctx, (this.dividerX() + this.right) / 2, (this.y + this.bottom) / 2, 4, "#FFFFFF");
 
 		ctx.fillStyle = this.color;
 		ctx.textBaseline = "middle";
@@ -89,7 +85,7 @@ export class Node implements Intersect {
 		return this.x + Node.width;
 	}
 
-	isIntersect(x: number, y: number): boolean {
+	intersects(x: number, y: number): boolean {
 		const lowx = this.x;
 		const lowy = this.y;
 		const highx = this.x + Node.width;
@@ -97,29 +93,3 @@ export class Node implements Intersect {
 		return x >= lowx && x <= highx && y >= lowy && y <= highy;
 	}
 }
-
-export class Arrow implements Intersect {
-	head = { x: -1, y: -1 };
-	tail = { x: -1, y: -1 };
-
-	static notPointingColor = "#AAAAAA";
-	static pointingColor = "#FFFFFF";
-	static insertColor = "#FFFF00"
-	static invalidInsert = "#FF0000";
-
-	bg: string = Arrow.notPointingColor;
-
-	isIntersect(x: number, y: number): boolean {
-		const p = new Line(this.tail, this.head).getPositionAlongTheLine(0.98);
-		const mag = 10;
-		const lowx = p.x - mag;
-		const lowy = p.y - mag;
-		const highx = p.x + mag;
-		const highy = p.y + mag;
-		return x >= lowx && x <= highx && y >= lowy && y <= highy;
-	}
-}
-
-export class Empty {}
-
-export type ELEMENT = Node | Empty;
