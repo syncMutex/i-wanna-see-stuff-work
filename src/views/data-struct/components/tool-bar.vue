@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { ToolList } from "../../common-utils";
+import { ToolList } from "../common-utils";
 
 const props = defineProps<{
 	setTool: (t: number) => void;
@@ -19,7 +19,7 @@ function selectTool(idx: number) {
 </script>
 
 <template>
-<section id="tool-bar-section">
+<section id="tool-bar-section" class="floating-panel">
 	<div class="tools-list">
 		<div
 			v-for="(tool, idx) in ToolList"
@@ -31,6 +31,8 @@ function selectTool(idx: number) {
 </template>
 
 <style scoped>
+@import "./css/common.css";
+
 #tool-bar-section{
 	position: absolute;
 	top: 2%;
@@ -39,7 +41,6 @@ function selectTool(idx: number) {
 	width: 100%;
 	height: 2.5rem;
 	max-width: 20rem;
-	background-color: rgb(100, 100, 100);
 	padding: 0.3rem;
 	z-index: 10;
 }
@@ -54,6 +55,7 @@ function selectTool(idx: number) {
 .tools-list div{
 	height: 100%;
 	background: white;
+	color: black;
 	margin-right: 1rem;
 }
 

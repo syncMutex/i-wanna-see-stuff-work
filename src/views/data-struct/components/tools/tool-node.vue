@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { ElementNode } from '../../linked-list/el-node';
 import { playground } from '../../playground-handler';
 import { useSelectedElement, unselectElement } from '../../selected-item';
+import Range from "../../../components/range.vue";
 
 const selectedElement = useSelectedElement<ElementNode>();
 const toFindValue = ref('');
@@ -55,14 +56,9 @@ function setDelay(val: number) {
 
 		<div class="control-partition">
 			<span>speed</span>
-			<div class="speed">
-				<input class="speed-inp"
-					type="range"
-					min="1"
-					max="100" 
-					@input="(e: any) => setDelay(+e.target.value)" 
-				/>
-			</div>
+			<Range :min="10" :dir="'ltr'" :max="100" :step="1" :value="ElementNode.delay"
+				@input="(e: any) => setDelay(Number(e.target.value))"
+			/>
 		</div>
 
 		<div>
@@ -75,78 +71,8 @@ function setDelay(val: number) {
 </template>
 
 <style scoped>
+@import "../css/common.css";
 .tool-node {
 	color: white;
-}
-
-.control-partition{
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	margin-left: 1rem;
-	height: 100%;
-	width: max-content;
-	padding-top: 1.5rem;
-}
-
-*{
-	--control-bg: rgb(26, 0, 61);
-	--purple: rgb(112, 0, 255);
-	--aqua: rgb(3, 252, 161);
-	--pink: rgb(255, 0, 64);
-	--element-height: 1.5rem;
-}
-
-.speed{
-	display: flex;
-	justify-content: center;
-	align-items: center;
-}
-
-.speed-inp{
-	--track-height: 0.2rem;
-	--thumb-width: 1rem;
-	--thumb-height: 0.5rem;
-	direction: rtl;	
-	-webkit-appearance: none;
-	appearance: none;
-	cursor: pointer;
-	background: transparent;
-}
-
-.speed-inp:hover{
-	--thumb-width: 1rem;
-	--thumb-height: 1rem;
-}
-
-.speed-inp::-webkit-slider-runnable-track{
-	--bg: var(--aqua);
-	background: var(--bg);
-	height: var(--track-height);
-	border-radius: 1rem;
-	transition: all 0.3s;
-}
-
-.speed-inp:hover::-webkit-slider-runnable-track{
-	--track-height: 0.4rem;
-	box-shadow: 0 0 5px var(--bg);
-}
-
-.speed-inp::-webkit-slider-thumb{
-	--bg: white;
-	-webkit-appearance: none;
-	appearance: none;
-	width: var(--thumb-width);
-	height: var(--thumb-height);
-	background: white;
-	box-shadow: 0 0 1px var(--bg);
-	border-radius: 1rem;
-	margin-top: calc(var(--thumb-height) / 2 * -1 + var(--track-height) / 2);
-	transition: all 0.3s;
-}
-
-.speed-inp:hover::-webkit-slider-thumb{
-	box-shadow: 0 0 8px var(--bg);
 }
 </style>

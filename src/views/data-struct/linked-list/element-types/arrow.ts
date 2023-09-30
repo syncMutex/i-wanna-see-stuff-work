@@ -1,4 +1,4 @@
-import { Line } from "../../geometry";
+import { Line, Point } from "../../geometry";
 
 export class Arrow {
 	head = { x: -1, y: -1 };
@@ -37,13 +37,15 @@ export class Arrow {
 		ctx.fill();
 	}
 
-	intersects(x: number, y: number): boolean {
+	intersects(x: number, y: number, offset: Point): boolean {
 		const p = new Line(this.tail, this.head).getPositionAlongTheLine(0.98);
 		const mag = 10;
-		const lowx = p.x - mag;
-		const lowy = p.y - mag;
-		const highx = p.x + mag;
-		const highy = p.y + mag;
+		const _x = p.x + offset.x;
+		const _y = p.y + offset.y;
+		const lowx = _x - mag;
+		const lowy = _y - mag;
+		const highx = _x + mag;
+		const highy = _y + mag;
 		return x >= lowx && x <= highx && y >= lowy && y <= highy;
 	}
 }

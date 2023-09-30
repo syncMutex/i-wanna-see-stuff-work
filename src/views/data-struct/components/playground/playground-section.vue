@@ -2,7 +2,9 @@
 import { ref, onMounted, onUnmounted } from "vue";
 import PlaygroundLines from "./playground-lines.vue";
 import Playground from "./playground.vue";
-import { CanvasSize, GAP } from "../../canvas";
+import { CanvasSize, GAP, setCanvasSize } from "../../canvas";
+import { playground } from "../../playground-handler";
+import { createSampleLinkedList } from "../../common-utils";
 
 const props = defineProps<{
 	toolIdx: { value: number },
@@ -15,16 +17,23 @@ const canvasSize = ref<CanvasSize>({
 });
 const toolCanvas = ref<null | HTMLCanvasElement>(null);
 
+function resizePlayground({ width, height }: CanvasSize) {
+	if(playground.canvas.playgroundCanvas === null) return;
+	setCanvasSize(playground.canvas.playgroundCanvas, width, height);
+	playground.canvas.redraw();
+}
 
 function resizeCanvas() {
 	if(playgroundSection.value === null) throw "playgroundSection not found";
 	canvasSize.value.width = playgroundSection.value.clientWidth;
 	canvasSize.value.height = playgroundSection.value.clientHeight;
+	resizePlayground(canvasSize.value);
 }
 
 onMounted(() => {
 	resizeCanvas();
 	window.addEventListener("resize", resizeCanvas);
+	createSampleLinkedList(playground.canvas);
 })
 
 onUnmounted(() => {
@@ -37,7 +46,6 @@ onUnmounted(() => {
 	<PlaygroundLines :canvas-size="canvasSize" :GAP="GAP" />
 	<Playground
 		:GAP="GAP"
-		:canvasSize="canvasSize"
 		:toolIdx="props.toolIdx"
 		:toolCanvas="props.toolCanvas"
 	/>

@@ -1,5 +1,6 @@
 import { ToolList } from "./common-utils";
-import { ElementHandler } from "./element-handler";
+import { ElementHandler, Empty } from "./element-handler";
+import { Point } from "./geometry";
 import { ToolHandler } from "./tool-handler";
 
 class Finder {
@@ -16,9 +17,9 @@ class Finder {
 		return this;
 	}
 
-	find<T>(elements: Array<ElementHandler>, x: number, y: number): T | null {
+	find<T>(elements: Array<ElementHandler>, x: number, y: number, offset: Point): T | null {
 		for(let i = elements.length - 1; i >= 0; i--) {
-			const e = elements[i].isIntersect(x, y);
+			const e = elements[i].isIntersect(x, y, offset);
 			if(e && !this.exceptList.includes(e) && this.typeList.includes(e.constructor.name)) {
 				return e as T;
  			}
@@ -33,8 +34,20 @@ export class CanvasHandler {
 
 	finder: Finder = new Finder();
 
-	scroll = { x: 0, y: 0 };
 	elements: Array<ElementHandler> = [];
+
+	zoom = 1;
+	offset = { x: 0, y: 0 };
+	DPR = 1;
+
+	setZoom(z: number) {
+		const ctx = this.playgroundCanvas.getContext("2d");
+		if(ctx === null) return;
+
+		this.zoom = z;
+		ctx.setTransform(this.zoom, 0, 0, this.zoom, 0, 0);
+		this.redraw();
+	}
 
 	add(...element: Array<ElementHandler>) {
 		for(let el of element) {
@@ -53,17 +66,17 @@ export class CanvasHandler {
 
 	findIntersection(x: number, y: number): ElementHandler | null {
 		for(let i = this.elements.length - 1; i >= 0; i--) {
-			const e = this.elements[i].isIntersect(x, y);
+			const e = this.elements[i].isIntersect(x, y, this.offset);
 			if(e) {
 				return e;
 			}
 		}
-		return null;
+		return new Empty;
 	}
 	
 	findIntersectionExcept(x: number, y: number, except: Array<ElementHandler>): ElementHandler | null {
 		for(let i = this.elements.length - 1; i >= 0; i--) {
-			const e = this.elements[i].isIntersect(x, y);
+			const e = this.elements[i].isIntersect(x, y, this.offset);
 			if(e && !except.includes(e)) {
 				return e;
 			}
@@ -71,10 +84,27 @@ export class CanvasHandler {
 		return null;
 	}
 
+	setTransform(ctx: CanvasRenderingContext2D) {
+		// please don't ask why am I multiplying dpr to translates
+		ctx.setTransform(this.DPR, 0, 0, this.DPR, this.offset.x * this.DPR, this.offset.y * this.DPR);
+	}
+
+	resetTransform(ctx: CanvasRenderingContext2D) {
+		ctx.setTransform(this.DPR, 0, 0, this.DPR, 0, 0);
+	}
+
 	clear() {
 		const ctx = this.playgroundCanvas.getContext("2d");
 		if(ctx === null) return;
+
+		this.resetTransform(ctx);
+
 		ctx.clearRect(0, 0, this.playgroundCanvas.width, this.playgroundCanvas.height);
+
+		// line(ctx, this.offset.x, 0, this.offset.x, this.playgroundCanvas.height, 2, "#FF0000");
+		// line(ctx, 0, this.offset.y, this.playgroundCanvas.width, this.offset.y, 2, "#FF0000");
+
+		this.setTransform(ctx);
 	}
 
 	redraw() {
@@ -93,6 +123,13 @@ export class Playground {
 	canvas: CanvasHandler = new CanvasHandler();
 	toolHandler: ToolHandler | null = null;
 	elementHandler: ElementHandler | null  = null;
+
+	init(pgndCanvas: HTMLCanvasElement, toolCanvas: HTMLCanvasElement, toolIdx: number) {
+		this.canvas.playgroundCanvas = pgndCanvas;
+		this.canvas.toolCanvas = toolCanvas;
+		this.setTool(toolIdx);
+		this.canvas.DPR = Math.ceil(window.devicePixelRatio);
+	}
 
 	setTool(toolIdx: number) {
 		if(toolIdx < 0) {

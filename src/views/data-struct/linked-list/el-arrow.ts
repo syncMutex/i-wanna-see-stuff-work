@@ -59,13 +59,13 @@ export class ElementArrow extends Arrow implements ElementHandler {
 	pointerMove(state: EventState, canvas: CanvasHandler): void {
 		let { x, y } = state.pointerMove;
 
-		this.head.x = x;
-		this.head.y = y;
+		this.head.x = x - canvas.offset.x;
+		this.head.y = y - canvas.offset.y;
 
 		const el = canvas.finder
 							.except(this.parentNode)
 							.ofTypes(ElementNode.name)
-							.find<ElementNode>(canvas.elements, x, y);
+							.find<ElementNode>(canvas.elements, x, y, canvas.offset);
 		
 		if(el === null) {
 			if(this.parentNode.next) {
@@ -129,15 +129,13 @@ export class ElementArrow extends Arrow implements ElementHandler {
 		return null;
 	}
 
-	isIntersect(x: number, y: number): null | ElementHandler {
-		return this.intersects(x, y) ? this as any : null;
+	isIntersect(x: number, y: number, offset: Point): null | ElementHandler {
+		return this.intersects(x, y, offset) ? this as any : null;
 	}
 
 	draw(canvas: HTMLCanvasElement) {
 		const ctx = canvas.getContext("2d");
 		if(ctx == null) return;
-
-		if(this.head.x < 0) return;
 
 		this.paint(ctx);
 	}

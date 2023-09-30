@@ -1,0 +1,9 @@
+.floating-panel{
+	position: absolute;
+	background-color: rgb(50, 50, 50);
+	box-shadow: 0 5px 20px rgb(0, 0, 0);
+	border: 2px solid white;
+	border-radius: 6px;
+	color: white;
+}
+

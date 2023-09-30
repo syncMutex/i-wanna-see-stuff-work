@@ -1,5 +1,6 @@
-import { selectedElement, unselectElement } from "./selected-item";
+import { selectedElement } from "./selected-item";
 import { Playground } from "./playground-handler";
+import refs from "./components/refs";
 
 export type EventState = {
 	pointerDown: { x: number, y: number };
@@ -40,6 +41,7 @@ export class EventHandler {
 
 	pointerDown(e: PointerEvent, pgnd: Playground) {
 		if(e.target === null) return;
+		if(refs.isMenuOpen) refs.setIsMenuOpen(false);
 		this.state.pointerDown = this.getRelXY(e);
 		pgnd.elementHandler = pgnd.canvas.findIntersection(this.state.pointerDown.x, this.state.pointerDown.y);
 
@@ -48,9 +50,6 @@ export class EventHandler {
 		} else if(pgnd.elementHandler) {
 			pgnd.elementHandler.pointerDown(this.state, pgnd.canvas);
 			selectedElement.value = pgnd.elementHandler;
-			pgnd.canvas.redraw();
-		} else {
-			unselectElement();
 			pgnd.canvas.redraw();
 		}
 	}

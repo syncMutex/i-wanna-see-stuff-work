@@ -1,4 +1,5 @@
 import { GAP, circleFill, line } from "../../canvas";
+import { Point } from "../../geometry";
 
 export class Node {
 	static width = GAP * 9;
@@ -85,11 +86,15 @@ export class Node {
 		return this.x + Node.width;
 	}
 
-	intersects(x: number, y: number): boolean {
-		const lowx = this.x;
-		const lowy = this.y;
-		const highx = this.x + Node.width;
-		const highy = this.y + Node.height;
+	intersects(x: number, y: number, offset: Point): boolean {
+		const lowx = this.x + offset.x;
+		const lowy = this.y + offset.y;
+		const highx = lowx + Node.width;
+		const highy = lowy + Node.height;
+		if(this.value === '00') {
+			// console.log("offset: ", offset);
+			// console.table({ selfx: this.x, selfy: this.y, value: this.value, x, lowx, y, lowy, highx, highy })
+		}
 		return x >= lowx && x <= highx && y >= lowy && y <= highy;
 	}
 }

@@ -17,7 +17,7 @@ export function randInt(min: number, max: number): number {
 }
 
 export function createSampleLinkedList(canvas: CanvasHandler) {
-	let y = 10;
+	let y = 0;
 
 	const nodes = [];
 
@@ -25,9 +25,9 @@ export function createSampleLinkedList(canvas: CanvasHandler) {
 	let col = 5;
 
 	for(let i = 0; i < row; i++) {
-		let x = 5;
+		let x = 0;
 		for(let j = 0; j < col; j++) {
-			const enode = new ElementNode(x * GAP, y * GAP, String(randInt(1, 500)));
+			const enode = new ElementNode(x * GAP, y * GAP, String(String(i) + j));
 			canvas.add(enode, enode.arrow);
 			x += 12;
 			nodes.push(enode);

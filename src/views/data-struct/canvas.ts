@@ -1,7 +1,7 @@
 export const GAP = 10;
 
 export function setCanvasSize(canvas: HTMLCanvasElement, width: number, height: number) {
-	const ratio = Math.ceil(window.devicePixelRatio);
+	let ratio = Math.ceil(window.devicePixelRatio);
 	if(canvas === null) return;
 	canvas.width = width * ratio;
 	canvas.height = height * ratio;

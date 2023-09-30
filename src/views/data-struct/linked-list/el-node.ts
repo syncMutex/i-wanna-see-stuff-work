@@ -57,9 +57,6 @@ export class ElementNode extends Node implements ElementHandler {
 		x = Math.floor(x / GAP) * GAP - this.pointerDx;
 		y = Math.floor(y / GAP) * GAP - this.pointerDy;
 
-		if(x < 0) x = 0;
-		if(y < 0) y = 0;
-
 		this.setXY(x, y);
 		this.arrow.tail.x += x - prevx;
 		this.arrow.tail.y += y - prevy;
@@ -195,7 +192,6 @@ export class ElementNode extends Node implements ElementHandler {
 		}
 
 		canvas.redraw();
-		console.log(canvas);
 	}
 
 	wait(ms: number) {
@@ -204,7 +200,7 @@ export class ElementNode extends Node implements ElementHandler {
 		});
 	}
 
-	static delay = 500;
+	static delay = 50;
 
 	static setDelay(d: number) {
 		if(d < 1) return;
@@ -263,8 +259,8 @@ export class ElementNode extends Node implements ElementHandler {
 		this.pointerDy = Math.floor((statey - nodey) / GAP) * GAP;
 	}
 
-	isIntersect(x: number, y: number): null | ElementHandler {
-		if(this.intersects(x, y)) return this;
+	isIntersect(x: number, y: number, offset: Point): null | ElementHandler {
+		if(this.intersects(x, y, offset)) return this;
 		return null;
 	}
 
