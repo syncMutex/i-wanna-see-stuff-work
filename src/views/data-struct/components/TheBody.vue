@@ -20,14 +20,17 @@ onMounted(() => {
 
 <template>
 <div class="linked-list-body">
-	<!-- <SettingsMenu /> -->
-	<!-- <ToolBarSection :setTool="setTool"/> -->
+	<!--
+	<SettingsMenu />
+	-->
+
+	<ToolBarSection :setTool="setTool"/>
 
 	<PlaygroundSection :toolIdx="toolIdx" :toolCanvas="toolCanvas">
 		<canvas id="element" ref="toolCanvasRef"></canvas>
 	</PlaygroundSection>
 
-	<!-- <SelectedItem /> -->
+	<SelectedItem />
 </div>
 </template>
 

@@ -1,4 +1,4 @@
-import { selectedElement } from "./selected-item";
+import { disablePointerEvents, selectedElement } from "./global";
 import { Playground } from "./playground-handler";
 import refs from "./components/refs";
 
@@ -40,6 +40,7 @@ export class EventHandler {
 	}
 
 	pointerDown(e: PointerEvent, pgnd: Playground) {
+		disablePointerEvents.value = true;
 		if(e.target === null) return;
 		if(refs.isMenuOpen) refs.setIsMenuOpen(false);
 		this.state.pointerDown = this.getRelXY(e);
@@ -60,6 +61,7 @@ export class EventHandler {
 	}
 
 	pointerUp(e: PointerEvent, pgnd: Playground) {
+		disablePointerEvents.value = false;
 		if(e.target === null) return;
 		this.state.pointerUp = this.getRelXY(e);
 		if(pgnd.toolHandler) {

@@ -36,18 +36,8 @@ export class CanvasHandler {
 
 	elements: Array<ElementHandler> = [];
 
-	zoom = 1;
 	offset = { x: 0, y: 0 };
 	DPR = 1;
-
-	setZoom(z: number) {
-		const ctx = this.playgroundCanvas.getContext("2d");
-		if(ctx === null) return;
-
-		this.zoom = z;
-		ctx.setTransform(this.zoom, 0, 0, this.zoom, 0, 0);
-		this.redraw();
-	}
 
 	add(...element: Array<ElementHandler>) {
 		for(let el of element) {
@@ -82,6 +72,40 @@ export class CanvasHandler {
 			}
 		}
 		return null;
+	}
+
+	async scrollTo(x: number, y: number, step: number) {
+		if(step <= 0) {
+			this.offset.x = x;
+			this.offset.y = y;
+			this.redraw();
+			return;
+		}
+
+		const dx = (x - this.offset.x >= 0) ? 1 : -1;
+		const dy = (y - this.offset.y >= 0) ? 1 : -1;
+		const magx = dx * step;
+		const magy = dy * step;
+		const destx = step * Math.floor(x / step);
+		const desty = step * Math.floor(y / step);
+
+		const scroll = () => {
+			if(this.offset.x !== destx) this.offset.x += magx;
+			if(this.offset.y !== desty) this.offset.y += magy;
+			if(this.offset.x === destx && this.offset.y === desty) {
+				this.offset.x = x;
+				this.offset.y = y;
+				this.redraw();
+				return;
+			}
+			this.redraw();
+			window.requestAnimationFrame(scroll);
+		}
+		scroll();
+	}
+
+	toVirtualPosition(x: number, y: number) {
+		return new Point(x - this.offset.x, y - this.offset.y);
 	}
 
 	setTransform(ctx: CanvasRenderingContext2D) {

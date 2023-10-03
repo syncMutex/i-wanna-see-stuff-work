@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { ToolList } from "../common-utils";
+import { disablePointerEvents } from "../global";
 
 const props = defineProps<{
 	setTool: (t: number) => void;
@@ -19,7 +20,7 @@ function selectTool(idx: number) {
 </script>
 
 <template>
-<section id="tool-bar-section" class="floating-panel">
+<section id="tool-bar-section" :class="['floating-panel', disablePointerEvents ? 'pointer-events-none' : '']">
 	<div class="tools-list">
 		<div
 			v-for="(tool, idx) in ToolList"

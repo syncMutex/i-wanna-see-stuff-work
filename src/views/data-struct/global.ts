@@ -10,3 +10,5 @@ export function useSelectedElement<T>() {
 export function unselectElement() {
 	selectedElement.value = new Empty;
 }
+
+export const disablePointerEvents = shallowRef(false);

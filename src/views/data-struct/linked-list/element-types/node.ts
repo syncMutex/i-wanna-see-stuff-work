@@ -91,10 +91,6 @@ export class Node {
 		const lowy = this.y + offset.y;
 		const highx = lowx + Node.width;
 		const highy = lowy + Node.height;
-		if(this.value === '00') {
-			// console.log("offset: ", offset);
-			// console.table({ selfx: this.x, selfy: this.y, value: this.value, x, lowx, y, lowy, highx, highy })
-		}
 		return x >= lowx && x <= highx && y >= lowy && y <= highy;
 	}
 }

@@ -2,8 +2,8 @@
 import { ref } from 'vue';
 import { ElementNode } from '../../linked-list/el-node';
 import { playground } from '../../playground-handler';
-import { useSelectedElement, unselectElement } from '../../selected-item';
-import Range from "../../../components/range.vue";
+import { useSelectedElement, unselectElement } from '../../global';
+import Range from "../../../common-components/range.vue";
 
 const selectedElement = useSelectedElement<ElementNode>();
 const toFindValue = ref('');
@@ -56,7 +56,7 @@ function setDelay(val: number) {
 
 		<div class="control-partition">
 			<span>speed</span>
-			<Range :min="10" :dir="'ltr'" :max="100" :step="1" :value="ElementNode.delay"
+			<Range :min="10" :dir="'rtl'" :max="100" :step="1" :value="ElementNode.delay"
 				@input="(e: any) => setDelay(Number(e.target.value))"
 			/>
 		</div>

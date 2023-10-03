@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
 import { Sorter, SortingAlgorithm } from "../algorithms/sorter-iface.ts";
+import Range from "../../common-components/range.vue";
 
 const props = defineProps<{
 	curSorter: {
@@ -66,14 +67,14 @@ onUnmounted(() => {
 
 		<div class="control-partition">
 			<span>speed</span>
-			<div class="speed">
-				<input class="speed-inp"
-					type="range"
-					min="1"
-					max="100" 
-					@input="(e: any) => props.curSorter.sorter.setAnimationDelay(e.target.value)" 
-				/>
-			</div>
+			<Range
+				:step="1"
+				:value="50"
+				:dir="'rtl'"
+				:min="1"
+				:max="100" 
+				@input="(e: any) => props.curSorter.sorter.setAnimationDelay(e.target.value)" 
+			/>
 		</div>
 
 		<div class="control-partition">
@@ -200,58 +201,6 @@ onUnmounted(() => {
 	height: 0.7rem;
 	width: 3px;
 	background-color: var(--color);
-}
-
-.speed{
-	display: flex;
-	justify-content: center;
-	align-items: center;
-}
-
-.speed-inp{
-	--track-height: 0.2rem;
-	--thumb-width: 1rem;
-	--thumb-height: 0.5rem;
-	direction: rtl;	
-	-webkit-appearance: none;
-	appearance: none;
-	cursor: pointer;
-	background: transparent;
-}
-
-.speed-inp:hover{
-	--thumb-width: 1rem;
-	--thumb-height: 1rem;
-}
-
-.speed-inp::-webkit-slider-runnable-track{
-	--bg: var(--aqua);
-	background: var(--bg);
-	height: var(--track-height);
-	border-radius: 1rem;
-	transition: all 0.3s;
-}
-
-.speed-inp:hover::-webkit-slider-runnable-track{
-	--track-height: 0.4rem;
-	box-shadow: 0 0 5px var(--bg);
-}
-
-.speed-inp::-webkit-slider-thumb{
-	--bg: white;
-	-webkit-appearance: none;
-	appearance: none;
-	width: var(--thumb-width);
-	height: var(--thumb-height);
-	background: white;
-	box-shadow: 0 0 1px var(--bg);
-	border-radius: 1rem;
-	margin-top: calc(var(--thumb-height) / 2 * -1 + var(--track-height) / 2);
-	transition: all 0.3s;
-}
-
-.speed-inp:hover::-webkit-slider-thumb{
-	box-shadow: 0 0 8px var(--bg);
 }
 
 .algorithms{

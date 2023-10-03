@@ -34,8 +34,10 @@ export class ToolNode extends ToolHandler {
 		x = Math.floor(x / GAP) * GAP - Node.halfWidth;
 		y = Math.floor(y / GAP) * GAP - Node.halfHeight;
 
-		const enode = new ElementNode(x, y, String(randInt(1, 500)));
-		canvas.add(enode, enode.arrow);
+		const { x: vx, y: vy } = canvas.toVirtualPosition(x, y);
+
+		const node = new ElementNode(vx, vy, String(randInt(1, 500)));
+		canvas.add(node, node.arrow);
 	}
 
 	pointerMove(state: EventState, canvas: CanvasHandler) {

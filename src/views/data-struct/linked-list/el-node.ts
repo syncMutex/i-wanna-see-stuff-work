@@ -2,11 +2,12 @@ import { GAP } from "../canvas";
 import { Line, Point } from "../geometry";
 import { EventState } from "../event-handler";
 import { CanvasHandler } from "../playground-handler";
-import { selectedElement } from "../selected-item";
+import { selectedElement } from "../global";
 import { Arrow } from "./element-types/arrow";
 import { Node } from "./element-types/node";
 import { ElementArrow } from "./el-arrow";
 import { ElementHandler } from "../element-handler";
+import { sleep } from "../common-utils";
 
 export class ElementNode extends Node implements ElementHandler {
 	arrow: ElementArrow;
@@ -194,12 +195,6 @@ export class ElementNode extends Node implements ElementHandler {
 		canvas.redraw();
 	}
 
-	wait(ms: number) {
-		return new Promise((r) => {
-			setTimeout(r, ms);
-		});
-	}
-
 	static delay = 50;
 
 	static setDelay(d: number) {
@@ -223,7 +218,7 @@ export class ElementNode extends Node implements ElementHandler {
 			node.color = "#000000";
 			node.draw(canvas.playgroundCanvas);
 
-			await this.wait(ElementNode.delay);
+			await sleep(ElementNode.delay);
 
 			if(node.value === value) {
 				break;
@@ -233,11 +228,11 @@ export class ElementNode extends Node implements ElementHandler {
 			node.color = "#FFFFFF";
 			node.draw(canvas.playgroundCanvas);
 
-			await this.wait(ElementNode.delay);
+			await sleep(ElementNode.delay);
 
 			node.resetStyle();
 
-			canvas.redraw();
+			canvas.draw();
 			node = node.next;
 		}
 
