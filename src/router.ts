@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 
-import Sorting from "./views/sorting/components/TheBody.vue";
-import LinkedList from "./views/data-struct/components/TheBody.vue";
+import Sorting from "./sorting/components/TheBody.vue";
+import LinkedList from "./data-struct/components/TheBody.vue";
 
 const routes: Array<RouteRecordRaw> = [
 	{ path: "/sorting", component: Sorting },

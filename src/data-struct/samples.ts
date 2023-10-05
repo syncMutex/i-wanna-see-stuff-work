@@ -1,27 +1,6 @@
 import { GAP } from "./canvas";
+import { CanvasHandler } from "./handler/canvas-handler";
 import { ElementNode } from "./linked-list/el-node";
-import { ToolNode } from "./linked-list/tool-node";
-import { CanvasHandler } from "./playground-handler";
-
-export interface ToolType {
-	name: string,
-	toolClass: any
-}
-
-export const ToolList: ToolType[] = [
-	{ name: "Node", toolClass: ToolNode },
-];
-
-export function sleep(ms: number) {
-	return new Promise((r) => {
-		setTimeout(r, ms);
-	});
-}
-
-
-export function randInt(min: number, max: number): number {
-	return Math.floor(Math.random() * (max - min) + min);
-}
 
 export function createSampleLinkedList(canvas: CanvasHandler) {
 	let y = 0;
@@ -48,4 +27,3 @@ export function createSampleLinkedList(canvas: CanvasHandler) {
 	}
 	canvas.redraw();
 }
-

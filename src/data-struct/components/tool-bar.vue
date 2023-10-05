@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { ToolList } from "../common-utils";
-import { disablePointerEvents } from "../global";
+import { disablePointerEvents, ToolList } from "../global";
 
 const props = defineProps<{
 	setTool: (t: number) => void;

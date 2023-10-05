@@ -1,6 +1,6 @@
 import { EventState } from "./event-handler";
-import { Point } from "./geometry";
-import { CanvasHandler } from "./playground-handler";
+import { Point } from "../geometry";
+import { CanvasHandler } from "./canvas-handler";
 
 export interface ElementHandler {
 	pointerMove: (_state: EventState, _canvas: CanvasHandler) => void;
@@ -20,8 +20,7 @@ export class Empty implements ElementHandler {
 		let dx = state.pointerMove.x - state.pointerDown.x;
 		let dy = state.pointerMove.y - state.pointerDown.y;
 
-		canvas.offset.x = this.tempOff.x + dx;
-		canvas.offset.y = this.tempOff.y + dy;
+		canvas.panTo(this.tempOff.x + dx, this.tempOff.y + dy);
 		canvas.redraw();
 	}
 

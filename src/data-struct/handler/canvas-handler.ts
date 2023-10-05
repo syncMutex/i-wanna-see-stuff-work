@@ -1,7 +1,6 @@
-import { ToolList } from "./common-utils";
+import { GAP } from "../canvas";
+import { Point } from "../geometry";
 import { ElementHandler, Empty } from "./element-handler";
-import { Point } from "./geometry";
-import { ToolHandler } from "./tool-handler";
 
 class Finder {
 	private exceptList: Array<ElementHandler> = [];
@@ -31,13 +30,28 @@ class Finder {
 export class CanvasHandler {
 	playgroundCanvas: HTMLCanvasElement = document.createElement("canvas");
 	toolCanvas: HTMLCanvasElement = document.createElement("canvas");
+	lineCanvas: HTMLCanvasElement = document.createElement("canvas");
 
 	finder: Finder = new Finder();
 
 	elements: Array<ElementHandler> = [];
 
+	width = 0;
+	height = 0;
+
+	halfWidth = 0;
+	halfHeight = 0;
+
 	offset = { x: 0, y: 0 };
 	DPR = 1;
+
+	setSize(w: number, h: number) {
+		this.width = w;
+		this.height = h;
+
+		this.halfWidth = Math.floor(w / 2);
+		this.halfHeight = Math.floor(h / 2);
+	}
 
 	add(...element: Array<ElementHandler>) {
 		for(let el of element) {
@@ -74,34 +88,65 @@ export class CanvasHandler {
 		return null;
 	}
 
+	updateLineCanvas() {
+		const ctx = this.lineCanvas.getContext("2d");
+		if(ctx === null) return;
+
+		ctx.clearRect(0, 0, this.width, this.height);
+
+		ctx.strokeStyle = "#505050";
+
+		for(let x = this.offset.x % 10; x < this.width; x += GAP) {
+			ctx.beginPath();
+			ctx.moveTo(x, 0);
+			ctx.lineTo(x, this.height);
+			ctx.stroke();
+		}
+
+		for(let y = this.offset.y % 10; y < this.height; y += GAP) {
+			ctx.beginPath();
+			ctx.moveTo(0, y);
+			ctx.lineTo(this.width, y);
+			ctx.stroke();
+		}
+	}
+
+	panTo(x: number, y: number) {
+		this.offset.x = x;
+		this.offset.y = y;
+		this.updateLineCanvas();
+		this.redraw();
+	}
+
 	async scrollTo(x: number, y: number, step: number) {
-		if(step <= 0) {
-			this.offset.x = x;
-			this.offset.y = y;
-			this.redraw();
-			return;
-		}
-
-		const dx = (x - this.offset.x >= 0) ? 1 : -1;
-		const dy = (y - this.offset.y >= 0) ? 1 : -1;
-		const magx = dx * step;
-		const magy = dy * step;
-		const destx = step * Math.floor(x / step);
-		const desty = step * Math.floor(y / step);
-
-		const scroll = () => {
-			if(this.offset.x !== destx) this.offset.x += magx;
-			if(this.offset.y !== desty) this.offset.y += magy;
-			if(this.offset.x === destx && this.offset.y === desty) {
-				this.offset.x = x;
-				this.offset.y = y;
-				this.redraw();
-				return;
+		return new Promise<void>(resolve => {
+			if(step <= 0) {
+				this.panTo(x, y);
+				return resolve();
 			}
-			this.redraw();
-			window.requestAnimationFrame(scroll);
-		}
-		scroll();
+
+			const dx = (x - this.offset.x >= 0) ? 1 : -1;
+			const dy = (y - this.offset.y >= 0) ? 1 : -1;
+			const magx = dx * step;
+			const magy = dy * step;
+			const destx = step * Math.floor(x / step);
+			const desty = step * Math.floor(y / step);
+
+			const scroll = () => {
+				const dx = Math.abs(this.offset.x - destx) > step;
+				const dy = Math.abs(this.offset.y - desty) > step;
+				if(dx) this.offset.x += magx;
+				if(dy) this.offset.y += magy;
+				if(!dx && !dy) {
+					this.panTo(x, y);
+					return resolve();
+				}
+				this.updateLineCanvas();
+				this.redraw();
+				window.requestAnimationFrame(scroll);
+			}
+			scroll();
+		})
 	}
 
 	toVirtualPosition(x: number, y: number) {
@@ -142,26 +187,3 @@ export class CanvasHandler {
 		}
 	}
 }
-
-export class Playground {
-	canvas: CanvasHandler = new CanvasHandler();
-	toolHandler: ToolHandler | null = null;
-	elementHandler: ElementHandler | null  = null;
-
-	init(pgndCanvas: HTMLCanvasElement, toolCanvas: HTMLCanvasElement, toolIdx: number) {
-		this.canvas.playgroundCanvas = pgndCanvas;
-		this.canvas.toolCanvas = toolCanvas;
-		this.setTool(toolIdx);
-		this.canvas.DPR = Math.ceil(window.devicePixelRatio);
-	}
-
-	setTool(toolIdx: number) {
-		if(toolIdx < 0) {
-			this.toolHandler = null;
-			return;
-		}
-		this.toolHandler = new ToolList[toolIdx].toolClass();
-	}
-}
-
-export const playground = new Playground();

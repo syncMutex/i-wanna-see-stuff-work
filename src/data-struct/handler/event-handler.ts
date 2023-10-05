@@ -1,6 +1,6 @@
-import { disablePointerEvents, selectedElement } from "./global";
+import { disablePointerEvents, selectedElement } from "../global";
 import { Playground } from "./playground-handler";
-import refs from "./components/refs";
+import refs from "../components/refs";
 
 export type EventState = {
 	pointerDown: { x: number, y: number };

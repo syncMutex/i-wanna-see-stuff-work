@@ -1,5 +1,6 @@
 import { Ref, shallowRef } from "vue";
-import { ElementHandler, Empty } from "./element-handler";
+import { ElementHandler, Empty } from "./handler/element-handler";
+import { ToolNode } from "./linked-list/tool-node";
 
 export const selectedElement = shallowRef<ElementHandler>(new Empty);
 
@@ -12,3 +13,14 @@ export function unselectElement() {
 }
 
 export const disablePointerEvents = shallowRef(false);
+
+
+export interface ToolType {
+	name: string,
+	toolClass: any
+}
+
+export const ToolList: ToolType[] = [
+	{ name: "Node", toolClass: ToolNode },
+];
+

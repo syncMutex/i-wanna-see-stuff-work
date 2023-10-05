@@ -1,8 +1,8 @@
 import { GAP, circleFill, setCanvasSize } from "../canvas";
-import { randInt } from "../common-utils";
-import { EventState } from "../event-handler";
-import { CanvasHandler } from "../playground-handler";
-import { ToolHandler } from "../tool-handler";
+import { randInt } from "../utils";
+import { EventState } from "../handler/event-handler";
+import { CanvasHandler } from "../handler/canvas-handler";
+import { ToolHandler } from "../handler/tool-handler";
 import { ElementNode } from "./el-node";
 import { Arrow } from "./element-types/arrow";
 import { Node } from "./element-types/node";

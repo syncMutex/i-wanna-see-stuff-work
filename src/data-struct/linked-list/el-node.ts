@@ -1,13 +1,13 @@
 import { GAP } from "../canvas";
 import { Line, Point } from "../geometry";
-import { EventState } from "../event-handler";
-import { CanvasHandler } from "../playground-handler";
+import { EventState } from "../handler/event-handler";
+import { CanvasHandler } from "../handler/canvas-handler";
 import { selectedElement } from "../global";
 import { Arrow } from "./element-types/arrow";
 import { Node } from "./element-types/node";
 import { ElementArrow } from "./el-arrow";
-import { ElementHandler } from "../element-handler";
-import { sleep } from "../common-utils";
+import { ElementHandler } from "../handler/element-handler";
+import { sleep } from "../utils";
 
 export class ElementNode extends Node implements ElementHandler {
 	arrow: ElementArrow;
@@ -213,6 +213,8 @@ export class ElementNode extends Node implements ElementHandler {
 				break;
 			}
 			visited.add(node);
+
+			await canvas.scrollTo(canvas.halfWidth - node.x, canvas.halfHeight - node.y, 10);
 
 			node.setBg("#FFFFFF");
 			node.color = "#000000";

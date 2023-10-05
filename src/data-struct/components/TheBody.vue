@@ -2,7 +2,7 @@
 import ToolBarSection from "./tool-bar.vue";
 import PlaygroundSection from "./playground/playground-section.vue";
 import SelectedItem from "./selected-item.vue";
-import SettingsMenu from "./settings-menu.vue";
+// import SettingsMenu from "./settings-menu.vue";
 import { reactive, ref, onMounted } from "vue";
 
 const toolIdx = reactive<{value: number}>({ value: -1 });

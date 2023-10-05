@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { ElementNode } from '../../linked-list/el-node';
-import { playground } from '../../playground-handler';
+import { playground } from '../../handler/playground-handler';
 import { useSelectedElement, unselectElement } from '../../global';
 import Range from "../../../common-components/range.vue";
 

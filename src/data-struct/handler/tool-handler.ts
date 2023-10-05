@@ -1,5 +1,5 @@
 import { EventState } from "./event-handler";
-import { CanvasHandler } from "./playground-handler";
+import { CanvasHandler } from "./canvas-handler";
 
 export class ToolHandler {
 	constructor() {}

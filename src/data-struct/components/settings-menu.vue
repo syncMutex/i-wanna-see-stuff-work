@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import refs from "./refs";
-import { playground } from "../playground-handler";
+import { playground } from "../handler/playground-handler";
 import Range from "../../common-components/range.vue";
 const { setIsMenuOpen, isMenuOpen } = refs;
 
 function setZoom(dz: number) {
-	playground.canvas.setZoom(dz);
+	// playground.canvas.setZoom(dz);
 }
 
 </script>
