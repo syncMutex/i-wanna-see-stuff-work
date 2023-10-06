@@ -18,7 +18,7 @@ function deleteNode() {
 	unselectElement();
 }
 
-function next() {
+async function next() {
 	if(selectedElement.value === null) return;
 	if(selectedElement.value.next === null) {
 		unselectElement();
@@ -26,6 +26,7 @@ function next() {
 		return;
 	}
 	selectedElement.value = selectedElement.value.next;
+	await selectedElement.value.scrollTo(playground.canvas);
 	playground.canvas.redraw();
 }
 
@@ -56,7 +57,7 @@ function setDelay(val: number) {
 
 		<div class="control-partition">
 			<span>speed</span>
-			<Range :min="10" :dir="'rtl'" :max="100" :step="1" :value="ElementNode.delay"
+			<Range :min="10" :dir="'rtl'" :max="1000" :step="1" :value="ElementNode.delay"
 				@input="(e: any) => setDelay(Number(e.target.value))"
 			/>
 		</div>

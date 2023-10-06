@@ -2,7 +2,7 @@ import { GAP } from "../canvas";
 import { Line, Point } from "../geometry";
 import { EventState } from "../handler/event-handler";
 import { CanvasHandler } from "../handler/canvas-handler";
-import { selectedElement } from "../global";
+import { setPopupText, selectedElement } from "../global";
 import { Arrow } from "./element-types/arrow";
 import { Node } from "./element-types/node";
 import { ElementArrow } from "./el-arrow";
@@ -42,12 +42,24 @@ export class ElementNode extends Node implements ElementHandler {
 		if(this.next) {
 			this.arrow.head.x = this.next.left + GAP;
 			this.arrow.head.y = (this.next.top + this.next.bottom) / 2;
-			this.arrow.rectifyPosition();
+			this.arrow.rectifyHead();
 		}
 	}
 
 	defaultArrowPointPos(): Point {
 		return new Point(this.left + GAP, (this.top + this.bottom) / 2);
+	}
+
+	moveTo(x: number, y: number) {
+		this.setXY(x, y);
+
+		if(this.referedBy.size > 0) {
+			for(let r of this.referedBy) {
+				r.arrow.head.x = this.left + GAP;
+				r.arrow.head.y = (this.top + this.bottom) / 2;
+				r.arrow.rectifyHead();
+			}
+		}
 	}
 
 	pointerMove(state: EventState, canvas: CanvasHandler): void {
@@ -58,19 +70,12 @@ export class ElementNode extends Node implements ElementHandler {
 		x = Math.floor(x / GAP) * GAP - this.pointerDx;
 		y = Math.floor(y / GAP) * GAP - this.pointerDy;
 
-		this.setXY(x, y);
 		this.arrow.tail.x += x - prevx;
 		this.arrow.tail.y += y - prevy;
 
-		this.updateArrowHead();
+		this.moveTo(x, y);
 
-		if(this.referedBy.size > 0) {
-			for(let r of this.referedBy) {
-				r.arrow.head.x = this.left + GAP;
-				r.arrow.head.y = (this.top + this.bottom) / 2;
-				r.arrow.rectifyPosition();
-			}
-		}
+		this.updateArrowHead();
 
 		canvas.redraw();
 	}
@@ -82,6 +87,14 @@ export class ElementNode extends Node implements ElementHandler {
 	removeRefs(...args: Array<ElementNode>) {
 		for(let a of args) {
 			this.referedBy.delete(a);
+		}
+	}
+
+	async scrollTo(canvas: CanvasHandler) {
+		const x = this.x + canvas.offset.x;
+		const y = this.y + canvas.offset.y;
+		if(!(x > 0 && x < canvas.width && y > 0 && y < canvas.height)) {
+			await canvas.scrollTo(canvas.halfWidth - this.x, canvas.halfHeight - this.y, 30);
 		}
 	}
 
@@ -128,13 +141,11 @@ export class ElementNode extends Node implements ElementHandler {
 		this.remove(canvas);
 
 		if(this.referedBy.size === 0 && this.next === null) {
-			this.remove(canvas);
 			canvas.redraw();
 			return;
 		}
 
 		if(this.referedBy.size === 0) {
-			this.remove(canvas);
 			(this.next as ElementNode).referedBy.delete(this);
 			canvas.redraw();
 			return;
@@ -147,6 +158,11 @@ export class ElementNode extends Node implements ElementHandler {
 				r.arrow.bg = Arrow.notPointingColor;
 			}
 		} else {
+			if(next.next === this) {
+				this.referedBy.delete(next);
+				next.next = null;
+				next.arrow.bg = Arrow.notPointingColor;
+			}
 			for(let r of this.referedBy) {
 				r.next = null;
 				r.arrow.bg = Arrow.pointingColor;
@@ -166,6 +182,12 @@ export class ElementNode extends Node implements ElementHandler {
 		while(node) {
 			const next = node.next;
 			const arrow = node.arrow;
+
+			const x = node.x + canvas.offset.x;
+			const y = node.y + canvas.offset.y;
+			if(!(x > 0 && x < canvas.width && y > 0 && y < canvas.height)) {
+				await canvas.scrollTo(canvas.halfWidth - node.x, canvas.halfHeight - node.y, 30);
+			}
 
 			arrow.bg = Arrow.notPointingColor;
 			await arrow.animateArrowHeadTo(canvas, new Point(arrow.tail.x + GAP, arrow.tail.y));
@@ -195,11 +217,34 @@ export class ElementNode extends Node implements ElementHandler {
 		canvas.redraw();
 	}
 
-	static delay = 50;
+	static delay = 500;
 
 	static setDelay(d: number) {
 		if(d < 1) return;
 		ElementNode.delay = d;
+	}
+
+	async grad(arrow: Arrow, canvas: CanvasHandler, ctx: CanvasRenderingContext2D) {
+		return new Promise<void>(resolve => {
+			let stop = 0;
+			const fn = () => {
+				let grd = ctx.createLinearGradient(arrow.tail.x, arrow.tail.y, arrow.head.x, arrow.head.y);
+				grd.addColorStop(stop, "#FFFF00");
+				grd.addColorStop(stop, "#FFFFFF");
+
+				stop += 0.05;
+
+				arrow.bg = grd;
+				canvas.redraw();
+
+				if(stop >= 1) {
+					arrow.bg = "#FFFFFF";
+					return resolve();
+				}
+				window.requestAnimationFrame(fn);
+			}
+			window.requestAnimationFrame(fn);
+		})
 	}
 
 	async find(value: string, canvas: CanvasHandler) {
@@ -214,10 +259,9 @@ export class ElementNode extends Node implements ElementHandler {
 			}
 			visited.add(node);
 
-			await canvas.scrollTo(canvas.halfWidth - node.x, canvas.halfHeight - node.y, 10);
-
 			node.setBg("#FFFFFF");
 			node.color = "#000000";
+
 			node.draw(canvas.playgroundCanvas);
 
 			await sleep(ElementNode.delay);
@@ -234,14 +278,31 @@ export class ElementNode extends Node implements ElementHandler {
 
 			node.resetStyle();
 
-			canvas.draw();
+			const arrow = node.arrow;
+
 			node = node.next;
+
+			if(node) {
+				const x = node.x + canvas.offset.x;
+				const y = node.y + canvas.offset.y;
+				if(!(x > 0 && x < canvas.width && y > 0 && y < canvas.height)) {
+					await Promise.all([
+						this.grad(arrow, canvas, ctx),
+						canvas.scrollTo(canvas.halfWidth - node.x, canvas.halfHeight - node.y, 10)
+					]);
+				} else {
+					await this.grad(arrow, canvas, ctx);
+				}
+			}
+			canvas.draw();
 		}
 
 		if(node === null) {
-			console.log("not found");
+			canvas.redraw();
+			setPopupText("element not found");
 		} else if(node.value !== value) {
-			console.log("cycle detected");
+			canvas.redraw();
+			setPopupText("cycle detected. Aborting.");
 		} else {
 			node.bg = "#00FF00";
 			node.draw(canvas.playgroundCanvas);

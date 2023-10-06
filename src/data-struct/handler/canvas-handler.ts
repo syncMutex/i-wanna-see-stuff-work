@@ -32,6 +32,8 @@ export class CanvasHandler {
 	toolCanvas: HTMLCanvasElement = document.createElement("canvas");
 	lineCanvas: HTMLCanvasElement = document.createElement("canvas");
 
+	isDisplayGrid: boolean = true;
+
 	finder: Finder = new Finder();
 
 	elements: Array<ElementHandler> = [];
@@ -44,6 +46,16 @@ export class CanvasHandler {
 
 	offset = { x: 0, y: 0 };
 	DPR = 1;
+
+	setIsDisplayGrid(v: boolean) {
+		this.isDisplayGrid = v;
+		if(this.isDisplayGrid) {
+			this.lineCanvas.style.display = "block";
+			this.updateLineCanvas();
+		} else {
+			this.lineCanvas.style.display = "none";
+		}
+	}
 
 	setSize(w: number, h: number) {
 		this.width = w;
@@ -89,6 +101,9 @@ export class CanvasHandler {
 	}
 
 	updateLineCanvas() {
+		if(!this.isDisplayGrid) {
+			return;
+		}
 		const ctx = this.lineCanvas.getContext("2d");
 		if(ctx === null) return;
 
@@ -96,14 +111,14 @@ export class CanvasHandler {
 
 		ctx.strokeStyle = "#505050";
 
-		for(let x = this.offset.x % 10; x < this.width; x += GAP) {
+		for(let x = this.offset.x % GAP; x < this.width; x += GAP) {
 			ctx.beginPath();
 			ctx.moveTo(x, 0);
 			ctx.lineTo(x, this.height);
 			ctx.stroke();
 		}
 
-		for(let y = this.offset.y % 10; y < this.height; y += GAP) {
+		for(let y = this.offset.y % GAP; y < this.height; y += GAP) {
 			ctx.beginPath();
 			ctx.moveTo(0, y);
 			ctx.lineTo(this.width, y);

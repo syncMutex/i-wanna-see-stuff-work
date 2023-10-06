@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import refs from "./refs";
 import { playground } from "../handler/playground-handler";
-import Range from "../../common-components/range.vue";
 const { setIsMenuOpen, isMenuOpen } = refs;
 
-function setZoom(dz: number) {
-	// playground.canvas.setZoom(dz);
+function setDisplayGrid() {
+	playground.canvas.setIsDisplayGrid(!playground.canvas.isDisplayGrid);
 }
 
 </script>
@@ -13,10 +12,11 @@ function setZoom(dz: number) {
 <template>
 	<div id="menu-btn" @click.self="() => setIsMenuOpen(!isMenuOpen)">
 	<section id="menu-section" class="floating-panel" v-if="isMenuOpen">
-		zoom
-		<Range :dir="'ltr'" :min="0.5" :max="8" :step="0.01" :value="playground.canvas.zoom"
-			@input="(e: any) => setZoom(Number(e.target.value))"
-		/>
+		<div @click="setDisplayGrid">
+			<button>
+				grid
+			</button>
+		</div>
 	</section>
 </div>
 </template>

@@ -1,6 +1,7 @@
 import { GAP } from "./canvas";
 import { CanvasHandler } from "./handler/canvas-handler";
 import { ElementNode } from "./linked-list/el-node";
+// import { randInt } from "./utils";
 
 export function createSampleLinkedList(canvas: CanvasHandler) {
 	let y = 0;
@@ -23,7 +24,10 @@ export function createSampleLinkedList(canvas: CanvasHandler) {
 
 	for(let i = 0; i < nodes.length - 1; i++) {
 		nodes[i].setNext(nodes[i + 1]);
+		// nodes[i].moveTo(randInt(-400, 400), randInt(-400, 400));
+		nodes[i].updateArrowTail();
 		nodes[i].updateArrowHead();
 	}
 	canvas.redraw();
+
 }

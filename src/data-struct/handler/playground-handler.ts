@@ -9,7 +9,6 @@ export class Playground {
 	toolHandler: ToolHandler | null = null;
 	elementHandler: ElementHandler | null  = null;
 
-
 	resizeCanvas(width: number, height: number) {
 		this.canvas.setSize(width, height);
 
@@ -22,13 +21,11 @@ export class Playground {
 	init(
 		pgndCanvas: HTMLCanvasElement,
 		toolCanvas: HTMLCanvasElement,
-		lineCanvas: HTMLCanvasElement,
-		toolIdx: number
+		lineCanvas: HTMLCanvasElement
 	) {
 		this.canvas.playgroundCanvas = pgndCanvas;
 		this.canvas.toolCanvas = toolCanvas;
 		this.canvas.lineCanvas = lineCanvas;
-		this.setTool(toolIdx);
 		this.canvas.DPR = Math.ceil(window.devicePixelRatio);
 	}
 

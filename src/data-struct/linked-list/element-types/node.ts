@@ -1,4 +1,4 @@
-import { GAP, circleFill, line } from "../../canvas";
+import { GAP, line } from "../../canvas";
 import { Point } from "../../geometry";
 
 export class Node {
@@ -43,7 +43,6 @@ export class Node {
 
 		const divx = this.dividerX();
 		line(ctx, divx, y, divx, y + Node.height, 3, this.dividerColor);
-		circleFill(ctx, (this.dividerX() + this.right) / 2, (this.y + this.bottom) / 2, 4, "#FFFFFF");
 
 		ctx.fillStyle = this.color;
 		ctx.textBaseline = "middle";

@@ -48,7 +48,7 @@ export class ElementArrow extends Arrow implements ElementHandler {
 		return new Point(-1, -1);
 	}
 
-	rectifyPosition() {
+	rectifyHead() {
 		if(this.parentNode.next === null) return;
 		const arrow = new Line(this.tail, this.head);
 		this.head = this.getRectifiedPos(this.parentNode.next as Node, arrow);
@@ -97,7 +97,7 @@ export class ElementArrow extends Arrow implements ElementHandler {
 			this.bg = Arrow.pointingColor;
 		}
 
-		this.rectifyPosition();
+		this.rectifyHead();
 		canvas.redraw();
 	}
 

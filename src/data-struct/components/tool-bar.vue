@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { disablePointerEvents, ToolList } from "../global";
+import { playground } from "../handler/playground-handler";
 
-const props = defineProps<{
-	setTool: (t: number) => void;
-}>();
 const curToolIdx = ref<number>(-1);
 
 function selectTool(idx: number) {
@@ -13,7 +11,7 @@ function selectTool(idx: number) {
 	} else {
 		curToolIdx.value = idx;
 	}
-	props.setTool(curToolIdx.value);
+	playground.setTool(curToolIdx.value);
 }
 
 </script>
@@ -34,6 +32,7 @@ function selectTool(idx: number) {
 @import "./css/common.css";
 
 #tool-bar-section{
+	user-select: none;
 	position: absolute;
 	top: 2%;
 	left: 50%;

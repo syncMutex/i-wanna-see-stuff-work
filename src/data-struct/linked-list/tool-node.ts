@@ -34,6 +34,9 @@ export class ToolNode extends ToolHandler {
 		x = Math.floor(x / GAP) * GAP - Node.halfWidth;
 		y = Math.floor(y / GAP) * GAP - Node.halfHeight;
 
+		x += canvas.offset.x % GAP;
+		y += canvas.offset.y % GAP;
+
 		const { x: vx, y: vy } = canvas.toVirtualPosition(x, y);
 
 		const node = new ElementNode(vx, vy, String(randInt(1, 500)));
@@ -45,6 +48,9 @@ export class ToolNode extends ToolHandler {
 
 		x = Math.floor(x / GAP) * GAP - Node.halfWidth;
 		y = Math.floor(y / GAP) * GAP - Node.halfHeight;
+
+		x += canvas.offset.x % GAP;
+		y += canvas.offset.y % GAP;
 
 		canvas.toolCanvas.style.top = y + "px";
 		canvas.toolCanvas.style.left = x + "px";

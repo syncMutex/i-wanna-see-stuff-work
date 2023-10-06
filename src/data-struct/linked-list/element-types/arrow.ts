@@ -1,3 +1,4 @@
+import { circleFill } from "../../canvas";
 import { Line, Point } from "../../geometry";
 
 export class Arrow {
@@ -9,7 +10,7 @@ export class Arrow {
 	static insertColor = "#FFFF00"
 	static invalidInsert = "#FF0000";
 
-	bg: string = Arrow.notPointingColor;
+	bg: string | CanvasGradient = Arrow.notPointingColor;
 
 	paint(ctx: CanvasRenderingContext2D) {
 		const { x: fromx, y: fromy } = this.tail;
@@ -18,6 +19,8 @@ export class Arrow {
 		const dx = tox - fromx;
 		const dy = toy - fromy;
 		const angle = Math.atan2(dy, dx);
+
+		circleFill(ctx, this.tail.x, this.tail.y, 4, this.bg.toString());
 
 		ctx.fillStyle = this.bg;
 		ctx.strokeStyle = this.bg;
