@@ -32,15 +32,15 @@ function selectTool(idx: number) {
 @import "./css/common.css";
 
 #tool-bar-section{
-	user-select: none;
 	position: absolute;
-	top: 2%;
-	left: 50%;
-	transform: translateX(-50%);
 	width: 100%;
 	height: 2.5rem;
-	max-width: 20rem;
+	max-width: 50%;
+	min-width: 2rem;
 	padding: 0.3rem;
+	top: 0.5rem;
+	left: 50%;
+	transform: translateX(-50%);
 	z-index: 10;
 }
 
@@ -56,6 +56,7 @@ function selectTool(idx: number) {
 	background: white;
 	color: black;
 	margin-right: 1rem;
+	cursor: pointer;
 }
 
 .tools-list div.selected{

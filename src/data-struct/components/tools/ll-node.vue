@@ -3,7 +3,6 @@ import { ref } from 'vue';
 import { ElementNode } from '../../linked-list/el-node';
 import { playground } from '../../handler/playground-handler';
 import { useSelectedElement, unselectElement } from '../../global';
-import Range from "../../../common-components/range.vue";
 
 const selectedElement = useSelectedElement<ElementNode>();
 const toFindValue = ref('');
@@ -38,34 +37,32 @@ function find() {
 	selectedElement.value.find(toFindValue.value, playground.canvas);
 }
 
-function setDelay(val: number) {
-	ElementNode.setDelay(val);
-}
-
 </script>
 
 <template>
 <div class="tool-node">
 	<h1>Node</h1>
-	<div>
-		<input type="text" :value="selectedElement.value" @input="setNodeValue(($event.target as any).value)">
+	<div class="sub-sections-container">
 		<div>
-			<button @click="deleteNode()">delete</button>
-			<button @click="deleteAll()">delete all</button>
-			<button @click="next()">next</button>
-		</div>
-
-		<div class="control-partition">
-			<span>speed</span>
-			<Range :min="10" :dir="'rtl'" :max="1000" :step="1" :value="ElementNode.delay"
-				@input="(e: any) => setDelay(Number(e.target.value))"
+			<input
+				placeholder="value"
+				type="text"
+				spellcheck="false"
+				:value="selectedElement.value"
+				@input="setNodeValue(($event.target as any).value)"
 			/>
 		</div>
 
-		<div>
-			<h2>find</h2>
-			<input type="text" v-model="toFindValue" />
-			<button @click="find()">find</button>
+		<div class="buttons">
+			<button class="btn btn-nobg clr-red" @click="deleteNode()">delete</button>
+			<button class="btn btn-nobg clr-red" @click="deleteAll()">delete all</button>
+			<button class="btn btn-nobg clr-lblue" @click="next()">next</button>
+		</div>
+
+		<div class="find">
+			<h2>Find node</h2>
+			<input spellcheck="false" placeholder="value" type="text" v-model="toFindValue" />
+			<button class="btn btn-nobg" @click="find()">find</button>
 		</div>
 	</div>
 </div>
@@ -73,7 +70,41 @@ function setDelay(val: number) {
 
 <style scoped>
 @import "../css/common.css";
+
 .tool-node {
 	color: white;
 }
+
+.tool-node > h1{
+	margin-bottom: 1rem;
+	font-size: 1.75rem;
+}
+
+.sub-sections-container > div{
+	margin-bottom: 1rem;
+	padding: 0.5rem 0.4rem;
+	border-radius: 4px;
+	background-color: rgb(40, 40, 40);
+}
+
+.buttons{
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	gap: 0.5rem 0.5rem;
+}
+
+.buttons button{
+	min-width: 4.5rem;
+}
+
+.find button{
+	margin-top: 0.5rem;
+}
+
+.find h2{
+	font-size: 1.2rem;
+	margin-bottom: 0.5rem;
+}
+
 </style>

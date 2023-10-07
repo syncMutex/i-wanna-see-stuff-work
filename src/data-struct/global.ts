@@ -3,11 +3,17 @@ import { ElementHandler, Empty } from "./handler/element-handler";
 import { ToolNode } from "./linked-list/tool-node";
 
 export const selectedElement = shallowRef<ElementHandler>(new Empty);
+export let delay = 500;
 const _popup = reactive({
 	text: ""
 })
 
 export const popup = readonly(_popup);
+
+export function setDelay(d: number) {
+	if(d < 1) return;
+	delay = d;
+}
 
 export function setPopupText(text: string) {
 	_popup.text = text;

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { selectedElement, disablePointerEvents } from "../global";
-import ToolNode from "./tools/tool-node.vue";
+import LLNode from "./tools/ll-node.vue";
 
 </script>
 
@@ -9,7 +9,7 @@ import ToolNode from "./tools/tool-node.vue";
 		'selected-item floating-panel',
 		disablePointerEvents ? 'pointer-events-none' : ''
 	]" v-if="selectedElement.constructor.name === 'ElementNode'">
-	<ToolNode />
+	<LLNode />
 </div>
 </template>
 

@@ -2,7 +2,7 @@ import { GAP } from "../canvas";
 import { Line, Point } from "../geometry";
 import { EventState } from "../handler/event-handler";
 import { CanvasHandler } from "../handler/canvas-handler";
-import { setPopupText, selectedElement } from "../global";
+import { setPopupText, selectedElement, delay } from "../global";
 import { Arrow } from "./element-types/arrow";
 import { Node } from "./element-types/node";
 import { ElementArrow } from "./el-arrow";
@@ -217,12 +217,6 @@ export class ElementNode extends Node implements ElementHandler {
 		canvas.redraw();
 	}
 
-	static delay = 500;
-
-	static setDelay(d: number) {
-		if(d < 1) return;
-		ElementNode.delay = d;
-	}
 
 	async grad(arrow: Arrow, canvas: CanvasHandler, ctx: CanvasRenderingContext2D) {
 		return new Promise<void>(resolve => {
@@ -264,7 +258,7 @@ export class ElementNode extends Node implements ElementHandler {
 
 			node.draw(canvas.playgroundCanvas);
 
-			await sleep(ElementNode.delay);
+			await sleep(delay);
 
 			if(node.value === value) {
 				break;
@@ -274,7 +268,7 @@ export class ElementNode extends Node implements ElementHandler {
 			node.color = "#FFFFFF";
 			node.draw(canvas.playgroundCanvas);
 
-			await sleep(ElementNode.delay);
+			await sleep(delay);
 
 			node.resetStyle();
 
