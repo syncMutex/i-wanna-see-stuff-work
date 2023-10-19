@@ -1,19 +1,18 @@
-import { GAP, circleFill, setCanvasSize } from "../canvas";
+import { GAP, setCanvasSize } from "../canvas";
 import { randInt } from "../utils";
 import { EventState } from "../handler/event-handler";
 import { CanvasHandler } from "../handler/canvas-handler";
 import { ToolHandler } from "../handler/tool-handler";
-import { ElementLLNode } from "./el-node";
-import { Arrow } from "./element-types/arrow";
-import { LLNode } from "./element-types/node";
+import { ElementGNode } from "./el-node";
+import { GNode } from "./element-types/node";
 
-export class ToolLLNode extends ToolHandler {
+export class ToolGNode extends ToolHandler {
 	constructor() {
 		super();
 	}
 
 	pointerEnter(_state: EventState, canvas: CanvasHandler) {
-		setCanvasSize(canvas.toolCanvas, LLNode.width, LLNode.height);
+		setCanvasSize(canvas.toolCanvas, GNode.radius * 2, GNode.radius * 2);
 		this.draw(canvas.toolCanvas);
 	}
 
@@ -31,23 +30,23 @@ export class ToolLLNode extends ToolHandler {
 		) return;
 		let { x, y } = state.pointerUp;
 
-		x = Math.floor(x / GAP) * GAP - LLNode.halfWidth;
-		y = Math.floor(y / GAP) * GAP - LLNode.halfHeight;
+		x = Math.floor(x / GAP) * GAP;
+		y = Math.floor(y / GAP) * GAP;
 
 		x += canvas.offset.x % GAP;
 		y += canvas.offset.y % GAP;
 
 		const { x: vx, y: vy } = canvas.toVirtualPosition(x, y);
 
-		const node = new ElementLLNode(vx, vy, String(randInt(1, 500)));
-		canvas.add(node, node.arrow);
+		const node = new ElementGNode(vx, vy, String(randInt(1, 500)));
+		canvas.add(node);
 	}
 
 	pointerMove(state: EventState, canvas: CanvasHandler) {
 		let { x, y } = state.pointerMove;
 
-		x = Math.floor(x / GAP) * GAP - LLNode.halfWidth;
-		y = Math.floor(y / GAP) * GAP - LLNode.halfHeight;
+		x = Math.floor(x / GAP) * GAP - GNode.radius;
+		y = Math.floor(y / GAP) * GAP - GNode.radius;
 
 		x += canvas.offset.x % GAP;
 		y += canvas.offset.y % GAP;
@@ -56,21 +55,17 @@ export class ToolLLNode extends ToolHandler {
 		canvas.toolCanvas.style.left = x + "px";
 	}
 
-	static node = new LLNode("");
+	static node = new GNode("");
 
 	static {
-		ToolLLNode.node.x = 0;
-		ToolLLNode.node.y = 0;
+		ToolGNode.node.x = GNode.radius;
+		ToolGNode.node.y = GNode.radius;
 	}
 
 	draw(canvas: HTMLCanvasElement) {
 		const ctx = canvas.getContext("2d");
 		if(ctx === null) return;
 
-		ToolLLNode.node.paint(ctx);
-
-		const x = LLNode.width - (GAP * 3);
-		const c = Arrow.pointingColor;
-		circleFill(ctx, (x + LLNode.width) / 2, (0 + LLNode.height) / 2, 4, c);
+		ToolGNode.node.paint(ctx);
 	}
 }

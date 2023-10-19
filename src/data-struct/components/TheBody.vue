@@ -1,14 +1,14 @@
 <script lang="ts" setup>
 import ToolBarSection from "./tool-bar.vue";
-import PlaygroundSection from "./playground/playground-section.vue";
+import PlaygroundSection from "./playground-section.vue";
 import SelectedItem from "./selected-item.vue";
-import SettingsMenu from "./settings-menu.vue";
+// import SettingsMenu from "./settings-menu.vue";
 
 </script>
 
 <template>
 <div class="linked-list-body">
-	<SettingsMenu />
+	<!-- <SettingsMenu /> -->
 	<ToolBarSection />
 	<PlaygroundSection />
 	<SelectedItem />

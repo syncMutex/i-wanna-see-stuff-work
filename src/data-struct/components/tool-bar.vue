@@ -42,11 +42,12 @@ function selectTool(idx: number) {
 	left: 50%;
 	transform: translateX(-50%);
 	z-index: 10;
+	overflow-x: auto;
+	overflow-y: hidden;
 }
 
 .tools-list{
 	display: flex;
-	flex-wrap: wrap;
 	width: 100%;
 	height: 100%;
 }
@@ -57,6 +58,7 @@ function selectTool(idx: number) {
 	color: black;
 	margin-right: 1rem;
 	cursor: pointer;
+	min-width: max-content;
 }
 
 .tools-list div.selected{

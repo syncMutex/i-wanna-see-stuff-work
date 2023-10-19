@@ -1,6 +1,6 @@
 import { GAP } from "../canvas";
 import { Point } from "../geometry";
-import { ElementHandler, Empty } from "./element-handler";
+import { ElementHandler, panHandler } from "./element-handler";
 
 class Finder {
 	private exceptList: Array<ElementHandler> = [];
@@ -87,13 +87,23 @@ export class CanvasHandler {
 				return e;
 			}
 		}
-		return new Empty;
+		return panHandler;
 	}
 	
 	findIntersectionExcept(x: number, y: number, except: Array<ElementHandler>): ElementHandler | null {
 		for(let i = this.elements.length - 1; i >= 0; i--) {
 			const e = this.elements[i].isIntersect(x, y, this.offset);
 			if(e && !except.includes(e)) {
+				return e;
+			}
+		}
+		return null;
+	}
+
+	findIntersectionOfType(x: number, y: number, ofTypes: Array<string>): ElementHandler | null {
+		for(let i = this.elements.length - 1; i >= 0; i--) {
+			const e = this.elements[i].isIntersect(x, y, this.offset);
+			if(e && ofTypes.includes(e.constructor.name)) {
 				return e;
 			}
 		}

@@ -1,7 +1,7 @@
 import { GAP, line } from "../../canvas";
 import { Point } from "../../geometry";
 
-export class Node {
+export class LLNode {
 	static width = GAP * 9;
 	static height = GAP * 3;
 
@@ -9,8 +9,8 @@ export class Node {
 	bg: string = "";
 	color = "#FFFFFF";
 
-	static halfWidth = (Math.floor((Node.width / GAP) / 2) * GAP);
-	static halfHeight = (Math.floor((Node.height / GAP) / 2) * GAP);
+	static halfWidth = (Math.floor((LLNode.width / GAP) / 2) * GAP);
+	static halfHeight = (Math.floor((LLNode.height / GAP) / 2) * GAP);
 
 	x = -1;
 	y = -1;
@@ -39,10 +39,10 @@ export class Node {
 		const { x, y } = this;
 
 		ctx.fillStyle = this.bg;
-		ctx.fillRect(x, y, Node.width, Node.height);
+		ctx.fillRect(x, y, LLNode.width, LLNode.height);
 
 		const divx = this.dividerX();
-		line(ctx, divx, y, divx, y + Node.height, 3, this.dividerColor);
+		line(ctx, divx, y, divx, y + LLNode.height, 3, this.dividerColor);
 
 		ctx.fillStyle = this.color;
 		ctx.textBaseline = "middle";
@@ -74,7 +74,7 @@ export class Node {
 	}
 
 	get bottom() {
-		return this.y + Node.height;
+		return this.y + LLNode.height;
 	}
 
 	get left() {
@@ -82,14 +82,14 @@ export class Node {
 	}
 
 	get right() {
-		return this.x + Node.width;
+		return this.x + LLNode.width;
 	}
 
 	intersects(x: number, y: number, offset: Point): boolean {
 		const lowx = this.x + offset.x;
 		const lowy = this.y + offset.y;
-		const highx = lowx + Node.width;
-		const highy = lowy + Node.height;
+		const highx = lowx + LLNode.width;
+		const highy = lowy + LLNode.height;
 		return x >= lowx && x <= highx && y >= lowy && y <= highy;
 	}
 }

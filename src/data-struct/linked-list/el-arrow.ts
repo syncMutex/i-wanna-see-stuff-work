@@ -3,12 +3,12 @@ import { Line, Point } from "../geometry";
 import { EventState } from "../handler/event-handler";
 import { CanvasHandler } from "../handler/canvas-handler";
 import { Arrow } from "./element-types/arrow";
-import { Node } from "./element-types/node";
+import { LLNode } from "./element-types/node";
 import { ElementHandler } from "../handler/element-handler";
-import { ElementNode } from "./el-node";
+import { ElementLLNode } from "./el-node";
 
 export class ElementArrow extends Arrow implements ElementHandler {
-	parentNode: ElementNode;
+	parentLLNode: ElementLLNode;
 
 	pointerEnter(_state: EventState, _canvas: CanvasHandler) {};
 	pointerLeave(_state: EventState, _canvas: CanvasHandler) {};
@@ -17,13 +17,13 @@ export class ElementArrow extends Arrow implements ElementHandler {
 		canvas.removeElements(this);
 	}
 	
-	constructor(node: ElementNode) {
+	constructor(node: ElementLLNode) {
 		super();
-		this.parentNode = node;
+		this.parentLLNode = node;
 		this.head = { x: this.tail.x + GAP, y: this.tail.y };
 	}
 
-	getRectifiedPos(node: Node, line: Line) {
+	getRectifiedPos(node: LLNode, line: Line) {
 		const rectLines = [
 			// top
 			[new Point(node.left, node.top), new Point(node.right, node.top)],
@@ -49,12 +49,12 @@ export class ElementArrow extends Arrow implements ElementHandler {
 	}
 
 	rectifyHead() {
-		if(this.parentNode.next === null) return;
+		if(this.parentLLNode.next === null) return;
 		const arrow = new Line(this.tail, this.head);
-		this.head = this.getRectifiedPos(this.parentNode.next as Node, arrow);
+		this.head = this.getRectifiedPos(this.parentLLNode.next as LLNode, arrow);
 	}
 
-	insertAfterNode: null | ElementNode = null;
+	insertAfterLLNode: null | ElementLLNode = null;
 
 	pointerMove(state: EventState, canvas: CanvasHandler): void {
 		let { x, y } = state.pointerMove;
@@ -63,14 +63,14 @@ export class ElementArrow extends Arrow implements ElementHandler {
 		this.head.y = y - canvas.offset.y;
 
 		const el = canvas.finder
-							.except(this.parentNode)
-							.ofTypes(ElementNode.name)
-							.find<ElementNode>(canvas.elements, x, y, canvas.offset);
+							.except(this.parentLLNode)
+							.ofTypes(ElementLLNode.name)
+							.find<ElementLLNode>(canvas.elements, x, y, canvas.offset);
 		
 		if(el === null) {
-			if(this.parentNode.next) {
-				this.parentNode.next.removeRefs(this.parentNode as any);
-				this.parentNode.next = null;
+			if(this.parentLLNode.next) {
+				this.parentLLNode.next.removeRefs(this.parentLLNode as any);
+				this.parentLLNode.next = null;
 			}
 			if(this.bg !== Arrow.notPointingColor) {
 				this.bg = Arrow.notPointingColor;
@@ -79,21 +79,21 @@ export class ElementArrow extends Arrow implements ElementHandler {
 			return;
 		}
 
-		this.insertAfterNode = null;
+		this.insertAfterLLNode = null;
 
 		for(let r of el.referedBy) {
 			const h = r.arrow.head;
 			if(h !== this.head && Math.abs(h.x - this.head.x) < 5 && Math.abs(h.y - this.head.y) < 5) {
-				this.insertAfterNode = r;
+				this.insertAfterLLNode = r;
 				break;
 			}
 		}
 
-		if(this.insertAfterNode) {
+		if(this.insertAfterLLNode) {
 			this.bg = Arrow.insertColor;
 		} else {
-			this.parentNode.next = el;
-			el.referedBy.add(this.parentNode as any);
+			this.parentLLNode.next = el;
+			el.referedBy.add(this.parentLLNode as any);
 			this.bg = Arrow.pointingColor;
 		}
 
@@ -123,8 +123,8 @@ export class ElementArrow extends Arrow implements ElementHandler {
 
 	pointerUp(_state: EventState, canvas: CanvasHandler): ElementHandler | null {
 		if(this.bg !== Arrow.insertColor) return null;
-		if(this.insertAfterNode) {
-			this.insertAfterNode.insertNode(this.parentNode as any, canvas);
+		if(this.insertAfterLLNode) {
+			this.insertAfterLLNode.insertLLNode(this.parentLLNode as any, canvas);
 		}
 		return null;
 	}

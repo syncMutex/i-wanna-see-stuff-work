@@ -1,8 +1,10 @@
 import { Ref, shallowRef, reactive, readonly } from "vue";
-import { ElementHandler, Empty } from "./handler/element-handler";
-import { ToolNode } from "./linked-list/tool-node";
+import { ElementHandler, panHandler } from "./handler/element-handler";
+import { ToolLLNode } from "./linked-list/tool-node";
+import { ToolGNode } from "./graph/tool-node.ts";
+import { ToolUEdge } from "./graph/tool-u-edge.ts";
 
-export const selectedElement = shallowRef<ElementHandler>(new Empty);
+export const selectedElement = shallowRef<ElementHandler>(panHandler);
 export let delay = 500;
 const _popup = reactive({
 	text: ""
@@ -24,7 +26,7 @@ export function useSelectedElement<T>() {
 }
 
 export function unselectElement() {
-	selectedElement.value = new Empty;
+	selectedElement.value = panHandler;
 }
 
 export const disablePointerEvents = shallowRef(false);
@@ -36,6 +38,8 @@ export interface ToolType {
 }
 
 export const ToolList: ToolType[] = [
-	{ name: "Node", toolClass: ToolNode },
+	{ name: "LLNode", toolClass: ToolLLNode },
+	{ name: "Graph Node", toolClass: ToolGNode },
+	{ name: "UEdge", toolClass: ToolUEdge },
 ];
 

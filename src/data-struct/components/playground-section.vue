@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { ref, onMounted, onUnmounted } from "vue";
-import { playground } from "../../handler/playground-handler";
-import { createSampleLinkedList } from "../../samples";
-import { EventHandler } from "../../handler/event-handler";
-import { popup, setPopupText } from "../../global";
+import { playground } from "../handler/playground-handler";
+// import { createSampleLinkedList } from "../samples";
+import { EventHandler } from "../handler/event-handler";
+import { popup, setPopupText } from "../global";
 
 const playgroundSection = ref<null | HTMLElement>(null);
 const pgndCanvas = ref<null | HTMLCanvasElement>(null);
@@ -26,7 +26,7 @@ onMounted(() => {
 	);
 	resizeCanvas();
 	window.addEventListener("resize", resizeCanvas);
-	createSampleLinkedList(playground.canvas);
+	// createSampleLinkedList(playground.canvas);
 })
 
 onUnmounted(() => {
@@ -59,7 +59,7 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-@import "../css/common.css";
+@import "./css/common.css";
 
 #playground-section{
 	overflow: hidden;

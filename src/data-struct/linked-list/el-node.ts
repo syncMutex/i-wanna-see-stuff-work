@@ -4,16 +4,16 @@ import { EventState } from "../handler/event-handler";
 import { CanvasHandler } from "../handler/canvas-handler";
 import { setPopupText, selectedElement, delay } from "../global";
 import { Arrow } from "./element-types/arrow";
-import { Node } from "./element-types/node";
+import { LLNode } from "./element-types/node";
 import { ElementArrow } from "./el-arrow";
 import { ElementHandler } from "../handler/element-handler";
 import { sleep } from "../utils";
 
-export class ElementNode extends Node implements ElementHandler {
+export class ElementLLNode extends LLNode implements ElementHandler {
 	arrow: ElementArrow;
 
-	referedBy: Set<ElementNode> = new Set();
-	next: ElementNode | null = null;
+	referedBy: Set<ElementLLNode> = new Set();
+	next: ElementLLNode | null = null;
 
 	pointerEnter(_state: EventState, _canvas: CanvasHandler) {};
 	pointerUp(_state: EventState, _canvas: CanvasHandler): ElementHandler | null { return null };
@@ -84,7 +84,7 @@ export class ElementNode extends Node implements ElementHandler {
 		canvas.removeElements(this, this.arrow);
 	}
 
-	removeRefs(...args: Array<ElementNode>) {
+	removeRefs(...args: Array<ElementLLNode>) {
 		for(let a of args) {
 			this.referedBy.delete(a);
 		}
@@ -98,7 +98,7 @@ export class ElementNode extends Node implements ElementHandler {
 		}
 	}
 
-	setNext(next: ElementNode | null) {
+	setNext(next: ElementLLNode | null) {
 		this.next = next;
 		if(next === null) {
 			this.arrow.bg = Arrow.notPointingColor;
@@ -108,7 +108,7 @@ export class ElementNode extends Node implements ElementHandler {
 		}
 	}
 
-	async insertNode(toInsertStart: ElementNode, canvas: CanvasHandler) {
+	async insertLLNode(toInsertStart: ElementLLNode, canvas: CanvasHandler) {
 		const arrow = this.arrow;
 		const toInsertArrow = toInsertStart.arrow;
 		const next = this.next;
@@ -132,7 +132,7 @@ export class ElementNode extends Node implements ElementHandler {
 		canvas.redraw();
 	}
 
-	async deleteNode(canvas: CanvasHandler) {
+	async deleteLLNode(canvas: CanvasHandler) {
 		const arrow = this.arrow;
 
 		arrow.bg = Arrow.notPointingColor;
@@ -146,7 +146,7 @@ export class ElementNode extends Node implements ElementHandler {
 		}
 
 		if(this.referedBy.size === 0) {
-			(this.next as ElementNode).referedBy.delete(this);
+			(this.next as ElementLLNode).referedBy.delete(this);
 			canvas.redraw();
 			return;
 		}
@@ -177,7 +177,7 @@ export class ElementNode extends Node implements ElementHandler {
 	}
 
 	async deleteAllReachable(canvas: CanvasHandler) {
-		let node: ElementNode = this;
+		let node: ElementLLNode = this;
 
 		while(node) {
 			const next = node.next;
@@ -211,7 +211,7 @@ export class ElementNode extends Node implements ElementHandler {
 			}
 
 			node.remove(canvas);
-			node = next as ElementNode;
+			node = next as ElementLLNode;
 		}
 
 		canvas.redraw();
@@ -244,8 +244,8 @@ export class ElementNode extends Node implements ElementHandler {
 	async find(value: string, canvas: CanvasHandler) {
 		const ctx = canvas.playgroundCanvas.getContext("2d");
 		if(ctx === null) return;
-		const visited = new Set<ElementNode>();
-		let node: ElementNode | null = this;
+		const visited = new Set<ElementLLNode>();
+		let node: ElementLLNode | null = this;
 
 		while(node !== null) {
 			if(visited.has(node)) {
@@ -320,7 +320,7 @@ export class ElementNode extends Node implements ElementHandler {
 		ctx.strokeStyle = color;
 		ctx.lineWidth = 3;
 		const wb2 = ctx.lineWidth / 2;
-		ctx.strokeRect(this.x - wb2, this.y - wb2, Node.width + ctx.lineWidth, Node.height + ctx.lineWidth);
+		ctx.strokeRect(this.x - wb2, this.y - wb2, LLNode.width + ctx.lineWidth, LLNode.height + ctx.lineWidth);
 	}
 
 	draw(canvas: HTMLCanvasElement) {
