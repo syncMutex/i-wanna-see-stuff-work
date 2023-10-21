@@ -1,10 +1,14 @@
 import { Line, Point } from "../../geometry";
 
 export class UEdge {
-	start = { x: -1, y: -1 };
-	end = { x: -1, y: -1 };
+	start = new Point(-1, -1);
+	end = new Point(-1, -1);
 
 	bg: string | CanvasGradient = "#FFFFFF";
+
+	weight = 1234567890;
+
+	static LineWidth = 3;
 
 	paint(ctx: CanvasRenderingContext2D) {
 		const { x: fromx, y: fromy } = this.start;
@@ -13,31 +17,53 @@ export class UEdge {
 		ctx.fillStyle = this.bg;
 		ctx.strokeStyle = this.bg;
 
-		ctx.lineWidth = 3;
+		ctx.lineWidth = UEdge.LineWidth;
 
 		ctx.beginPath();
 		ctx.moveTo(fromx, fromy);
 		ctx.lineTo(tox, toy);
 		ctx.stroke();
 
+		ctx.save();
+
+		const angle = Math.atan((toy - fromy) / (tox - fromx));
+		const p = new Line(this.start, this.end).getPositionAlongTheLine(0.5);
+		const text = String(this.weight);
+
+		ctx.translate(p.x, p.y);
+
+		ctx.rotate(angle);
+
+		ctx.translate(-p.x, -p.y);
+
+		ctx.fillStyle = "#FFFFFF";
+		ctx.textBaseline = "bottom";
+		ctx.textAlign = "center";
+		ctx.font = "16px monospace";
+		ctx.fillText(text, p.x, p.y);
+
+		ctx.restore();
+
 		// circleFill(ctx, this.start.x, this.start.y, 4);
 		// circleFill(ctx, this.end.x, this.end.y, 4);
 	}
 
-	checkIntersectOf(x: number, y: number, offset: Point, m: number) {
-		const p = new Line(this.start, this.end).getPositionAlongTheLine(m);
-		const mag = 10;
-		const _x = p.x + offset.x;
-		const _y = p.y + offset.y;
-		const lowx = _x - mag;
-		const lowy = _y - mag;
-		const highx = _x + mag;
-		const highy = _y + mag;
-		return x >= lowx && x <= highx && y >= lowy && y <= highy;
-	}
+	intersects(x: number, y: number, offset: Point, ctx: CanvasRenderingContext2D): boolean {
+		ctx.save();
+		ctx.lineWidth = 10;
+		ctx.resetTransform();
+		ctx.translate(offset.x, offset.y);
 
-	intersects(_x: number, _y: number, _offset: Point): boolean {
-		return false;
+		const path = new Path2D();
+
+		path.moveTo(this.start.x, this.start.y);
+		path.lineTo(this.end.x, this.end.y);
+
+		const ret = ctx.isPointInStroke(path, x, y);
+
+		ctx.restore();
+
+		return ret;
 	}
 }
 

@@ -27,6 +27,7 @@ export class Playground {
 		this.canvas.toolCanvas = toolCanvas;
 		this.canvas.lineCanvas = lineCanvas;
 		this.canvas.DPR = Math.ceil(window.devicePixelRatio);
+		window.show = () => console.log(this.canvas.elements);
 	}
 
 	setTool(toolIdx: number) {

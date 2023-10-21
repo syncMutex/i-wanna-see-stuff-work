@@ -8,7 +8,7 @@ export interface ElementHandler {
 	pointerLeave: (_state: EventState, _canvas: CanvasHandler) => void;
 	pointerDown: (_state: EventState, _canvas: CanvasHandler) => void;
 	pointerUp: (_state: EventState, _canvas: CanvasHandler) => null | ElementHandler;
-	isIntersect: (_x: number, _y: number, offset: Point) => null | ElementHandler;
+	isIntersect: (_x: number, _y: number, offset: Point, canvas: CanvasHandler) => null | ElementHandler;
 	remove: (_canvas: CanvasHandler) => void;
 	draw: (_canvas: HTMLCanvasElement) => void;
 }
@@ -34,7 +34,7 @@ class ElementPan implements ElementHandler {
 	}
 
 	pointerUp(_state: EventState, _canvas: CanvasHandler): null | ElementHandler { return this }
-	isIntersect(_x: number, _y: number, _offset: Point): null | ElementHandler { return this }
+	isIntersect(_x: number, _y: number, _offset: Point, _canvas: CanvasHandler): null | ElementHandler { return this }
 	remove(_canvas: CanvasHandler) {}
 	draw(_canvas: HTMLCanvasElement) {}
 }

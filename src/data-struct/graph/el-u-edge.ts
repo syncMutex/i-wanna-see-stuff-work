@@ -5,6 +5,7 @@ import { UEdge } from "./element-types/u-edge.ts";
 import { ElementHandler } from "../handler/element-handler";
 import { ElementGNode } from "./el-node";
 import { GNode } from "./element-types/node.ts";
+import { selectedElement } from "../global.ts";
 
 export class ElementUEdge extends UEdge implements ElementHandler {
 	pointerEnter(_state: EventState, _canvas: CanvasHandler) {};
@@ -81,13 +82,21 @@ export class ElementUEdge extends UEdge implements ElementHandler {
 		return null;
 	}
 
-	isIntersect(x: number, y: number, offset: Point): null | ElementHandler {
-		return this.intersects(x, y, offset) ? this as any : null;
+	isIntersect(x: number, y: number, offset: Point, canvas: CanvasHandler): null | ElementHandler {
+		const ctx = canvas.playgroundCanvas.getContext("2d");
+		if(ctx == null) return null;
+		return this.intersects(x, y, offset, ctx) ? this as any : null;
 	}
 
 	draw(canvas: HTMLCanvasElement) {
 		const ctx = canvas.getContext("2d");
 		if(ctx == null) return;
+
+		if(this === selectedElement.value) {
+			this.bg = "#FFFF00";
+		} else {
+			this.bg = "#FFFFFF";
+		}
 
 		this.paint(ctx);
 	}

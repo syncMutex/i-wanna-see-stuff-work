@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref, onMounted, onUnmounted } from "vue";
 import { playground } from "../handler/playground-handler";
-// import { createSampleLinkedList } from "../samples";
+import { createSampleGraph } from "../samples";
 import { EventHandler } from "../handler/event-handler";
 import { popup, setPopupText } from "../global";
 
@@ -27,6 +27,7 @@ onMounted(() => {
 	resizeCanvas();
 	window.addEventListener("resize", resizeCanvas);
 	// createSampleLinkedList(playground.canvas);
+	createSampleGraph(playground.canvas);
 })
 
 onUnmounted(() => {

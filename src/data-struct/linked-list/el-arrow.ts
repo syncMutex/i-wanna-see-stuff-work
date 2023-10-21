@@ -65,7 +65,7 @@ export class ElementArrow extends Arrow implements ElementHandler {
 		const el = canvas.finder
 							.except(this.parentLLNode)
 							.ofTypes(ElementLLNode.name)
-							.find<ElementLLNode>(canvas.elements, x, y, canvas.offset);
+							.find<ElementLLNode>(x, y, canvas);
 		
 		if(el === null) {
 			if(this.parentLLNode.next) {

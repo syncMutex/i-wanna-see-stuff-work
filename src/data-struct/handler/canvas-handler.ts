@@ -16,9 +16,9 @@ class Finder {
 		return this;
 	}
 
-	find<T>(elements: Array<ElementHandler>, x: number, y: number, offset: Point): T | null {
-		for(let i = elements.length - 1; i >= 0; i--) {
-			const e = elements[i].isIntersect(x, y, offset);
+	find<T>(x: number, y: number, canvas: CanvasHandler): T | null {
+		for(let i = canvas.elements.length - 1; i >= 0; i--) {
+			const e = canvas.elements[i].isIntersect(x, y, canvas.offset, canvas);
 			if(e && !this.exceptList.includes(e) && this.typeList.includes(e.constructor.name)) {
 				return e as T;
  			}
@@ -82,7 +82,7 @@ export class CanvasHandler {
 
 	findIntersection(x: number, y: number): ElementHandler | null {
 		for(let i = this.elements.length - 1; i >= 0; i--) {
-			const e = this.elements[i].isIntersect(x, y, this.offset);
+			const e = this.elements[i].isIntersect(x, y, this.offset, this);
 			if(e) {
 				return e;
 			}
@@ -92,7 +92,7 @@ export class CanvasHandler {
 	
 	findIntersectionExcept(x: number, y: number, except: Array<ElementHandler>): ElementHandler | null {
 		for(let i = this.elements.length - 1; i >= 0; i--) {
-			const e = this.elements[i].isIntersect(x, y, this.offset);
+			const e = this.elements[i].isIntersect(x, y, this.offset, this);
 			if(e && !except.includes(e)) {
 				return e;
 			}
@@ -102,7 +102,7 @@ export class CanvasHandler {
 
 	findIntersectionOfType(x: number, y: number, ofTypes: Array<string>): ElementHandler | null {
 		for(let i = this.elements.length - 1; i >= 0; i--) {
-			const e = this.elements[i].isIntersect(x, y, this.offset);
+			const e = this.elements[i].isIntersect(x, y, this.offset, this);
 			if(e && ofTypes.includes(e.constructor.name)) {
 				return e;
 			}

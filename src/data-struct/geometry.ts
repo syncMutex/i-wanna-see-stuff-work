@@ -6,6 +6,10 @@ export class Point {
 		this.x = x;
 		this.y = y;
 	}
+
+	static offset(p: Point, offset: Point) {
+		return new Point(p.x + offset.x, p.y + offset.y);
+	}
 }
 
 export class Line {
@@ -32,7 +36,10 @@ export class Line {
 	}
 
 	getPositionAlongTheLine(percentage: number) {
-		return {x : this.p1.x * (1.0 - percentage) + this.p2.x * percentage, y : this.p1.y * (1.0 - percentage) + this.p2.y * percentage};
+		return {
+			x: this.p1.x * (1.0 - percentage) + this.p2.x * percentage,
+			y: this.p1.y * (1.0 - percentage) + this.p2.y * percentage
+		};
 	}
 
 	static orientation(p: Point, q: Point, r: Point) {
@@ -41,7 +48,7 @@ export class Line {
 		return (val > 0) ? 1: 2;
 	}
 
-	static onSegment(p: Point, q: Point, r: Point) {
+	private static onSegment(p: Point, q: Point, r: Point) {
 		return (
 			q.x <= Math.max(p.x, r.x) && q.x >= Math.min(p.x, r.x) &&
 			q.y <= Math.max(p.y, r.y) && q.y >= Math.min(p.y, r.y)
@@ -67,6 +74,10 @@ export class Line {
 		return false;
 	}
 
+	isPointLieOnLine(p: Point): boolean {
+		return Line.onSegment(this.p1, this.p2, p);
+	}
+
 	pointOfIntersect(l: Line): Point {
 		const denom = (this.a * l.b) - (l.a * this.b);
 		const x = ((this.b * l.c) - (l.b * this.c)) / denom;
@@ -75,3 +86,45 @@ export class Line {
 		return new Point(x, y);
 	}
 }
+
+export class Vector {
+	i: number;
+	j: number;
+
+	constructor(p1: Point, p2: Point) {
+		this.i = p2.x - p1.x;
+		this.j = p2.y - p1.y;
+	}
+
+	static new(): Vector {
+		return new Vector(new Point(0, 0), new Point(0, 0));
+	}
+
+	static from(i: number, j: number): Vector {
+		const v = Vector.new();
+
+		v.i = i;
+		v.j = j;
+
+		return v;
+	}
+
+	mag(): number {
+		const { i, j } = this;
+		return Math.sqrt(i * i + j * j);
+	}
+
+	unit(): Vector {
+		const mag = this.mag();
+		return Vector.from(this.i / mag, this.j / mag);
+	}
+
+	dot(v: Vector): number {
+		return this.i * v.i + this.j * v.j;
+	}
+
+	cross(v: Vector): number {
+		return this.i * v.j - this.j * v.i;
+	}
+}
+
