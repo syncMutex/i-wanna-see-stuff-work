@@ -10,8 +10,11 @@ function setNodeValue(value: string) {
 	selectedElement.value.draw(playground.canvas.playgroundCanvas);
 }
 
-function deleteNode() {
+async function deleteNode() {
+	const el = selectedElement.value;
 	unselectElement();
+	await el.deleteNode(playground.canvas);
+	playground.canvas.redraw();
 }
 
 </script>

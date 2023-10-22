@@ -59,6 +59,9 @@ export function createSampleGraph(canvas: CanvasHandler) {
 			if(i === j) continue;
 			const b = nodes[j];
 			const edge = new ElementUEdge(a, b);
+			if(a.hasUEdge(edge)) continue;
+
+			edge.init();
 			edge.weight = i + j;
 			edge.rectify();
 			canvas.add(edge);

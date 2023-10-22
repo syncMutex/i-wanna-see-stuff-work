@@ -9,16 +9,22 @@ import { ElementUEdge } from "./el-u-edge";
 import { ElementDEdge } from "./el-d-edge";
 
 export class ElementGNode extends GNode implements ElementHandler {
-	edges: Map<ElementUEdge | ElementDEdge, boolean> = new Map();
+	edges: Map<ElementUEdge | ElementDEdge, null> = new Map();
+
+	static COUNT = 0;
 
 	pointerEnter(_state: EventState, _canvas: CanvasHandler) {};
 	pointerUp(_state: EventState, _canvas: CanvasHandler): ElementHandler | null { return null };
 	pointerLeave(_state: EventState, _canvas: CanvasHandler) {};
 
+	readonly id: number;
+
 	constructor(x: number, y: number, value: string) {
 		super(value);
 		this.x = x;
 		this.y = y;
+		this.id = ElementGNode.COUNT;
+		ElementGNode.COUNT++;
 	}
 
 	pointerDy: number = -1;
@@ -50,15 +56,32 @@ export class ElementGNode extends GNode implements ElementHandler {
 		canvas.redraw();
 	}
 
+	hasUEdge(e: ElementUEdge): boolean {
+		for(let edge of this.edges.keys() as IterableIterator<ElementUEdge>) {
+			if(edge.equals(e)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	addUEdge(e: ElementUEdge) {
-		this.edges.set(e, true);
+		this.edges.set(e, null);
 	}
 
 	addDEdge(e: ElementDEdge) {
-		this.edges.set(e, true);
+		this.edges.set(e, null);
 	}
 
 	remove(canvas: CanvasHandler) {
+		canvas.removeElements(this);
+	}
+
+	async deleteNode(canvas: CanvasHandler) {
+		for(let edge of this.edges.keys()) {
+			await edge.delete(canvas);
+			canvas.removeElements(edge);
+		}
 		canvas.removeElements(this);
 	}
 

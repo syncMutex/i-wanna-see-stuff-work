@@ -24,25 +24,27 @@ export class UEdge {
 		ctx.lineTo(tox, toy);
 		ctx.stroke();
 
-		ctx.save();
+		if(this.weight !== 0) {
+			ctx.save();
 
-		const angle = Math.atan((toy - fromy) / (tox - fromx));
-		const p = new Line(this.start, this.end).getPositionAlongTheLine(0.5);
-		const text = String(this.weight);
+			const angle = Math.atan((toy - fromy) / (tox - fromx));
+			const p = new Line(this.start, this.end).getPositionAlongTheLine(0.5);
+			const text = String(this.weight);
 
-		ctx.translate(p.x, p.y);
+			ctx.translate(p.x, p.y);
 
-		ctx.rotate(angle);
+			ctx.rotate(angle);
 
-		ctx.translate(-p.x, -p.y);
+			ctx.translate(-p.x, -p.y);
 
-		ctx.fillStyle = "#FFFFFF";
-		ctx.textBaseline = "bottom";
-		ctx.textAlign = "center";
-		ctx.font = "16px monospace";
-		ctx.fillText(text, p.x, p.y);
+			ctx.fillStyle = "#FFFFFF";
+			ctx.textBaseline = "bottom";
+			ctx.textAlign = "center";
+			ctx.font = "16px monospace";
+			ctx.fillText(text, p.x, p.y);
 
-		ctx.restore();
+			ctx.restore();
+		}
 
 		// circleFill(ctx, this.start.x, this.start.y, 4);
 		// circleFill(ctx, this.end.x, this.end.y, 4);

@@ -1,4 +1,4 @@
-import { Point } from "../geometry";
+import { Line, Point } from "../geometry";
 import { EventState } from "../handler/event-handler";
 import { CanvasHandler } from "../handler/canvas-handler";
 import { UEdge } from "./element-types/u-edge.ts";
@@ -11,6 +11,7 @@ export class ElementUEdge extends UEdge implements ElementHandler {
 	pointerEnter(_state: EventState, _canvas: CanvasHandler) {};
 	pointerLeave(_state: EventState, _canvas: CanvasHandler) {};
 	pointerDown(_state: EventState, _canvas: CanvasHandler) {};
+
 	remove(canvas: CanvasHandler) {
 		canvas.removeElements(this);
 	}
@@ -26,9 +27,18 @@ export class ElementUEdge extends UEdge implements ElementHandler {
 
 		this.start = { x: fromNode.x, y: fromNode.y };
 		this.end = { x: toNode.x, y: toNode.y };
+	}
 
-		fromNode.addUEdge(this);
-		toNode.addUEdge(this);
+	init() {
+		this.fromNode.addUEdge(this);
+		this.toNode.addUEdge(this);
+	}
+
+	equals(e: ElementUEdge): boolean {
+		return (
+			(this.fromNode === e.fromNode && this.toNode === e.toNode) ||
+			(this.toNode === e.fromNode && this.fromNode === e.toNode)
+		);
 	}
 
 	doRectifyFor(node: ElementGNode, end: Point) {
@@ -73,7 +83,32 @@ export class ElementUEdge extends UEdge implements ElementHandler {
 		}
 	}
 
-	insertAfterNode: null | ElementGNode = null;
+	async deleteEdgeAnimation(canvas: CanvasHandler) {
+		const line = new Line(this.start, this.end);
+		let p = 0;
+
+		return new Promise<void>((resolve, _reject) => {
+			const fn = () => {
+				this.start = line.getPositionAlongTheLine(p);
+				this.end = line.getPositionAlongTheLine(1 - p);
+				p += 0.05;
+				canvas.redraw();
+				if(p >= 0.5) {
+					resolve();
+				} else {
+					requestAnimationFrame(fn);
+				}
+			}
+			requestAnimationFrame(fn);
+		});
+	}
+
+	async delete(canvas: CanvasHandler) {
+		await this.deleteEdgeAnimation(canvas);
+		this.fromNode.edges.delete(this);
+		this.toNode.edges.delete(this);
+		this.remove(canvas);
+	}
 
 	pointerMove(_state: EventState, _canvas: CanvasHandler): void {
 	}

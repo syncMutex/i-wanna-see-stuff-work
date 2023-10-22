@@ -81,6 +81,13 @@ export class ToolUEdge extends ToolHandler {
 
 		const edge = new ElementUEdge(this.startNode, this.endNode);
 
+		if(this.startNode.hasUEdge(edge)) {
+			this.reset(canvas);
+			return;
+		}
+
+		edge.init();
+
 		this.reset(canvas);
 
 		edge.rectify();

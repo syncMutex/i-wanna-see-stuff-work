@@ -74,7 +74,10 @@ export class CanvasHandler {
 
 	removeElements(...args: Array<ElementHandler>) {
 		if(args.length === 1) {
-			args[0].remove(this);
+			const idx = this.elements.findIndex((e) => e === args[0]);
+			if(idx !== -1) {
+				this.elements.splice(idx, 1);
+			}
 		} else {
 			this.elements = this.elements.filter(e => !args.includes(e));
 		}

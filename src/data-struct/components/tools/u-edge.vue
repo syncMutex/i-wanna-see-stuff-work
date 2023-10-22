@@ -7,18 +7,21 @@ const selectedElement = useSelectedElement<ElementUEdge>();
 
 function setNodeValue(value: string) {
 	selectedElement.value.weight = Number(value);
-	selectedElement.value.draw(playground.canvas.playgroundCanvas);
+	playground.canvas.redraw();
 }
 
-function deleteNode() {
+async function deleteEdge() {
+	const el = selectedElement.value;
 	unselectElement();
+	await el.delete(playground.canvas);
+	playground.canvas.redraw();
 }
 
 </script>
 
 <template>
-<div class="tool-node">
-	<h1>Node</h1>
+<div class="tool-edge">
+	<h1>UEdge</h1>
 	<div class="sub-sections-container">
 		<div>
 			<input
@@ -31,7 +34,7 @@ function deleteNode() {
 		</div>
 
 		<div class="buttons">
-			<button class="btn btn-nobg clr-red" @click="deleteNode()">delete</button>
+			<button class="btn btn-nobg clr-red" @click="deleteEdge()">delete</button>
 		</div>
 	</div>
 </div>
@@ -40,11 +43,11 @@ function deleteNode() {
 <style scoped>
 @import "../css/common.css";
 
-.tool-node {
+.tool-edge {
 	color: white;
 }
 
-.tool-node > h1{
+.tool-edge > h1{
 	margin-bottom: 1rem;
 	font-size: 1.75rem;
 }

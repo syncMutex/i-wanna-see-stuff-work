@@ -54,6 +54,9 @@ export class ElementDEdge extends DEdge implements ElementHandler {
 		return { x, y };
 	}
 
+	delete() {
+	}
+
 	rectify() {
 	}
 
