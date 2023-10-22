@@ -13,7 +13,7 @@ export interface ElementHandler {
 	draw: (_canvas: HTMLCanvasElement) => void;
 }
 
-class ElementPan implements ElementHandler {
+export class ElementPan implements ElementHandler {
 	tempOff = { x: -1, y: -1 };
 	pointerMove(state: EventState, canvas: CanvasHandler) {
 		if(state.pointerDown.x === -1) return;

@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { ElementLLNode } from '../../linked-list/el-node';
+import { ElementGNode } from '../../graph/el-node';
 import { playground } from '../../handler/playground-handler';
 import { useSelectedElement, unselectElement } from '../../global';
 
-const selectedElement = useSelectedElement<ElementLLNode>();
-const toFindValue = ref('');
+const selectedElement = useSelectedElement<ElementGNode>();
 
 function setNodeValue(value: string) {
 	selectedElement.value.value = value;
@@ -13,28 +11,7 @@ function setNodeValue(value: string) {
 }
 
 function deleteNode() {
-	selectedElement.value.deleteLLNode(playground.canvas);
 	unselectElement();
-}
-
-async function next() {
-	if(selectedElement.value === null) return;
-	if(selectedElement.value.next === null) {
-		unselectElement();
-		playground.canvas.redraw();
-		return;
-	}
-	selectedElement.value = selectedElement.value.next;
-	await selectedElement.value.scrollTo(playground.canvas);
-	playground.canvas.redraw();
-}
-
-function deleteAll() {
-	selectedElement.value.deleteAllReachable(playground.canvas);
-}
-
-function find() {
-	selectedElement.value.find(toFindValue.value, playground.canvas);
 }
 
 </script>
@@ -55,14 +32,6 @@ function find() {
 
 		<div class="buttons">
 			<button class="btn btn-nobg clr-red" @click="deleteNode()">delete</button>
-			<button class="btn btn-nobg clr-red" @click="deleteAll()">delete all</button>
-			<button class="btn btn-nobg clr-lblue" @click="next()">next</button>
-		</div>
-
-		<div class="find">
-			<h2>Find node</h2>
-			<input spellcheck="false" placeholder="value" type="text" v-model="toFindValue" />
-			<button class="btn btn-nobg" @click="find()">find</button>
 		</div>
 	</div>
 </div>
@@ -96,15 +65,6 @@ function find() {
 
 .buttons button{
 	min-width: 4.5rem;
-}
-
-.find button{
-	margin-top: 0.5rem;
-}
-
-.find h2{
-	font-size: 1.2rem;
-	margin-bottom: 0.5rem;
 }
 
 </style>
