@@ -3,6 +3,7 @@ import { ElementHandler, panHandler } from "./handler/element-handler";
 import { ToolLLNode } from "./linked-list/tool-node";
 import { ToolGNode } from "./graph/tool-node.ts";
 import { ToolUEdge } from "./graph/tool-u-edge.ts";
+import { ToolDEdge } from "./graph/tool-d-edge.ts";
 
 export const selectedElement = shallowRef<ElementHandler>(panHandler);
 export let delay = 500;
@@ -41,5 +42,6 @@ export const ToolList: ToolType[] = [
 	{ name: "LLNode", toolClass: ToolLLNode },
 	{ name: "Graph Node", toolClass: ToolGNode },
 	{ name: "UEdge", toolClass: ToolUEdge },
+	{ name: "DEdge", toolClass: ToolDEdge },
 ];
 

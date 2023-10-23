@@ -238,7 +238,7 @@ export class CanvasHandler {
 
 	redraw() {
 		this.clear();
-		requestAnimationFrame(this.draw.bind(this));
+		this.draw();
 	}
 
 	draw() {

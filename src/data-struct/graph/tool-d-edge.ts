@@ -2,13 +2,13 @@ import { setCanvasSize } from "../canvas";
 import { EventState } from "../handler/event-handler";
 import { CanvasHandler } from "../handler/canvas-handler";
 import { ToolHandler } from "../handler/tool-handler";
-import { ElementUEdge } from "./el-u-edge";
+import { ElementDEdge } from "./el-d-edge";
 import { ElementGNode } from "./el-node";
-import { UEdge } from "./element-types/u-edge";
+import { DEdge } from "./element-types/d-edge";
 import { GNode } from "./element-types/node";
 import { panHandler } from "../handler/element-handler";
 
-export class ToolUEdge extends ToolHandler {
+export class ToolDEdge extends ToolHandler {
 	constructor() {
 		super();
 	}
@@ -18,7 +18,7 @@ export class ToolUEdge extends ToolHandler {
 
 	isStartNode: boolean = false;
 
-	edge: UEdge = new UEdge();
+	edge: DEdge = new DEdge();
 
 	pointerEnter(_state: EventState, canvas: CanvasHandler) {
 		this.draw(canvas.toolCtx);
@@ -79,12 +79,12 @@ export class ToolUEdge extends ToolHandler {
 			return;
 		}
 
-		if(ElementGNode.hasUEdge(this.startNode, this.endNode)) {
+		if(ElementGNode.hasDEdge(this.startNode, this.endNode)) {
 			this.reset(canvas);
 			return;
 		}
 
-		const edge = new ElementUEdge(this.startNode, this.endNode);
+		const edge = new ElementDEdge(this.startNode, this.endNode);
 
 		this.reset(canvas);
 
@@ -99,7 +99,7 @@ export class ToolUEdge extends ToolHandler {
 
 		const r = GNode.radius;
 		const { x: x0, y: y0 } = this.startNode;
-		const { x: x1, y: y1 } = this.edge.end;
+		const { x: x1, y: y1 } = this.edge.head;
 		const { x: h, y: k } = this.startNode;
 
 		const x1mx0 = x1 - x0;
@@ -122,7 +122,7 @@ export class ToolUEdge extends ToolHandler {
 		const x = x1mx0 * t + x0;
 		const y = y1my0 * t + y0;
 
-		this.edge.start = { x, y };
+		this.edge.tail = { x, y };
 	}
 
 	pointerMove(state: EventState, canvas: CanvasHandler) {
@@ -133,10 +133,10 @@ export class ToolUEdge extends ToolHandler {
 		}
 
 		const { x, y } = state.pointerMove;
-		this.edge.end = { x: x - canvas.offset.x, y: y - canvas.offset.y };
+		this.edge.head = { x: x - canvas.offset.x, y: y - canvas.offset.y };
 		canvas.redraw();
 		this.rectifyStart();
-		this.edge.paint(canvas.playgroundCanvas.getContext('2d') as any);
+		this.edge.paint(canvas.ctx);
 	}
 
 	draw(_ctx: CanvasRenderingContext2D) {

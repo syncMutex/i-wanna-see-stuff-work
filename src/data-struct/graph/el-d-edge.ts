@@ -1,5 +1,5 @@
 import { GAP } from "../canvas";
-import { Point } from "../geometry";
+import { Line, Point } from "../geometry";
 import { EventState } from "../handler/event-handler";
 import { CanvasHandler } from "../handler/canvas-handler";
 import { DEdge } from "./element-types/d-edge.ts";
@@ -8,7 +8,8 @@ import { ElementHandler } from "../handler/element-handler";
 import { ElementGNode } from "./el-node";
 
 export class ElementDEdge extends DEdge implements ElementHandler {
-	parentNode: ElementGNode;
+	from: ElementGNode;
+	to: ElementGNode;
 
 	pointerEnter(_state: EventState, _canvas: CanvasHandler) {};
 	pointerLeave(_state: EventState, _canvas: CanvasHandler) {};
@@ -17,9 +18,13 @@ export class ElementDEdge extends DEdge implements ElementHandler {
 		canvas.removeElements(this);
 	}
 	
-	constructor(node: ElementGNode) {
+	constructor(parent: ElementGNode, to: ElementGNode) {
 		super();
-		this.parentNode = node;
+		this.from = parent;
+		this.to = to;
+
+		this.from.addDEdge(this);
+		this.to.referedByDEdges.add(this);
 		this.head = { x: this.tail.x + GAP, y: this.tail.y };
 	}
 
@@ -54,10 +59,48 @@ export class ElementDEdge extends DEdge implements ElementHandler {
 		return { x, y };
 	}
 
-	delete() {
+	async animateArrowHeadTo(canvas: CanvasHandler, to: Point) {
+		const line = new Line(this.head, to);
+		let p = 0;
+
+		return new Promise<void>((resolve, _reject) => {
+			const fn = () => {
+				this.head = line.getPositionAlongTheLine(p);
+				p += 0.1;
+				canvas.redraw();
+				if(p >= 1) {
+					this.head = line.getPositionAlongTheLine(1);
+					resolve();
+				} else {
+					requestAnimationFrame(fn);
+				}
+			}
+			requestAnimationFrame(fn);
+		});
+	}
+
+	async delete(canvas: CanvasHandler) {
+		await this.animateArrowHeadTo(canvas, this.from);
+		this.from.edges.delete(this);
+		this.to.referedByDEdges.delete(this);
+		this.remove(canvas);
 	}
 
 	rectify() {
+		const rStart = this.doRectifyFor(this.from, this.to);
+		const rEnd = this.doRectifyFor(this.to, this.from);
+
+		if(rStart) {
+			this.tail = rStart;
+		}
+
+		if(rEnd) {
+			this.head = rEnd;
+		}
+	}
+
+	equals(e: ElementDEdge): boolean {
+		return this.to === e.to;
 	}
 
 	insertAfterNode: null | ElementGNode = null;

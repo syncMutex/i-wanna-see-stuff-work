@@ -11,6 +11,8 @@ import { ElementDEdge } from "./el-d-edge";
 export class ElementGNode extends GNode implements ElementHandler {
 	edges: Map<ElementUEdge | ElementDEdge, null> = new Map();
 
+	referedByDEdges: Set<ElementDEdge> = new Set();
+
 	static COUNT = 0;
 
 	pointerEnter(_state: EventState, _canvas: CanvasHandler) {};
@@ -31,7 +33,6 @@ export class ElementGNode extends GNode implements ElementHandler {
 	pointerDx: number = -1;
 
 	rectifyEdges() {
-		this.edges.forEach((_, edge) => edge.rectify())
 	}
 
 	defaultArrowPointPos(): Point {
@@ -51,14 +52,30 @@ export class ElementGNode extends GNode implements ElementHandler {
 
 		this.moveTo(x, y);
 
-		this.rectifyEdges();
+		this.edges.forEach((_, edge) => edge.rectify())
+
+		for(let e of this.referedByDEdges) {
+			e.rectify();
+		}
 
 		canvas.redraw();
 	}
 
-	hasUEdge(e: ElementUEdge): boolean {
-		for(let edge of this.edges.keys() as IterableIterator<ElementUEdge>) {
-			if(edge.equals(e)) {
+	static hasUEdge(n1: ElementGNode, n2: ElementGNode): boolean {
+		for(let edge of n1.edges.keys() as IterableIterator<ElementUEdge>) {
+			if(
+				(edge.fromNode === n1 && edge.toNode === n2) ||
+				(edge.toNode === n1 && edge.fromNode === n2)
+			) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	static hasDEdge(from: ElementGNode, to: ElementGNode): boolean {
+		for(let edge of from.edges.keys() as IterableIterator<ElementDEdge>) {
+			if(edge.to === to) {
 				return true;
 			}
 		}
@@ -82,6 +99,12 @@ export class ElementGNode extends GNode implements ElementHandler {
 			await edge.delete(canvas);
 			canvas.removeElements(edge);
 		}
+		
+		for(let edge of this.referedByDEdges) {
+			await edge.delete(canvas);
+			canvas.removeElements(edge);
+		}
+
 		canvas.removeElements(this);
 	}
 

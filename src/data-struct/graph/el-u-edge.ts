@@ -27,18 +27,9 @@ export class ElementUEdge extends UEdge implements ElementHandler {
 
 		this.start = { x: fromNode.x, y: fromNode.y };
 		this.end = { x: toNode.x, y: toNode.y };
-	}
 
-	init() {
 		this.fromNode.addUEdge(this);
 		this.toNode.addUEdge(this);
-	}
-
-	equals(e: ElementUEdge): boolean {
-		return (
-			(this.fromNode === e.fromNode && this.toNode === e.toNode) ||
-			(this.toNode === e.fromNode && this.fromNode === e.toNode)
-		);
 	}
 
 	doRectifyFor(node: ElementGNode, end: Point) {

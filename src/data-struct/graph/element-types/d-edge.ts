@@ -1,11 +1,14 @@
-import { circleFill } from "../../canvas";
 import { Line, Point } from "../../geometry";
 
 export class DEdge {
-	head = { x: -1, y: -1 };
-	tail = { x: -1, y: -1 };
+	head = new Point(-1, -1);
+	tail = new Point(-1, -1);
 
-	bg: string | CanvasGradient = "";
+	bg: string | CanvasGradient = "#FFFFFF";
+
+	weight = 1234567890;
+
+	static LineWidth = 3;
 
 	paint(ctx: CanvasRenderingContext2D) {
 		const { x: fromx, y: fromy } = this.tail;
@@ -15,7 +18,9 @@ export class DEdge {
 		const dy = toy - fromy;
 		const angle = Math.atan2(dy, dx);
 
-		circleFill(ctx, this.tail.x, this.tail.y, 4, this.bg.toString());
+		ctx.lineWidth = DEdge.LineWidth;
+
+		// circleFill(ctx, this.tail.x, this.tail.y, 4, this.bg.toString());
 
 		ctx.fillStyle = this.bg;
 		ctx.strokeStyle = this.bg;
@@ -26,7 +31,6 @@ export class DEdge {
 		ctx.stroke();
 
 		ctx.beginPath();
-		ctx.lineWidth = 2;
 		ctx.moveTo(tox, toy);
 		ctx.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
 		ctx.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
