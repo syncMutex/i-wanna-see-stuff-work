@@ -9,12 +9,13 @@ const toFindValue = ref('');
 
 function setNodeValue(value: string) {
 	selectedElement.value.value = value;
-	selectedElement.value.draw(playground.canvas.playgroundCanvas);
+	selectedElement.value.draw(playground.canvas.ctx);
 }
 
 function deleteNode() {
-	selectedElement.value.deleteLLNode(playground.canvas);
+	const el = selectedElement.value;
 	unselectElement();
+	el.deleteLLNode(playground.canvas);
 }
 
 async function next() {

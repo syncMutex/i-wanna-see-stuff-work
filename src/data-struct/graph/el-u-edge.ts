@@ -123,10 +123,7 @@ export class ElementUEdge extends UEdge implements ElementHandler {
 		return this.intersects(x, y, offset, ctx) ? this as any : null;
 	}
 
-	draw(canvas: HTMLCanvasElement) {
-		const ctx = canvas.getContext("2d");
-		if(ctx == null) return;
-
+	draw(ctx: CanvasRenderingContext2D) {
 		if(this === selectedElement.value) {
 			this.bg = "#FFFF00";
 		} else {

@@ -7,7 +7,7 @@ const selectedElement = useSelectedElement<ElementGNode>();
 
 function setNodeValue(value: string) {
 	selectedElement.value.value = value;
-	selectedElement.value.draw(playground.canvas.playgroundCanvas);
+	selectedElement.value.draw(playground.canvas.ctx);
 }
 
 async function deleteNode() {

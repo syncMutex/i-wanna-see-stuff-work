@@ -28,9 +28,13 @@ class Finder {
 }
 
 export class CanvasHandler {
-	playgroundCanvas: HTMLCanvasElement = document.createElement("canvas");
-	toolCanvas: HTMLCanvasElement = document.createElement("canvas");
-	lineCanvas: HTMLCanvasElement = document.createElement("canvas");
+	playgroundCanvas: HTMLCanvasElement;
+	toolCanvas: HTMLCanvasElement;
+	lineCanvas: HTMLCanvasElement;
+
+	ctx: CanvasRenderingContext2D;
+	toolCtx: CanvasRenderingContext2D;
+	lineCtx: CanvasRenderingContext2D;
 
 	isDisplayGrid: boolean = true;
 
@@ -46,6 +50,34 @@ export class CanvasHandler {
 
 	offset = { x: 0, y: 0 };
 	DPR = 1;
+
+	constructor() {
+		this.playgroundCanvas = document.createElement("canvas");
+		this.ctx = this.playgroundCanvas.getContext('2d') as CanvasRenderingContext2D;
+
+		this.toolCanvas = document.createElement("canvas");
+		this.toolCtx = this.playgroundCanvas.getContext('2d') as CanvasRenderingContext2D;
+
+		this.lineCanvas = document.createElement("canvas");
+		this.lineCtx = this.playgroundCanvas.getContext('2d') as CanvasRenderingContext2D;
+	}
+
+	init(
+		pgndCanvas: HTMLCanvasElement,
+		toolCanvas: HTMLCanvasElement,
+		lineCanvas: HTMLCanvasElement
+	) {
+		this.playgroundCanvas = pgndCanvas;
+		this.ctx = pgndCanvas.getContext('2d') as CanvasRenderingContext2D;
+
+		this.toolCanvas = toolCanvas;
+		this.toolCtx = toolCanvas.getContext('2d') as CanvasRenderingContext2D;
+
+		this.lineCanvas = lineCanvas;
+		this.lineCtx = lineCanvas.getContext('2d') as CanvasRenderingContext2D;
+
+		this.DPR = Math.ceil(window.devicePixelRatio);
+	}
 
 	setIsDisplayGrid(v: boolean) {
 		this.isDisplayGrid = v;
@@ -68,7 +100,7 @@ export class CanvasHandler {
 	add(...element: Array<ElementHandler>) {
 		for(let el of element) {
 			this.elements.push(el);
-			el.draw(this.playgroundCanvas);
+			el.draw(this.ctx);
 		}
 	}
 
@@ -206,12 +238,12 @@ export class CanvasHandler {
 
 	redraw() {
 		this.clear();
-		this.draw();
+		requestAnimationFrame(this.draw.bind(this));
 	}
 
 	draw() {
 		for(let i = 0; i < this.elements.length; i++) {
-			this.elements[i].draw(this.playgroundCanvas);
+			this.elements[i].draw(this.ctx);
 		}
 	}
 }

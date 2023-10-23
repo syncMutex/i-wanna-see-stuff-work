@@ -13,7 +13,7 @@ export class ToolGNode extends ToolHandler {
 
 	pointerEnter(_state: EventState, canvas: CanvasHandler) {
 		setCanvasSize(canvas.toolCanvas, GNode.radius * 2, GNode.radius * 2);
-		this.draw(canvas.toolCanvas);
+		this.draw(canvas.toolCtx);
 	}
 
 	pointerLeave(_state: EventState, canvas: CanvasHandler) {
@@ -62,10 +62,7 @@ export class ToolGNode extends ToolHandler {
 		ToolGNode.node.y = GNode.radius;
 	}
 
-	draw(canvas: HTMLCanvasElement) {
-		const ctx = canvas.getContext("2d");
-		if(ctx === null) return;
-
+	draw(ctx: CanvasRenderingContext2D) {
 		ToolGNode.node.paint(ctx);
 	}
 }

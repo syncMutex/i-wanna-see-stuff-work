@@ -14,7 +14,7 @@ export class ToolLLNode extends ToolHandler {
 
 	pointerEnter(_state: EventState, canvas: CanvasHandler) {
 		setCanvasSize(canvas.toolCanvas, LLNode.width, LLNode.height);
-		this.draw(canvas.toolCanvas);
+		this.draw(canvas.toolCtx);
 	}
 
 	pointerLeave(_state: EventState, canvas: CanvasHandler) {
@@ -63,10 +63,7 @@ export class ToolLLNode extends ToolHandler {
 		ToolLLNode.node.y = 0;
 	}
 
-	draw(canvas: HTMLCanvasElement) {
-		const ctx = canvas.getContext("2d");
-		if(ctx === null) return;
-
+	draw(ctx: CanvasRenderingContext2D) {
 		ToolLLNode.node.paint(ctx);
 
 		const x = LLNode.width - (GAP * 3);

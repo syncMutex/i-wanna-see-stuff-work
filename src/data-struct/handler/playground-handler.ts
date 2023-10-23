@@ -23,11 +23,8 @@ export class Playground {
 		toolCanvas: HTMLCanvasElement,
 		lineCanvas: HTMLCanvasElement
 	) {
-		this.canvas.playgroundCanvas = pgndCanvas;
-		this.canvas.toolCanvas = toolCanvas;
-		this.canvas.lineCanvas = lineCanvas;
-		this.canvas.DPR = Math.ceil(window.devicePixelRatio);
-		window.show = () => console.log(this.canvas.elements);
+		this.canvas.init(pgndCanvas, toolCanvas, lineCanvas);
+		// window.show = () => console.log(this.canvas.elements);
 	}
 
 	setTool(toolIdx: number) {

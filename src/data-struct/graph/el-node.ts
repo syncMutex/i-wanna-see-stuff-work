@@ -111,10 +111,7 @@ export class ElementGNode extends GNode implements ElementHandler {
 		circleStroke(ctx, this.x, this.y, GNode.radius);
 	}
 
-	draw(canvas: HTMLCanvasElement) {
-		const ctx = canvas.getContext("2d");
-		if(ctx === null) return;
-
+	draw(ctx: CanvasRenderingContext2D) {
 		if(this === selectedElement.value) {
 			this.drawBorder(ctx, "#FFFF00");
 		}
@@ -122,7 +119,7 @@ export class ElementGNode extends GNode implements ElementHandler {
 		this.paint(ctx);
 
 		for(let edge of this.edges.keys()) {
-			edge.draw(canvas);
+			edge.draw(ctx);
 		}
 	}
 }

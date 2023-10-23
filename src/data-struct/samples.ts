@@ -3,6 +3,7 @@ import { ElementGNode } from "./graph/el-node";
 import { ElementUEdge } from "./graph/el-u-edge";
 import { CanvasHandler } from "./handler/canvas-handler";
 import { ElementLLNode } from "./linked-list/el-node";
+import { randInt } from "./utils";
 // import { randInt } from "./utils";
 
 export function createSampleLinkedList(canvas: CanvasHandler) {
@@ -39,8 +40,8 @@ export function createSampleGraph(canvas: CanvasHandler) {
 
 	const nodes = [];
 
-	let row = 3;
-	let col = 3;
+	let row = 5;
+	let col = 5;
 
 	for(let i = 0; i < row; i++) {
 		let x = 10;
@@ -55,9 +56,10 @@ export function createSampleGraph(canvas: CanvasHandler) {
 
 	for(let i = 0; i < nodes.length; i++) {
 		const a = nodes[i];
-		for(let j = 0; j < nodes.length; j++) {
-			if(i === j) continue;
-			const b = nodes[j];
+		for(let j = 0; j < 1; j++) {
+			let r = i;
+			while(r === i) r = randInt(0, nodes.length);
+			const b = nodes[r];
 			const edge = new ElementUEdge(a, b);
 			if(a.hasUEdge(edge)) continue;
 

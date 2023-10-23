@@ -133,10 +133,7 @@ export class ElementArrow extends Arrow implements ElementHandler {
 		return this.intersects(x, y, offset) ? this as any : null;
 	}
 
-	draw(canvas: HTMLCanvasElement) {
-		const ctx = canvas.getContext("2d");
-		if(ctx == null) return;
-
+	draw(ctx: CanvasRenderingContext2D) {
 		this.paint(ctx);
 	}
 }

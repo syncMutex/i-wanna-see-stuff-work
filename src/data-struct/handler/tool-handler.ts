@@ -10,6 +10,6 @@ export class ToolHandler {
 	pointerDown(_state: EventState, _canvas: CanvasHandler) {}
 	pointerUp(_state: EventState, _canvas: CanvasHandler) {}
 
-	draw(_canvas: HTMLCanvasElement) {}
+	draw(_ctx: CanvasRenderingContext2D) {}
 }
 

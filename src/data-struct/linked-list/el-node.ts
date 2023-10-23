@@ -256,7 +256,7 @@ export class ElementLLNode extends LLNode implements ElementHandler {
 			node.setBg("#FFFFFF");
 			node.color = "#000000";
 
-			node.draw(canvas.playgroundCanvas);
+			node.draw(canvas.ctx);
 
 			await sleep(delay);
 
@@ -266,7 +266,7 @@ export class ElementLLNode extends LLNode implements ElementHandler {
 
 			node.setBg("#FF0000");
 			node.color = "#FFFFFF";
-			node.draw(canvas.playgroundCanvas);
+			node.draw(canvas.ctx);
 
 			await sleep(delay);
 
@@ -299,7 +299,7 @@ export class ElementLLNode extends LLNode implements ElementHandler {
 			setPopupText("cycle detected. Aborting.");
 		} else {
 			node.bg = "#00FF00";
-			node.draw(canvas.playgroundCanvas);
+			node.draw(canvas.ctx);
 			node.resetStyle();
 		}
 	}
@@ -323,16 +323,13 @@ export class ElementLLNode extends LLNode implements ElementHandler {
 		ctx.strokeRect(this.x - wb2, this.y - wb2, LLNode.width + ctx.lineWidth, LLNode.height + ctx.lineWidth);
 	}
 
-	draw(canvas: HTMLCanvasElement) {
-		const ctx = canvas.getContext("2d");
-		if(ctx === null) return;
-
+	draw(ctx: CanvasRenderingContext2D) {
 		if(this === selectedElement.value) {
 			this.drawBorder(ctx, "#FFFF00");
 		}
 
 		this.paint(ctx);
-		this.arrow.draw(canvas);
+		this.arrow.draw(ctx);
 	}
 }
 

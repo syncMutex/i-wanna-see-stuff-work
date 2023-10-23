@@ -21,7 +21,7 @@ export class ToolUEdge extends ToolHandler {
 	edge: UEdge = new UEdge();
 
 	pointerEnter(_state: EventState, canvas: CanvasHandler) {
-		this.draw(canvas.toolCanvas);
+		this.draw(canvas.toolCtx);
 	}
 
 	pointerLeave(_state: EventState, canvas: CanvasHandler) {
@@ -55,7 +55,7 @@ export class ToolUEdge extends ToolHandler {
 		gnode.bg = "#FFFF00";
 		gnode.color = "#000000";
 
-		gnode.draw(canvas.playgroundCanvas);
+		gnode.draw(canvas.ctx);
 	}
 
 	pointerUp(state: EventState, canvas: CanvasHandler) {
@@ -141,8 +141,6 @@ export class ToolUEdge extends ToolHandler {
 		this.edge.paint(canvas.playgroundCanvas.getContext('2d') as any);
 	}
 
-	draw(canvas: HTMLCanvasElement) {
-		const ctx = canvas.getContext("2d");
-		if(ctx === null) return;
+	draw(_ctx: CanvasRenderingContext2D) {
 	}
 }
