@@ -37,18 +37,46 @@ export class DEdge {
 		ctx.closePath();
 		ctx.stroke();
 		ctx.fill();
+
+		if(this.weight !== 0) {
+			ctx.save();
+
+			const angle = Math.atan((toy - fromy) / (tox - fromx));
+			const p = new Line(this.tail, this.head).getPositionAlongTheLine(0.5);
+			const text = String(this.weight);
+
+			ctx.translate(p.x, p.y);
+
+			ctx.rotate(angle);
+
+			ctx.translate(-p.x, -p.y);
+
+			ctx.fillStyle = "#FFFFFF";
+			ctx.textBaseline = "bottom";
+			ctx.textAlign = "center";
+			ctx.font = "16px monospace";
+			ctx.fillText(text, p.x, p.y);
+
+			ctx.restore();
+		}
 	}
 
-	intersects(x: number, y: number, offset: Point): boolean {
-		const p = new Line(this.tail, this.head).getPositionAlongTheLine(0.98);
-		const mag = 10;
-		const _x = p.x + offset.x;
-		const _y = p.y + offset.y;
-		const lowx = _x - mag;
-		const lowy = _y - mag;
-		const highx = _x + mag;
-		const highy = _y + mag;
-		return x >= lowx && x <= highx && y >= lowy && y <= highy;
+	intersects(x: number, y: number, offset: Point, ctx: CanvasRenderingContext2D): boolean {
+		ctx.save();
+		ctx.lineWidth = 10;
+		ctx.resetTransform();
+		ctx.translate(offset.x, offset.y);
+
+		const path = new Path2D();
+
+		path.moveTo(this.tail.x, this.tail.y);
+		path.lineTo(this.head.x, this.head.y);
+
+		const ret = ctx.isPointInStroke(path, x, y);
+
+		ctx.restore();
+
+		return ret;
 	}
 }
 

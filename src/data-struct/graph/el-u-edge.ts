@@ -109,9 +109,7 @@ export class ElementUEdge extends UEdge implements ElementHandler {
 	}
 
 	isIntersect(x: number, y: number, offset: Point, canvas: CanvasHandler): null | ElementHandler {
-		const ctx = canvas.playgroundCanvas.getContext("2d");
-		if(ctx == null) return null;
-		return this.intersects(x, y, offset, ctx) ? this as any : null;
+		return this.intersects(x, y, offset, canvas.ctx) ? this as any : null;
 	}
 
 	draw(ctx: CanvasRenderingContext2D) {

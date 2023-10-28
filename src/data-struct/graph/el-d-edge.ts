@@ -106,20 +106,36 @@ export class ElementDEdge extends DEdge implements ElementHandler {
 	insertAfterNode: null | ElementGNode = null;
 
 	pointerMove(state: EventState, canvas: CanvasHandler): void {
+		if(state.pointerDown.x === -1) return; 
 		let { x, y } = state.pointerMove;
 
 		this.head.x = x - canvas.offset.x;
 		this.head.y = y - canvas.offset.y;
 
+		const rStart = this.doRectifyFor(this.from, this.head);
+
+		if(rStart) {
+			this.tail = rStart;
+		}
+
 		canvas.redraw();
 	}
 
-	pointerUp(_state: EventState, _canvas: CanvasHandler): ElementHandler | null {
+	pointerUp(state: EventState, _canvas: CanvasHandler): ElementHandler | null {
+		const { x, y } = state.pointerUp;
+
+		if(state.pointerDown.x === x && state.pointerDown.y === y) {
+			return this;
+		} else {
+			this.rectify();
+			_canvas.redraw();
+		}
+
 		return null;
 	}
 
-	isIntersect(x: number, y: number, offset: Point): null | ElementHandler {
-		return this.intersects(x, y, offset) ? this as any : null;
+	isIntersect(x: number, y: number, offset: Point, canvas: CanvasHandler): null | ElementHandler {
+		return this.intersects(x, y, offset, canvas.ctx) ? this as any : null;
 	}
 
 	draw(ctx: CanvasRenderingContext2D) {

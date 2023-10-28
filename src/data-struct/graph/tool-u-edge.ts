@@ -45,6 +45,10 @@ export class ToolUEdge extends ToolHandler {
 			return;
 		}
 
+		const firstEdge = gnode.edges.keys().next().value;
+
+		if(firstEdge && firstEdge.constructor.name !== ElementUEdge.name) return;
+
 		if(this.startNode !== null) {
 			this.endNode = gnode;
 		} else {
