@@ -6,6 +6,7 @@ import { DEdge } from "./element-types/d-edge.ts";
 import { GNode } from "./element-types/node";
 import { ElementHandler } from "../handler/element-handler";
 import { ElementGNode } from "./el-node";
+import { selectedElement } from "../global.ts";
 
 export class ElementDEdge extends DEdge implements ElementHandler {
 	from: ElementGNode;
@@ -121,14 +122,25 @@ export class ElementDEdge extends DEdge implements ElementHandler {
 		canvas.redraw();
 	}
 
-	pointerUp(state: EventState, _canvas: CanvasHandler): ElementHandler | null {
+	pointerUp(state: EventState, canvas: CanvasHandler): ElementHandler | null {
 		const { x, y } = state.pointerUp;
 
 		if(state.pointerDown.x === x && state.pointerDown.y === y) {
 			return this;
 		} else {
+			const el = canvas.finder
+												.ofTypes(ElementGNode.name)
+												.except(this.from, this.to)
+												.find<ElementGNode | null>(x, y, canvas);
+
+			if(el && !ElementGNode.hasDEdge(this.from, el)) {
+				this.to.referedByDEdges.delete(this);
+				this.to = el;
+				el.referedByDEdges.add(this);
+			}
+
 			this.rectify();
-			_canvas.redraw();
+			canvas.redraw();
 		}
 
 		return null;
@@ -139,6 +151,11 @@ export class ElementDEdge extends DEdge implements ElementHandler {
 	}
 
 	draw(ctx: CanvasRenderingContext2D) {
+		if(this === selectedElement.value) {
+			this.bg = "#FFFF00";
+		} else {
+			this.bg = "#FFFFFF";
+		}
 		this.paint(ctx);
 	}
 }

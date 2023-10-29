@@ -123,8 +123,8 @@ export class ElementGNode extends GNode implements ElementHandler {
 		this.pointerDy = Math.floor((statey - nodey) / GAP) * GAP;
 	}
 
-	isIntersect(x: number, y: number, offset: Point): null | ElementHandler {
-		if(this.intersects(x, y, offset)) return this;
+	isIntersect(x: number, y: number, _: Point, canvas: CanvasHandler): null | ElementHandler {
+		if(this.intersects(x, y, canvas.offset)) return this;
 		return null;
 	}
 

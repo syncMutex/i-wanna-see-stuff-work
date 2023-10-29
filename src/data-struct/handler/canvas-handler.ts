@@ -214,8 +214,13 @@ export class CanvasHandler {
 	}
 
 	setTransform(ctx: CanvasRenderingContext2D) {
-		// please don't ask why am I multiplying dpr to translates
-		ctx.setTransform(this.DPR, 0, 0, this.DPR, this.offset.x * this.DPR, this.offset.y * this.DPR);
+		ctx.setTransform(
+			this.DPR,
+			0, 0,
+			this.DPR,
+			this.offset.x * this.DPR,
+			this.offset.y * this.DPR
+		);
 	}
 
 	resetTransform(ctx: CanvasRenderingContext2D) {
@@ -223,17 +228,14 @@ export class CanvasHandler {
 	}
 
 	clear() {
-		const ctx = this.playgroundCanvas.getContext("2d");
-		if(ctx === null) return;
+		this.resetTransform(this.ctx);
 
-		this.resetTransform(ctx);
+		this.ctx.clearRect(0, 0, this.playgroundCanvas.width, this.playgroundCanvas.height);
 
-		ctx.clearRect(0, 0, this.playgroundCanvas.width, this.playgroundCanvas.height);
+		// line(this.ctx, this.offset.x, 0, this.offset.x, this.playgroundCanvas.height, this.DPR, "#FF0000");
+		// line(this.ctx, 0, this.offset.y, this.playgroundCanvas.width, this.offset.y, this.DPR, "#FF0000");
 
-		// line(ctx, this.offset.x, 0, this.offset.x, this.playgroundCanvas.height, 2, "#FF0000");
-		// line(ctx, 0, this.offset.y, this.playgroundCanvas.width, this.offset.y, 2, "#FF0000");
-
-		this.setTransform(ctx);
+		this.setTransform(this.ctx);
 	}
 
 	redraw() {

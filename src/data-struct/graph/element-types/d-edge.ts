@@ -72,11 +72,26 @@ export class DEdge {
 		path.moveTo(this.tail.x, this.tail.y);
 		path.lineTo(this.head.x, this.head.y);
 
-		const ret = ctx.isPointInStroke(path, x, y);
+		const onLine = ctx.isPointInStroke(path, x, y);
+
+		const { x: fromx, y: fromy } = this.tail;
+		const { x: tox, y: toy } = this.head;
+		const headlen = 15;
+		const dx = tox - fromx;
+		const dy = toy - fromy;
+		const angle = Math.atan2(dy, dx);
+		const p = new Path2D();
+
+		p.moveTo(tox, toy);
+		p.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
+		p.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
+		p.closePath();
+
+		const onTri = ctx.isPointInStroke(p, x, y);
 
 		ctx.restore();
 
-		return ret;
+		return onTri || onLine;
 	}
 }
 

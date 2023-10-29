@@ -8,9 +8,21 @@ import { GNode } from "./element-types/node.ts";
 import { selectedElement } from "../global.ts";
 
 export class ElementUEdge extends UEdge implements ElementHandler {
-	pointerEnter(_state: EventState, _canvas: CanvasHandler) {};
-	pointerLeave(_state: EventState, _canvas: CanvasHandler) {};
-	pointerDown(_state: EventState, _canvas: CanvasHandler) {};
+	pointerEnter(_state: EventState, _canvas: CanvasHandler) {}
+	pointerLeave(_state: EventState, _canvas: CanvasHandler) {}
+
+	pointerDown(state: EventState, canvas: CanvasHandler) {
+		let p = state.pointerDown;
+		p = canvas.toVirtualPosition(p.x, p.y);
+
+		if(new Line(p, this.start).distance() < new Line(p, this.end).distance()) {
+			this.toMoveEnd = this.start;
+			this.toMoveNode = this.toNode;
+		} else {
+			this.toMoveEnd = this.end;
+			this.toMoveNode = this.fromNode;
+		}
+	}
 
 	remove(canvas: CanvasHandler) {
 		canvas.removeElements(this);
@@ -18,6 +30,9 @@ export class ElementUEdge extends UEdge implements ElementHandler {
 
 	fromNode: ElementGNode;
 	toNode: ElementGNode;
+
+	toMoveEnd: Point = new Point(-1, -1);
+	toMoveNode: ElementGNode = new ElementGNode(-1, -1, "");
 	
 	constructor(fromNode: ElementGNode, toNode: ElementGNode) {
 		super();
@@ -101,10 +116,54 @@ export class ElementUEdge extends UEdge implements ElementHandler {
 		this.remove(canvas);
 	}
 
-	pointerMove(_state: EventState, _canvas: CanvasHandler): void {
+	pointerMove(state: EventState, canvas: CanvasHandler): void {
+		if(state.pointerDown.x === -1) return; 
+		let { x, y } = state.pointerMove;
+
+		this.toMoveEnd.x = x - canvas.offset.x;
+		this.toMoveEnd.y = y - canvas.offset.y;
+
+		const rStart = this.doRectifyFor(this.toMoveNode, this.toMoveEnd);
+
+		if(rStart) {
+			const e = this.toMoveEnd === this.start ? this.end : this.start;
+			e.x = rStart.x;
+			e.y = rStart.y;
+		}
+
+		canvas.redraw();
 	}
 
-	pointerUp(_state: EventState, _canvas: CanvasHandler): ElementHandler | null {
+	pointerUp(state: EventState, canvas: CanvasHandler): ElementHandler | null {
+		const { x, y } = state.pointerUp;
+
+		if(state.pointerDown.x === x && state.pointerDown.y === y) {
+			return this;
+		} else {
+			const el = canvas.finder
+												.ofTypes(ElementGNode.name)
+												.except(this.fromNode, this.toNode)
+												.find<ElementGNode | null>(x, y, canvas);
+
+			if(el && !ElementGNode.hasUEdge(this.toMoveNode, el)) {
+				this.fromNode.edges.delete(this);
+				this.toNode.edges.delete(this);
+				this.fromNode = this.toMoveNode;
+
+				this.fromNode = this.toMoveNode;
+				this.toNode = el;
+
+				this.fromNode.addUEdge(this);
+				this.toNode.addUEdge(this);
+			}
+
+			this.start = { x: this.fromNode.x, y: this.fromNode.y };
+			this.end = { x: this.toNode.x, y: this.toNode.y };
+
+			this.rectify();
+			canvas.redraw();
+		}
+
 		return null;
 	}
 

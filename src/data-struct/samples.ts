@@ -8,7 +8,7 @@ import { randInt } from "./utils";
 // import { randInt } from "./utils";
 
 export function createSampleLinkedList(canvas: CanvasHandler) {
-	let y = 0;
+	let y = 30;
 
 	const nodes = [];
 
@@ -33,16 +33,29 @@ export function createSampleLinkedList(canvas: CanvasHandler) {
 		nodes[i].updateArrowHead();
 	}
 	canvas.redraw();
-
 }
 
 export function createSampleUGraph(canvas: CanvasHandler) {
+	// const n1 = new ElementGNode(40 * GAP, 20 * GAP, "n1");
+	// canvas.add(n1);
+
+	// const n2 = new ElementGNode(80 * GAP, 20 * GAP, "n2");
+	// canvas.add(n2);
+
+
+	// const edge = new ElementUEdge(n1, n2);
+
+	// edge.weight = randInt(0, 500);
+	// edge.rectify();
+	// canvas.add(edge);
+
+	// return;
 	let y = 10;
 
 	const nodes = [];
 
-	let row = 5;
-	let col = 5;
+	let row = 2;
+	let col = 2;
 
 	for(let i = 0; i < row; i++) {
 		let x = 10;
@@ -76,15 +89,15 @@ export function createSampleUGraph(canvas: CanvasHandler) {
 }
 
 export function createSampleDGraph(canvas: CanvasHandler) {
-	let y = 10;
+	let y = 5;
 
 	const nodes = [];
 
-	let row = 5;
-	let col = 5;
+	let row = 2;
+	let col = 2;
 
 	for(let i = 0; i < row; i++) {
-		let x = 10;
+		let x = 5;
 		for(let j = 0; j < col; j++) {
 			const enode = new ElementGNode(x * GAP, y * GAP, String(String(i) + j));
 			canvas.add(enode);
