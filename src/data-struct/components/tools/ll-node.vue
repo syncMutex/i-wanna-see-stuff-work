@@ -82,10 +82,7 @@ function find() {
 }
 
 .sub-sections-container > div{
-	margin-bottom: 1rem;
-	padding: 0.5rem 0.4rem;
-	border-radius: 4px;
-	background-color: rgb(40, 40, 40);
+	--bg: rgb(56, 48, 64);
 }
 
 .buttons{

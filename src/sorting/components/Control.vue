@@ -2,6 +2,7 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import { Sorter, SortingAlgorithm } from "../algorithms/sorter-iface.ts";
 import Range from "../../common-components/range.vue";
+import Select from "../../common-components/select.vue";
 
 const props = defineProps<{
 	curSorter: {
@@ -79,10 +80,13 @@ onUnmounted(() => {
 
 		<div class="control-partition">
 			<span>algorithm</span>
-			<div class="algorithms-container">
-				<select class="algorithms" @input="(e) => props.changeAlgorithm((e.target as any).value)">
-					<option :selected="alg === curSorter.name" v-for="alg in SortingAlgorithm">{{alg}}</option>
-				</select>
+			<div class="custom-select-container select-container">
+				<Select
+					:options="SortingAlgorithm"
+					:onChange="(value) => changeAlgorithm(value as SortingAlgorithm)"
+					:value="curSorter.name"
+					class="algorithms"
+				/>
 			</div>
 		</div>
 
@@ -102,6 +106,8 @@ onUnmounted(() => {
 
 
 <style scoped>
+@import "../../data-struct/components/css/common.css";
+
 *{
 	--control-bg: rgb(26, 0, 61);
 	--purple: rgb(112, 0, 255);
@@ -203,21 +209,17 @@ onUnmounted(() => {
 	background-color: var(--color);
 }
 
-.algorithms{
-	appearance: none;
-	-webkit-appearance: none;
-	outline: 0;
+.select-container {
 	width: 7.5rem;
+}
+
+.algorithms{
+	width: 100%;
 	height: 1.7rem;
 	border: none;
-	border-radius: 4px;
 	background: var(--pink);
 	box-shadow: 0 0 10px var(--pink);
 	color: white;
-	padding-left: 0.5rem;
-	font-weight: 600;
-	display: block;
-	cursor: pointer;
 }
 
 .algorithms > option {
@@ -227,25 +229,6 @@ onUnmounted(() => {
 
 .algorithms > option:hover {
 	background-color: white;
-}
-
-.algorithms-container{
-	position: relative;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-}
-
-.algorithms-container::after{
-	content: "";
-	display: block;
-	position: absolute;
-	right: 5%;
-	width: 0.8em;
-	height: 0.5em;
-	background-color: white;
-	clip-path: polygon(100% 0%, 0 0%, 50% 100%);
-	pointer-events: none;
 }
 
 .control-btns{

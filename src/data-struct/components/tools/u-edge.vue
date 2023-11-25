@@ -52,13 +52,6 @@ async function deleteEdge() {
 	font-size: 1.75rem;
 }
 
-.sub-sections-container > div{
-	margin-bottom: 1rem;
-	padding: 0.5rem 0.4rem;
-	border-radius: 4px;
-	background-color: rgb(40, 40, 40);
-}
-
 .buttons{
 	display: flex;
 	flex-direction: row;

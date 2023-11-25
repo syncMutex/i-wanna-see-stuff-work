@@ -11,7 +11,7 @@
 #app-body{
 	width: 100%;
 	height: 100%;
-	background-color: #212121;
+	background-color: rgb(23, 23, 23);
 	position: relative;
 }
 </style>

@@ -2,8 +2,13 @@
 import { ElementGNode } from '../../graph/el-node';
 import { playground } from '../../handler/playground-handler';
 import { useSelectedElement, unselectElement } from '../../global';
+import { GraphAlgorithms } from "../../graph/algorithms/graph-algorithm";
+import Select from "../../../common-components/select.vue";
+import { ref } from 'vue';
 
 const selectedElement = useSelectedElement<ElementGNode>();
+
+const currentAlg = ref("");
 
 function setNodeValue(value: string) {
 	selectedElement.value.value = value;
@@ -15,6 +20,10 @@ async function deleteNode() {
 	unselectElement();
 	await el.deleteNode(playground.canvas);
 	playground.canvas.redraw();
+}
+
+function onChange(value: GraphAlgorithms) {
+	console.log(value);
 }
 
 </script>
@@ -36,6 +45,17 @@ async function deleteNode() {
 		<div class="buttons">
 			<button class="btn btn-nobg clr-red" @click="deleteNode()">delete</button>
 		</div>
+
+		<div>
+			<div class="custom-select-container algorithms">
+				<Select
+					:options="GraphAlgorithms"
+					:onChange="(value) => onChange(value as GraphAlgorithms)"
+					:value="currentAlg"
+				/>
+			</div>
+
+		</div>
 	</div>
 </div>
 </template>
@@ -47,16 +67,21 @@ async function deleteNode() {
 	color: white;
 }
 
+.sub-sections-container > div{
+	--bg: rgb(64, 55, 48);
+}
+
+.algorithms {
+	width: 100%;
+}
+
+.algorithms select {
+	width: 100%;
+}
+
 .tool-node > h1{
 	margin-bottom: 1rem;
 	font-size: 1.75rem;
-}
-
-.sub-sections-container > div{
-	margin-bottom: 1rem;
-	padding: 0.5rem 0.4rem;
-	border-radius: 4px;
-	background-color: rgb(40, 40, 40);
 }
 
 .buttons{

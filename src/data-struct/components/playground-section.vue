@@ -72,7 +72,6 @@ onUnmounted(() => {
 
 #playground-lines{
 	display: block;
-	background-color: rgb(30, 30, 30);
 	position: absolute;
 }
 

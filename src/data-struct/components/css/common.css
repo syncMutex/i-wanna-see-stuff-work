@@ -1,9 +1,17 @@
 .floating-panel{
 	position: absolute;
-	background-color: rgb(23, 23, 23);
+	background-color: rgb(34, 34, 34);
 	box-shadow: 0 5px 10px rgba(0, 0, 0, 0.5);
 	border-radius: 6px;
 	color: white;
+}
+
+.sub-sections-container > div{
+	--bg: rgb(48, 48, 48);
+	margin-bottom: 1rem;
+	padding: 0.5rem 0.4rem;
+	border-radius: 4px;
+	background-color: var(--bg);
 }
 
 .pointer-events-none{
@@ -63,3 +71,23 @@ input[type="text"], input[type="number"]{
 input[type="text"]:focus{
 	outline: 1px solid white;
 }
+
+.custom-select-container{
+	position: relative;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.custom-select-container::after{
+	content: "";
+	display: block;
+	position: absolute;
+	right: 5%;
+	width: 0.8em;
+	height: 0.5em;
+	background-color: white;
+	clip-path: polygon(100% 0%, 0 0%, 50% 100%);
+	pointer-events: none;
+}
+

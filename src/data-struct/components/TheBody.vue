@@ -7,7 +7,7 @@ import SettingsMenu from "./settings-menu.vue";
 </script>
 
 <template>
-<div class="linked-list-body">
+<div class="pg-body">
 	<SettingsMenu />
 	<ToolBarSection />
 	<PlaygroundSection />
@@ -16,7 +16,7 @@ import SettingsMenu from "./settings-menu.vue";
 </template>
 
 <style scoped>
-.linked-list-body{
+.pg-body{
 	width: 100%;
 	height: 100%;
 	display: flex;
