@@ -3,6 +3,7 @@ import ToolBarSection from "./tool-bar.vue";
 import PlaygroundSection from "./playground-section.vue";
 import SelectedItem from "./selected-item.vue";
 import SettingsMenu from "./settings-menu.vue";
+import Algorithm from "./algorithm.vue";
 
 </script>
 
@@ -12,6 +13,7 @@ import SettingsMenu from "./settings-menu.vue";
 	<ToolBarSection />
 	<PlaygroundSection />
 	<SelectedItem />
+	<Algorithm />
 </div>
 </template>
 

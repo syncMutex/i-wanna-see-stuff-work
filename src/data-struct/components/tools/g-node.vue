@@ -1,29 +1,50 @@
 <script setup lang="ts">
 import { ElementGNode } from '../../graph/el-node';
 import { playground } from '../../handler/playground-handler';
-import { useSelectedElement, unselectElement } from '../../global';
+import { useFocusedElement, unfocusElement } from '../../global';
 import { GraphAlgorithms } from "../../graph/algorithms/graph-algorithm";
 import Select from "../../../common-components/select.vue";
 import { ref } from 'vue';
+import { curAlgorithm } from '../refs';
+import dfs from '../../graph/algorithms/dfs';
+import bfs from '../../graph/algorithms/bfs';
 
-const selectedElement = useSelectedElement<ElementGNode>();
+const focusedElement = useFocusedElement<ElementGNode>();
 
-const currentAlg = ref("");
+const currentAlg = ref(GraphAlgorithms.Dfs);
 
 function setNodeValue(value: string) {
-	selectedElement.value.value = value;
-	selectedElement.value.draw(playground.canvas.ctx);
+	focusedElement.value.value = value;
+	focusedElement.value.draw(playground.canvas.ctx);
 }
 
 async function deleteNode() {
-	const el = selectedElement.value;
-	unselectElement();
+	const el = focusedElement.value;
+	unfocusElement();
 	await el.deleteNode(playground.canvas);
 	playground.canvas.redraw();
 }
 
 function onChange(value: GraphAlgorithms) {
-	console.log(value);
+	currentAlg.value = value;
+}
+
+function run() {
+	curAlgorithm.value = dfs;
+
+	switch(currentAlg.value) {
+		case GraphAlgorithms.Dfs:
+			dfs.init(focusedElement.value);
+			curAlgorithm.value = dfs;
+			curAlgorithm.value.play(playground.canvas);
+			break;
+		case GraphAlgorithms.Bfs:
+			curAlgorithm.value = bfs;
+			break;
+	}
+
+	unfocusElement();
+	playground.canvas.redraw();
 }
 
 </script>
@@ -37,7 +58,7 @@ function onChange(value: GraphAlgorithms) {
 				placeholder="value"
 				type="text"
 				spellcheck="false"
-				:value="selectedElement.value"
+				:value="focusedElement.value"
 				@input="setNodeValue(($event.target as any).value)"
 			/>
 		</div>
@@ -54,7 +75,9 @@ function onChange(value: GraphAlgorithms) {
 					:value="currentAlg"
 				/>
 			</div>
-
+			<div style="margin-top: 1rem">
+				<button class="btn btn-nobg" @click="run()">run</button>
+			</div>
 		</div>
 	</div>
 </div>

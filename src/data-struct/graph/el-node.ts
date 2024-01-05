@@ -2,7 +2,7 @@ import { GAP, circleStroke } from "../canvas";
 import { Point } from "../geometry";
 import { EventState } from "../handler/event-handler";
 import { CanvasHandler } from "../handler/canvas-handler";
-import { selectedElement } from "../global";
+import { focusedElement } from "../global";
 import { GNode } from "./element-types/node";
 import { ElementHandler } from "../handler/element-handler";
 import { ElementUEdge } from "./el-u-edge";
@@ -75,7 +75,7 @@ export class ElementGNode extends GNode implements ElementHandler {
 
 	static hasDEdge(from: ElementGNode, to: ElementGNode): boolean {
 		for(let edge of from.edges.keys() as IterableIterator<ElementDEdge>) {
-			if(edge.to === to) {
+			if(edge.toNode === to) {
 				return true;
 			}
 		}
@@ -134,8 +134,14 @@ export class ElementGNode extends GNode implements ElementHandler {
 		circleStroke(ctx, this.x, this.y, GNode.radius);
 	}
 
+	unfocus() {
+	}
+
+	focus() {
+	}
+
 	draw(ctx: CanvasRenderingContext2D) {
-		if(this === selectedElement.value) {
+		if(this === focusedElement.value) {
 			this.drawBorder(ctx, "#FFFF00");
 		}
 

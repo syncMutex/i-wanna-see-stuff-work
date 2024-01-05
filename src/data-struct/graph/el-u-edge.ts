@@ -5,7 +5,7 @@ import { UEdge } from "./element-types/u-edge.ts";
 import { ElementHandler } from "../handler/element-handler";
 import { ElementGNode } from "./el-node";
 import { GNode } from "./element-types/node.ts";
-import { selectedElement } from "../global.ts";
+import { focusedElement } from "../global.ts";
 
 export class ElementUEdge extends UEdge implements ElementHandler {
 	pointerEnter(_state: EventState, _canvas: CanvasHandler) {}
@@ -171,13 +171,15 @@ export class ElementUEdge extends UEdge implements ElementHandler {
 		return this.intersects(x, y, offset, canvas.ctx) ? this as any : null;
 	}
 
-	draw(ctx: CanvasRenderingContext2D) {
-		if(this === selectedElement.value) {
-			this.bg = "#FFFF00";
-		} else {
-			this.bg = "#FFFFFF";
-		}
+	focus() {
+		this.bg = "#ffff00";
+	}
 
+	unfocus() {
+		this.bg = "#ffffff";
+	}
+
+	draw(ctx: CanvasRenderingContext2D) {
 		this.paint(ctx);
 	}
 }

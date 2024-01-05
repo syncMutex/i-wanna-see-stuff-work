@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import refs from "./refs";
 import { playground } from "../handler/playground-handler";
-import { setDelay, delay } from "../global";
+import { setDelay, DELAY } from "../global";
 import Range from "../../common-components/range.vue";
 
 const { setIsMenuOpen, isMenuOpen } = refs;
@@ -26,7 +26,7 @@ function setDisplayGrid() {
 
 		<div>
 			<span>speed</span>
-			<Range :min="10" :dir="'rtl'" :max="1000" :step="1" :value="delay"
+			<Range :min="10" :dir="'rtl'" :max="1000" :step="1" :value="DELAY"
 				@input="(e: any) => setDelay(Number(e.target.value))"
 			/>
 		</div>

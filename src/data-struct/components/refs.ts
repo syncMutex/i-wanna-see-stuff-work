@@ -1,4 +1,5 @@
-import { readonly, ref } from "vue";
+import { readonly, ref, shallowRef, ShallowRef } from "vue";
+import { AlgorithmHandler } from "../algorithm-handler";
 
 const isMenuOpen = ref<boolean>(false);
 
@@ -10,3 +11,7 @@ export default {
 	isMenuOpen: readonly(isMenuOpen),
 	setIsMenuOpen
 }
+
+export const curAlgorithm: ShallowRef<AlgorithmHandler | null> = shallowRef(null);
+
+

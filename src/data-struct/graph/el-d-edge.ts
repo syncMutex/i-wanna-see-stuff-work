@@ -6,11 +6,11 @@ import { DEdge } from "./element-types/d-edge.ts";
 import { GNode } from "./element-types/node";
 import { ElementHandler } from "../handler/element-handler";
 import { ElementGNode } from "./el-node";
-import { selectedElement } from "../global.ts";
+import { focusedElement } from "../global.ts";
 
 export class ElementDEdge extends DEdge implements ElementHandler {
-	from: ElementGNode;
-	to: ElementGNode;
+	fromNode: ElementGNode;
+	toNode: ElementGNode;
 
 	pointerEnter(_state: EventState, _canvas: CanvasHandler) {};
 	pointerLeave(_state: EventState, _canvas: CanvasHandler) {};
@@ -21,11 +21,11 @@ export class ElementDEdge extends DEdge implements ElementHandler {
 	
 	constructor(parent: ElementGNode, to: ElementGNode) {
 		super();
-		this.from = parent;
-		this.to = to;
+		this.fromNode = parent;
+		this.toNode = to;
 
-		this.from.addDEdge(this);
-		this.to.referedByDEdges.add(this);
+		this.fromNode.addDEdge(this);
+		this.toNode.referedByDEdges.add(this);
 		this.head = { x: this.tail.x + GAP, y: this.tail.y };
 	}
 
@@ -81,15 +81,15 @@ export class ElementDEdge extends DEdge implements ElementHandler {
 	}
 
 	async delete(canvas: CanvasHandler) {
-		await this.animateArrowHeadTo(canvas, this.from);
-		this.from.edges.delete(this);
-		this.to.referedByDEdges.delete(this);
+		await this.animateArrowHeadTo(canvas, this.fromNode);
+		this.fromNode.edges.delete(this);
+		this.toNode.referedByDEdges.delete(this);
 		this.remove(canvas);
 	}
 
 	rectify() {
-		const rStart = this.doRectifyFor(this.from, this.to);
-		const rEnd = this.doRectifyFor(this.to, this.from);
+		const rStart = this.doRectifyFor(this.fromNode, this.toNode);
+		const rEnd = this.doRectifyFor(this.toNode, this.fromNode);
 
 		if(rStart) {
 			this.tail = rStart;
@@ -101,7 +101,7 @@ export class ElementDEdge extends DEdge implements ElementHandler {
 	}
 
 	equals(e: ElementDEdge): boolean {
-		return this.to === e.to;
+		return this.toNode === e.toNode;
 	}
 
 	insertAfterNode: null | ElementGNode = null;
@@ -113,7 +113,7 @@ export class ElementDEdge extends DEdge implements ElementHandler {
 		this.head.x = x - canvas.offset.x;
 		this.head.y = y - canvas.offset.y;
 
-		const rStart = this.doRectifyFor(this.from, this.head);
+		const rStart = this.doRectifyFor(this.fromNode, this.head);
 
 		if(rStart) {
 			this.tail = rStart;
@@ -128,14 +128,13 @@ export class ElementDEdge extends DEdge implements ElementHandler {
 		if(state.pointerDown.x === x && state.pointerDown.y === y) {
 			return this;
 		} else {
-			const el = canvas.finder
-												.ofTypes(ElementGNode.name)
-												.except(this.from, this.to)
-												.find<ElementGNode | null>(x, y, canvas);
+			const el = canvas.finder.ofTypes(ElementGNode.name)
+									.except(this.fromNode, this.toNode)
+									.find<ElementGNode | null>(x, y, canvas);
 
-			if(el && !ElementGNode.hasDEdge(this.from, el)) {
-				this.to.referedByDEdges.delete(this);
-				this.to = el;
+			if(el && !ElementGNode.hasDEdge(this.fromNode, el)) {
+				this.toNode.referedByDEdges.delete(this);
+				this.toNode = el;
 				el.referedByDEdges.add(this);
 			}
 
@@ -150,12 +149,15 @@ export class ElementDEdge extends DEdge implements ElementHandler {
 		return this.intersects(x, y, offset, canvas.ctx) ? this as any : null;
 	}
 
+	focus() {
+		this.bg = "#ffff00";
+	}
+
+	unfocus() {
+		this.bg = "#ffffff";
+	}
+
 	draw(ctx: CanvasRenderingContext2D) {
-		if(this === selectedElement.value) {
-			this.bg = "#FFFF00";
-		} else {
-			this.bg = "#FFFFFF";
-		}
 		this.paint(ctx);
 	}
 }

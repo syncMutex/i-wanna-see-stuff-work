@@ -1,18 +1,18 @@
 <script setup lang="ts">
 import { ElementUEdge } from '../../graph/el-u-edge';
 import { playground } from '../../handler/playground-handler';
-import { useSelectedElement, unselectElement } from '../../global';
+import { useFocusedElement, unfocusElement } from '../../global';
 
-const selectedElement = useSelectedElement<ElementUEdge>();
+const focusedElement = useFocusedElement<ElementUEdge>();
 
 function setNodeValue(value: string) {
-	selectedElement.value.weight = Number(value);
+	focusedElement.value.weight = Number(value);
 	playground.canvas.redraw();
 }
 
 async function deleteEdge() {
-	const el = selectedElement.value;
-	unselectElement();
+	const el = focusedElement.value;
+	unfocusElement();
 	await el.delete(playground.canvas);
 	playground.canvas.redraw();
 }
@@ -28,7 +28,7 @@ async function deleteEdge() {
 				placeholder="value"
 				type="number"
 				spellcheck="false"
-				:value="selectedElement.weight"
+				:value="focusedElement.weight"
 				@input="setNodeValue(($event.target as any).value)"
 			/>
 		</div>

@@ -6,7 +6,7 @@ export class DEdge {
 
 	bg: string | CanvasGradient = "#FFFFFF";
 
-	weight = 1234567890;
+	weight = 0;
 
 	static LineWidth = 3;
 

@@ -2,40 +2,40 @@
 import { ref } from 'vue';
 import { ElementLLNode } from '../../linked-list/el-node';
 import { playground } from '../../handler/playground-handler';
-import { useSelectedElement, unselectElement } from '../../global';
+import { useFocusedElement, unfocusElement } from '../../global';
 
-const selectedElement = useSelectedElement<ElementLLNode>();
+const focusedElement = useFocusedElement<ElementLLNode>();
 const toFindValue = ref('');
 
 function setNodeValue(value: string) {
-	selectedElement.value.value = value;
-	selectedElement.value.draw(playground.canvas.ctx);
+	focusedElement.value.value = value;
+	focusedElement.value.draw(playground.canvas.ctx);
 }
 
 function deleteNode() {
-	const el = selectedElement.value;
-	unselectElement();
+	const el = focusedElement.value;
+	unfocusElement();
 	el.deleteLLNode(playground.canvas);
 }
 
 async function next() {
-	if(selectedElement.value === null) return;
-	if(selectedElement.value.next === null) {
-		unselectElement();
+	if(focusedElement.value === null) return;
+	if(focusedElement.value.next === null) {
+		unfocusElement();
 		playground.canvas.redraw();
 		return;
 	}
-	selectedElement.value = selectedElement.value.next;
-	await selectedElement.value.scrollTo(playground.canvas);
+	focusedElement.value = focusedElement.value.next;
+	await focusedElement.value.scrollTo(playground.canvas);
 	playground.canvas.redraw();
 }
 
 function deleteAll() {
-	selectedElement.value.deleteAllReachable(playground.canvas);
+	focusedElement.value.deleteAllReachable(playground.canvas);
 }
 
 function find() {
-	selectedElement.value.find(toFindValue.value, playground.canvas);
+	focusedElement.value.find(toFindValue.value, playground.canvas);
 }
 
 </script>
@@ -49,7 +49,7 @@ function find() {
 				placeholder="value"
 				type="text"
 				spellcheck="false"
-				:value="selectedElement.value"
+				:value="focusedElement.value"
 				@input="setNodeValue(($event.target as any).value)"
 			/>
 		</div>

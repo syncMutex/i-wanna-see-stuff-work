@@ -2,7 +2,7 @@ import { GAP } from "../canvas";
 import { Line, Point } from "../geometry";
 import { EventState } from "../handler/event-handler";
 import { CanvasHandler } from "../handler/canvas-handler";
-import { setPopupText, selectedElement, delay } from "../global";
+import { setPopupText, focusedElement, DELAY } from "../global";
 import { Arrow } from "./element-types/arrow";
 import { LLNode } from "./element-types/node";
 import { ElementArrow } from "./el-arrow";
@@ -258,7 +258,7 @@ export class ElementLLNode extends LLNode implements ElementHandler {
 
 			node.draw(canvas.ctx);
 
-			await sleep(delay);
+			await sleep(DELAY);
 
 			if(node.value === value) {
 				break;
@@ -268,7 +268,7 @@ export class ElementLLNode extends LLNode implements ElementHandler {
 			node.color = "#FFFFFF";
 			node.draw(canvas.ctx);
 
-			await sleep(delay);
+			await sleep(DELAY);
 
 			node.resetStyle();
 
@@ -324,7 +324,7 @@ export class ElementLLNode extends LLNode implements ElementHandler {
 	}
 
 	draw(ctx: CanvasRenderingContext2D) {
-		if(this === selectedElement.value) {
+		if(this === focusedElement.value) {
 			this.drawBorder(ctx, "#FFFF00");
 		}
 

@@ -1,4 +1,4 @@
-import { disablePointerEvents, selectedElement } from "../global";
+import { disablePointerEvents, focusElement } from "../global";
 import { Playground } from "./playground-handler";
 import refs from "../components/refs";
 
@@ -50,7 +50,7 @@ export class EventHandler {
 			pgnd.toolHandler.pointerDown(this.state, pgnd.canvas);
 		} else if(pgnd.elementHandler) {
 			pgnd.elementHandler.pointerDown(this.state, pgnd.canvas);
-			selectedElement.value = pgnd.elementHandler;
+			focusElement(pgnd.elementHandler);
 			pgnd.canvas.redraw();
 		}
 	}

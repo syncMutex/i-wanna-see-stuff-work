@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { computed } from "vue";
-import { selectedElement, disablePointerEvents } from "../global";
+import { focusedElement, disablePointerEvents } from "../global";
 
 import { ElementLLNode } from "../linked-list/el-node";
 
@@ -29,8 +29,8 @@ const componentMap: ComponentMap = {
 </script>
 
 <template>
-<div :class="className" v-if="selectedElement.constructor.name in componentMap">
-	<component :is="componentMap[selectedElement.constructor.name]"></component>
+<div :class="className" v-if="focusedElement.constructor.name in componentMap">
+	<component :is="componentMap[focusedElement.constructor.name]"></component>
 </div>
 </template>
 

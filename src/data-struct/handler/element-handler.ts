@@ -11,6 +11,8 @@ export interface ElementHandler {
 	isIntersect: (_x: number, _y: number, offset: Point, canvas: CanvasHandler) => null | ElementHandler;
 	remove: (_canvas: CanvasHandler) => void;
 	draw: (_ctx: CanvasRenderingContext2D) => void;
+	focus: () => void;
+	unfocus: () => void;
 }
 
 export class ElementPan implements ElementHandler {
@@ -37,6 +39,8 @@ export class ElementPan implements ElementHandler {
 	isIntersect(_x: number, _y: number, _offset: Point, _canvas: CanvasHandler): null | ElementHandler { return this }
 	remove(_canvas: CanvasHandler) {}
 	draw(_ctx: CanvasRenderingContext2D) {}
+	focus() {}
+	unfocus() {}
 }
 
 export const panHandler = new ElementPan();
