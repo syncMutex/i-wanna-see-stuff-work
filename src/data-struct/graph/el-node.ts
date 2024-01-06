@@ -1,8 +1,7 @@
-import { GAP, circleStroke } from "../canvas";
+import { GAP } from "../canvas";
 import { Point } from "../geometry";
 import { EventState } from "../handler/event-handler";
 import { CanvasHandler } from "../handler/canvas-handler";
-import { focusedElement } from "../global";
 import { GNode } from "./element-types/node";
 import { ElementHandler } from "../handler/element-handler";
 import { ElementUEdge } from "./el-u-edge";
@@ -128,23 +127,15 @@ export class ElementGNode extends GNode implements ElementHandler {
 		return null;
 	}
 
-	drawBorder(ctx: CanvasRenderingContext2D, color: string) {
-		ctx.strokeStyle = color;
-		ctx.lineWidth = 5;
-		circleStroke(ctx, this.x, this.y, GNode.radius);
-	}
-
 	unfocus() {
+		this.borderColor = "";
 	}
 
 	focus() {
+		this.borderColor = "#ffff00";
 	}
 
 	draw(ctx: CanvasRenderingContext2D) {
-		if(this === focusedElement.value) {
-			this.drawBorder(ctx, "#FFFF00");
-		}
-
 		this.paint(ctx);
 
 		for(let edge of this.edges.keys()) {

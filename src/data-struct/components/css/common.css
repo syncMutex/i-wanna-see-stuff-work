@@ -32,6 +32,15 @@
 	font-weight: 600;
 }
 
+.scroll-bar::-webkit-scrollbar{
+	background-color: rgb(40, 40, 40);
+	width: 8px;
+}
+
+.scroll-bar::-webkit-scrollbar-thumb{
+	background-color: rgb(171, 186, 176);
+}
+
 .clr-red{
 	--clr: rgb(255, 41, 41);
 }

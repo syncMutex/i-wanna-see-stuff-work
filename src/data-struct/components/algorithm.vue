@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { curAlgorithm } from "./refs";
+import { algorithmState } from "./refs";
 import { disablePointerEvents } from "../global";
 
 import Dfs from "../graph/algorithms/dfs";
@@ -19,14 +19,14 @@ function togglePlay() {
 	isPlaying.value = !isPlaying.value;
 
 	if(isPlaying.value) {
-		curAlgorithm.value?.play(playground.canvas);
+		algorithmState.alg?.play(playground.canvas);
 	} else {
-		curAlgorithm.value?.pause();
+		algorithmState.alg?.pause();
 	}
 }
 
 function stop() {
-	curAlgorithm.value?.stop(playground.canvas);
+	algorithmState.alg?.forceStop(playground.canvas);
 }
 
 </script>
@@ -34,22 +34,22 @@ function stop() {
 <template>
 	<div
 		:class="['play-pause-next-container', disablePointerEvents ? 'pointer-events-none' : '']"
-		v-if="curAlgorithm && curAlgorithm.constructor.name in componentMap"
+		v-if="!algorithmState.isDone && algorithmState.alg && algorithmState.alg.constructor.name in componentMap"
 	>
 		<div class="stop-btn" @click="stop"></div>
 		<div class="play-pause-btns">
 			<button class="play-btn" v-if="!isPlaying" @click="togglePlay"></button>
 			<button class="pause-btn" v-else @click="togglePlay"></button>
 		</div>
-		<button class="next-btn" :disabled="isPlaying" @click="curAlgorithm.next(playground.canvas)">
+		<button class="next-btn" :disabled="isPlaying" @click="algorithmState.alg.next(playground.canvas)">
 			<div></div>
 		</button>
 	</div>
 
 	<component
 		:class="[disablePointerEvents ? 'pointer-events-none' : '']"
-		v-if="curAlgorithm && curAlgorithm.constructor.name in componentMap"
-		:is="componentMap[curAlgorithm.constructor.name]"
+		v-if="algorithmState.alg && algorithmState.alg.constructor.name in componentMap"
+		:is="componentMap[algorithmState.alg.constructor.name]"
 	></component>
 </template>
 
@@ -74,6 +74,7 @@ function stop() {
 	height: max-content;
 	position: absolute;
 	bottom: 10%;
+	right: 5%;
 	background-color: #303030;
 	border-radius: 4px;
 	padding: 0.5rem;

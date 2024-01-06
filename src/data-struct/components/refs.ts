@@ -1,4 +1,4 @@
-import { readonly, ref, shallowRef, ShallowRef } from "vue";
+import { readonly, ref, shallowReactive } from "vue";
 import { AlgorithmHandler } from "../algorithm-handler";
 
 const isMenuOpen = ref<boolean>(false);
@@ -12,6 +12,13 @@ export default {
 	setIsMenuOpen
 }
 
-export const curAlgorithm: ShallowRef<AlgorithmHandler | null> = shallowRef(null);
+type AlgorithmState = {
+	alg: null | AlgorithmHandler,
+	isDone: boolean,
+};
 
+export const algorithmState = shallowReactive<AlgorithmState>({
+	alg: null,
+	isDone: false
+});
 

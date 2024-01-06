@@ -54,8 +54,8 @@ export function createSampleUGraph(canvas: CanvasHandler) {
 
 	const nodes = [];
 
-	let row = 2;
-	let col = 2;
+	let row = 4;
+	let col = 4;
 
 	for(let i = 0; i < row; i++) {
 		let x = 10;
@@ -128,6 +128,8 @@ export function createSampleDGraph(canvas: CanvasHandler) {
 }
 
 export function createSampleDfs(canvas: CanvasHandler) {
+	createSampleUGraph(canvas);
+	return 
 	let y = 10;
 
 	const nodes = [];

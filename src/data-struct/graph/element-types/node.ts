@@ -1,11 +1,12 @@
-import { GAP, circleFill } from "../../canvas";
+import { GAP, circleFill, circleStroke } from "../../canvas";
 import { Line, Point } from "../../geometry";
 
 export class GNode {
 	static radius = GAP * 5 / 2 + (GAP / 2);
 
 	bg: string = "";
-	color = "#FFFFFF";
+	color = "#ffffff";
+	borderColor = ""
 
 	x = -1;
 	y = -1;
@@ -23,6 +24,7 @@ export class GNode {
 	resetStyle() {
 		this.setBg("#ff801f");
 		this.color = "#FFFFFF";
+		this.borderColor = "";
 	}
 
 	paint(ctx: CanvasRenderingContext2D) {
@@ -44,6 +46,12 @@ export class GNode {
 		if(tlen > 5) {
 			ctx.font = "9px monospace";
 			ctx.fillText("..", this.x + 22, this.y + 2);
+		}
+
+		if(this.borderColor !== "") {
+			ctx.strokeStyle = this.borderColor;
+			ctx.lineWidth = 3;
+			circleStroke(ctx, this.x, this.y, GNode.radius);
 		}
 	}
 

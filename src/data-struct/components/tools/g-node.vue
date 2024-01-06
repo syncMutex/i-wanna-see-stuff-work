@@ -5,7 +5,7 @@ import { useFocusedElement, unfocusElement } from '../../global';
 import { GraphAlgorithms } from "../../graph/algorithms/graph-algorithm";
 import Select from "../../../common-components/select.vue";
 import { ref } from 'vue';
-import { curAlgorithm } from '../refs';
+import { algorithmState } from '../refs';
 import dfs from '../../graph/algorithms/dfs';
 import bfs from '../../graph/algorithms/bfs';
 
@@ -30,18 +30,19 @@ function onChange(value: GraphAlgorithms) {
 }
 
 function run() {
-	curAlgorithm.value = dfs;
-
 	switch(currentAlg.value) {
 		case GraphAlgorithms.Dfs:
 			dfs.init(focusedElement.value);
-			curAlgorithm.value = dfs;
-			curAlgorithm.value.play(playground.canvas);
+			algorithmState.alg = dfs;
 			break;
 		case GraphAlgorithms.Bfs:
-			curAlgorithm.value = bfs;
+			algorithmState.alg = bfs;
 			break;
 	}
+
+	algorithmState.isDone = false;
+
+	algorithmState.alg.play(playground.canvas);
 
 	unfocusElement();
 	playground.canvas.redraw();

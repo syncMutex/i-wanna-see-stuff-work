@@ -15,13 +15,14 @@ class Dfs extends AlgorithmHandler {
 
 	init(node: ElementGNode) {
 		this.startNode = node;
-		this.visited = ref(new Set<ElementGNode>());
+		this.visited.value = new Set<ElementGNode>();
 	}
 
 	*dfsUEdge(node: ElementGNode, canvas: CanvasHandler) {
 		this.visited.value.add(node);
 		node.bg = Color.visited;
 
+		node.borderColor = "#0000ff";
 		node.draw(canvas.ctx);
 		yield null;
 
@@ -36,17 +37,24 @@ class Dfs extends AlgorithmHandler {
 
 			if(!this.visited.value.has(temp)) {
 				let gen = this.dfsUEdge(temp, canvas);
+				node.borderColor = "";
+				canvas.redraw();
 				while(!gen.next().done) {
 					yield null;
 				}
+				node.borderColor = "#0000ff";
+				canvas.redraw();
 			}
 		}
+		node.borderColor = "";
+		canvas.redraw();
 	}
 
 	*dfsDEdge(node: ElementGNode, canvas: CanvasHandler) {
 		this.visited.value.add(node);
 		node.bg = Color.visited;
 
+		node.borderColor = "#0000ff";
 		node.draw(canvas.ctx);
 		yield null;
 
@@ -61,11 +69,17 @@ class Dfs extends AlgorithmHandler {
 
 			if(!this.visited.value.has(temp)) {
 				let gen = this.dfsDEdge(temp, canvas);
+				node.borderColor = "";
+				canvas.redraw();
 				while(!gen.next().done) {
 					yield null;
 				}
+				node.borderColor = "#0000ff";
+				canvas.redraw();
 			}
 		}
+		node.borderColor = "";
+		canvas.redraw();
 	}
 
 	uninit(canvas: CanvasHandler) {

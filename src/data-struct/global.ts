@@ -6,7 +6,7 @@ import { ToolUEdge } from "./graph/tool-u-edge.ts";
 import { ToolDEdge } from "./graph/tool-d-edge.ts";
 
 export const focusedElement = shallowRef<ElementHandler>(panHandler);
-export let DELAY = 500;
+export let DELAY = 200;
 const _popup = reactive({
 	text: ""
 })

@@ -1,4 +1,4 @@
-import { curAlgorithm } from "./components/refs";
+import { algorithmState } from "./components/refs";
 import { DELAY } from "./global";
 import { CanvasHandler } from "./handler/canvas-handler";
 
@@ -47,17 +47,27 @@ export class AlgorithmHandler {
 		/* implemented by child class */
 	}
 
-	stop(canvas: CanvasHandler) {
+	done(canvas: CanvasHandler) {
 		if(this.state === ProgressState.Stopped || this.state === ProgressState.NotBegun) return;
 		this.state = ProgressState.Stopped;
 		this.uninit(canvas);
 		this.generator = null;
-		curAlgorithm.value = null;
+		algorithmState.isDone = true;
+	}
+
+	forceStop(canvas: CanvasHandler) {
+		if(this.state === ProgressState.Stopped || this.state === ProgressState.NotBegun) return;
+		this.state = ProgressState.Stopped;
+		this.uninit(canvas);
+		this.generator = null;
+
+		algorithmState.alg = null;
+		algorithmState.isDone = true;
 	}
 
 	next(canvas: CanvasHandler) {
 		if(this.generator?.next().done) {
-			this.stop(canvas);
+			this.done(canvas);
 		}
 	}
 

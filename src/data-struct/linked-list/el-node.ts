@@ -311,6 +311,12 @@ export class ElementLLNode extends LLNode implements ElementHandler {
 		this.pointerDy = Math.floor((statey - nodey) / GAP) * GAP;
 	}
 
+	focus() {
+	}
+
+	unfocus() {
+	}
+
 	isIntersect(x: number, y: number, offset: Point): null | ElementHandler {
 		if(this.intersects(x, y, offset)) return this;
 		return null;
