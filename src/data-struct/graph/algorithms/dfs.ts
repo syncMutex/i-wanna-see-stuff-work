@@ -1,4 +1,4 @@
-import { Ref, ref } from "vue";
+import { ShallowRef, shallowRef } from "vue";
 import { AlgorithmHandler } from "../../algorithm-handler";
 import { CanvasHandler } from "../../handler/canvas-handler.ts";
 import { ElementGNode } from "../el-node.ts";
@@ -11,7 +11,7 @@ enum Color {
 class Dfs extends AlgorithmHandler {
 	startNode: null | ElementGNode = null;
 
-	visited: Ref<Set<ElementGNode>> = ref(new Set<ElementGNode>());
+	visited: ShallowRef<Set<ElementGNode>> = shallowRef(new Set<ElementGNode>());
 
 	init(node: ElementGNode) {
 		this.startNode = node;
@@ -20,6 +20,7 @@ class Dfs extends AlgorithmHandler {
 
 	*dfsUEdge(node: ElementGNode, canvas: CanvasHandler) {
 		this.visited.value.add(node);
+		this.visited.value = new Set([...this.visited.value]);
 		node.bg = Color.visited;
 
 		node.borderColor = "#0000ff";
@@ -52,6 +53,7 @@ class Dfs extends AlgorithmHandler {
 
 	*dfsDEdge(node: ElementGNode, canvas: CanvasHandler) {
 		this.visited.value.add(node);
+		this.visited.value = new Set([...this.visited.value]);
 		node.bg = Color.visited;
 
 		node.borderColor = "#0000ff";

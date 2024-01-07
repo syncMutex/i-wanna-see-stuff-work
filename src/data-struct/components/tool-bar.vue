@@ -2,6 +2,7 @@
 import { ref } from "vue";
 import { disablePointerEvents, ToolList } from "../global";
 import { playground } from "../handler/playground-handler";
+import { showToolBar } from "./refs";
 
 const curToolIdx = ref<number>(-1);
 
@@ -17,7 +18,11 @@ function selectTool(idx: number) {
 </script>
 
 <template>
-<section id="tool-bar-section" :class="['floating-panel', disablePointerEvents ? 'pointer-events-none' : '']">
+<section
+	v-if="showToolBar"
+	id="tool-bar-section"
+	:class="['floating-panel', disablePointerEvents ? 'pointer-events-none' : '']"
+>
 	<div class="tools-list">
 		<div
 			v-for="(tool, idx) in ToolList"

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import refs from "./refs";
+import refs, { showToolBar } from "./refs";
 import { playground } from "../handler/playground-handler";
 import { setDelay, DELAY } from "../global";
 import Range from "../../common-components/range.vue";
@@ -13,7 +13,7 @@ function setDisplayGrid() {
 </script>
 
 <template>
-<div id="menu-btn" class="floating-panel" @click.self="() => setIsMenuOpen(!isMenuOpen)">
+<div v-if="showToolBar" id="menu-btn" class="floating-panel" @click.self="() => setIsMenuOpen(!isMenuOpen)">
 	<div :class="['icon', isMenuOpen ? 'active' : '']">
 		<div></div>
 	</div>

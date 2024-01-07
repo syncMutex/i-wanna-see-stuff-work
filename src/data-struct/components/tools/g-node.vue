@@ -5,13 +5,13 @@ import { useFocusedElement, unfocusElement } from '../../global';
 import { GraphAlgorithms } from "../../graph/algorithms/graph-algorithm";
 import Select from "../../../common-components/select.vue";
 import { ref } from 'vue';
-import { algorithmState } from '../refs';
+import { algorithmState, setShowToolBar } from '../refs';
 import dfs from '../../graph/algorithms/dfs';
 import bfs from '../../graph/algorithms/bfs';
 
 const focusedElement = useFocusedElement<ElementGNode>();
 
-const currentAlg = ref(GraphAlgorithms.Dfs);
+const currentAlg = ref(GraphAlgorithms.Bfs);
 
 function setNodeValue(value: string) {
 	focusedElement.value.value = value;
@@ -30,19 +30,20 @@ function onChange(value: GraphAlgorithms) {
 }
 
 function run() {
+	let alg;
 	switch(currentAlg.value) {
 		case GraphAlgorithms.Dfs:
 			dfs.init(focusedElement.value);
-			algorithmState.alg = dfs;
+			alg = dfs;
 			break;
 		case GraphAlgorithms.Bfs:
-			algorithmState.alg = bfs;
+			bfs.init(focusedElement.value);
+			alg = bfs;
 			break;
 	}
 
-	algorithmState.isDone = false;
-
-	algorithmState.alg.play(playground.canvas);
+	algorithmState.initAlgorithm(alg);
+	alg.play(playground.canvas);
 
 	unfocusElement();
 	playground.canvas.redraw();

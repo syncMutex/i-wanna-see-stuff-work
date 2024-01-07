@@ -1,16 +1,21 @@
 <script lang="ts" setup>
 import { algorithmState } from "./refs";
 import { disablePointerEvents } from "../global";
+import { ref } from "vue";
+import { playground } from "../handler/playground-handler";
+import { setDelay, DELAY } from "../global";
+import Range from "../../common-components/range.vue";
 
 import Dfs from "../graph/algorithms/dfs";
 import DfsComp from "../graph/algorithms/components/dfs.vue";
-import { ref } from "vue";
-import { playground } from "../handler/playground-handler";
+import Bfs from "../graph/algorithms/bfs";
+import BfsComp from "../graph/algorithms/components/bfs.vue";
 
 type ComponentMap = { [_:string]: any };
 
 const componentMap: ComponentMap = {
 	[Dfs.constructor.name]: DfsComp,
+	[Bfs.constructor.name]: BfsComp
 };
 
 const isPlaying = ref(true);
@@ -44,6 +49,11 @@ function stop() {
 		<button class="next-btn" :disabled="isPlaying" @click="algorithmState.alg.next(playground.canvas)">
 			<div></div>
 		</button>
+		<div class="speed-container">
+			<Range :min="10" :dir="'rtl'" :max="1000" :step="1" :value="DELAY"
+				@input="(e: any) => setDelay(Number(e.target.value))"
+			/>
+		</div>
 	</div>
 
 	<component
@@ -73,12 +83,15 @@ function stop() {
 	width: max-content;
 	height: max-content;
 	position: absolute;
-	bottom: 10%;
-	right: 5%;
+	top: 1%;
 	background-color: #303030;
 	border-radius: 4px;
 	padding: 0.5rem;
 	box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.play-pause-next-container > *{
+	margin-right: 1rem;
 }
 
 .stop-btn{
@@ -93,7 +106,6 @@ function stop() {
 	width: var(--element-height);
 	height: var(--element-height);
 	display: inline-block;
-	margin: 0 1rem;
 }
 
 .play-pause-btns button{
@@ -164,5 +176,16 @@ function stop() {
 .next-btn:disabled{
 	--div-color: grey;
 	pointer-events: none;
+}
+
+.speed-container{
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+
+.speed-container span{
+	font-size: 0.8rem;
 }
 </style>

@@ -52,7 +52,8 @@ export class AlgorithmHandler {
 		this.state = ProgressState.Stopped;
 		this.uninit(canvas);
 		this.generator = null;
-		algorithmState.isDone = true;
+
+		algorithmState.algorithmDone();
 	}
 
 	forceStop(canvas: CanvasHandler) {
@@ -61,8 +62,7 @@ export class AlgorithmHandler {
 		this.uninit(canvas);
 		this.generator = null;
 
-		algorithmState.alg = null;
-		algorithmState.isDone = true;
+		algorithmState.forceStopAlgorithm();
 	}
 
 	next(canvas: CanvasHandler) {

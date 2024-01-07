@@ -1,19 +1,21 @@
 <script setup lang="ts">
-import { onUpdated, ref } from "vue";
+import { ref, watch } from "vue";
 import { algorithmState } from "../../../components/refs";
 import Dfs from "../dfs";
 
 const orderContainer = ref<null | HTMLDivElement>();
 
 function done() {
-	algorithmState.alg = null;
+	algorithmState.forceStopAlgorithm();
 }
 
-onUpdated(() => {
-	if(orderContainer.value) {
-		orderContainer.value.scrollTo({ top: orderContainer.value.scrollHeight, behavior: "smooth" });
-	}
-});
+watch(Dfs.visited, () => {
+	setTimeout(() => {
+		if(orderContainer.value) {
+			orderContainer.value.scrollTo({ top: orderContainer.value.scrollHeight, behavior: "smooth" });
+		}
+	}, 10);
+})
 
 </script>
 
@@ -38,7 +40,7 @@ onUpdated(() => {
 	flex-direction: column;
 	width: 7rem;
 	max-width: 12rem;
-	height: 80%;
+	height: 70%;
 	position: absolute;
 	left: 1rem;
 	top: 5rem;
@@ -82,7 +84,7 @@ h2{
 	height: 2rem;
 	width: 2rem;
 	background-color: rgb(13, 191, 73);
-	margin-bottom: 0.5rem;
+	margin-bottom: 0.2rem;
 }
 
 </style>
