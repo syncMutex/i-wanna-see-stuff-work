@@ -1,4 +1,5 @@
 export enum GraphAlgorithms {
 	Dfs = "Dfs",
-	Bfs = "Bfs"
+	Bfs = "Bfs",
+	Dijkstra = "Dijkstra"
 }

@@ -6,7 +6,6 @@ import { DEdge } from "./element-types/d-edge.ts";
 import { GNode } from "./element-types/node";
 import { ElementHandler } from "../handler/element-handler";
 import { ElementGNode } from "./el-node";
-import { focusedElement } from "../global.ts";
 
 export class ElementDEdge extends DEdge implements ElementHandler {
 	fromNode: ElementGNode;
@@ -127,20 +126,20 @@ export class ElementDEdge extends DEdge implements ElementHandler {
 
 		if(state.pointerDown.x === x && state.pointerDown.y === y) {
 			return this;
-		} else {
-			const el = canvas.finder.ofTypes(ElementGNode.name)
-									.except(this.fromNode, this.toNode)
-									.find<ElementGNode | null>(x, y, canvas);
-
-			if(el && !ElementGNode.hasDEdge(this.fromNode, el)) {
-				this.toNode.referedByDEdges.delete(this);
-				this.toNode = el;
-				el.referedByDEdges.add(this);
-			}
-
-			this.rectify();
-			canvas.redraw();
 		}
+
+		const el = canvas.finder.ofTypes(ElementGNode.name)
+								.except(this.fromNode, this.toNode)
+								.find<ElementGNode | null>(x, y, canvas);
+
+		if(el && !ElementGNode.hasDEdge(this.fromNode, el)) {
+			this.toNode.referedByDEdges.delete(this);
+			this.toNode = el;
+			el.referedByDEdges.add(this);
+		}
+
+		this.rectify();
+		canvas.redraw();
 
 		return null;
 	}

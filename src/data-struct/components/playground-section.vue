@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { ref, onMounted, onUnmounted } from "vue";
 import { playground } from "../handler/playground-handler";
-import { createSampleBfs } from "../samples";
+import { createSampleDijkstra } from "../samples";
 import { EventHandler } from "../handler/event-handler";
-import { popup, setPopupText } from "../global";
+import { infoPopup, popup, setPopupText } from "../global";
 
 const playgroundSection = ref<null | HTMLElement>(null);
 const pgndCanvas = ref<null | HTMLCanvasElement>(null);
@@ -30,7 +30,8 @@ onMounted(() => {
 	// createSampleUGraph(playground.canvas);
 	// createSampleDfs(playground.canvas);
 	// createSampleDGraph(playground.canvas);
-	createSampleBfs(playground.canvas);
+	// createSampleBfs(playground.canvas);
+	createSampleDijkstra(playground.canvas);
 })
 
 onUnmounted(() => {
@@ -51,6 +52,12 @@ onUnmounted(() => {
 		ref="pgndCanvas"
 	></canvas>
 	<canvas id="element" ref="toolCanvas"></canvas>
+
+	<div id="info-popup" v-if="infoPopup.text !== ''">
+		<div class="icon">i</div>
+		<div class="info-text">{{ infoPopup.text }}</div>
+	</div>
+
 	<div v-if="popup.text !== ''" id="popup-container" @click.self="setPopupText('')">
 		<div>
 			<div>
@@ -128,6 +135,42 @@ onUnmounted(() => {
 
 #popup-container button{
 	margin-top: 1.5rem;
+}
+
+#info-popup{
+	max-width: 40rem;
+	min-height: 3rem;
+	background-color: rgb(40, 40, 40);
+	border: 2px solid rgb(255, 200, 100);
+	border-radius: 4px;
+	box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+	position: absolute;
+	bottom: 15%;
+	left: 50%;
+	transform: translateX(-50%);
+	padding: 0.5rem 1rem;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+
+.info-text{
+	color: white;
+}
+
+#info-popup .icon{
+	display: inline-flex;
+	justify-content: center;
+	align-items: center;
+	min-width: 1.2rem;
+	min-height: 1.2rem;
+	width: 1.2rem;
+	height: 1.2rem;
+	background-color: rgb(255, 255, 0);
+	color: black;
+	font-family: monospace;
+	border-radius: 20px;
+	margin-right: 0.5rem;
 }
 
 </style>

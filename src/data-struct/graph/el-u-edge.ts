@@ -5,7 +5,6 @@ import { UEdge } from "./element-types/u-edge.ts";
 import { ElementHandler } from "../handler/element-handler";
 import { ElementGNode } from "./el-node";
 import { GNode } from "./element-types/node.ts";
-import { focusedElement } from "../global.ts";
 
 export class ElementUEdge extends UEdge implements ElementHandler {
 	pointerEnter(_state: EventState, _canvas: CanvasHandler) {}
@@ -139,30 +138,29 @@ export class ElementUEdge extends UEdge implements ElementHandler {
 
 		if(state.pointerDown.x === x && state.pointerDown.y === y) {
 			return this;
-		} else {
-			const el = canvas.finder
-												.ofTypes(ElementGNode.name)
-												.except(this.fromNode, this.toNode)
-												.find<ElementGNode | null>(x, y, canvas);
-
-			if(el && !ElementGNode.hasUEdge(this.toMoveNode, el)) {
-				this.fromNode.edges.delete(this);
-				this.toNode.edges.delete(this);
-				this.fromNode = this.toMoveNode;
-
-				this.fromNode = this.toMoveNode;
-				this.toNode = el;
-
-				this.fromNode.addUEdge(this);
-				this.toNode.addUEdge(this);
-			}
-
-			this.start = { x: this.fromNode.x, y: this.fromNode.y };
-			this.end = { x: this.toNode.x, y: this.toNode.y };
-
-			this.rectify();
-			canvas.redraw();
 		}
+		const el = canvas.finder
+						.ofTypes(ElementGNode.name)
+						.except(this.fromNode, this.toNode)
+						.find<ElementGNode | null>(x, y, canvas);
+
+		if(el && !ElementGNode.hasUEdge(this.toMoveNode, el)) {
+			this.fromNode.edges.delete(this);
+			this.toNode.edges.delete(this);
+			this.fromNode = this.toMoveNode;
+
+			this.fromNode = this.toMoveNode;
+			this.toNode = el;
+
+			this.fromNode.addUEdge(this);
+			this.toNode.addUEdge(this);
+		}
+
+		this.start = { x: this.fromNode.x, y: this.fromNode.y };
+		this.end = { x: this.toNode.x, y: this.toNode.y };
+
+		this.rectify();
+		canvas.redraw();
 
 		return null;
 	}

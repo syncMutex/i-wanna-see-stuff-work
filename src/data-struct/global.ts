@@ -13,6 +13,12 @@ const _popup = reactive({
 
 export const popup = readonly(_popup);
 
+const _infoPopup = reactive({
+	text: ""
+})
+
+export const infoPopup = readonly(_infoPopup);
+
 export function setDelay(d: number) {
 	if(d < 1) return;
 	DELAY = d;
@@ -20,6 +26,10 @@ export function setDelay(d: number) {
 
 export function setPopupText(text: string) {
 	_popup.text = text;
+}
+
+export function setInfoPopupText(text: string) {
+	_infoPopup.text = text;
 }
 
 export function useFocusedElement<T>() {

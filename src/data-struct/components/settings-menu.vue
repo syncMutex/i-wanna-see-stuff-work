@@ -1,10 +1,8 @@
 <script setup lang="ts">
-import refs, { showToolBar } from "./refs";
+import { showToolBar, isMenuOpen, setIsMenuOpen } from "./refs";
 import { playground } from "../handler/playground-handler";
 import { setDelay, DELAY } from "../global";
 import Range from "../../common-components/range.vue";
-
-const { setIsMenuOpen, isMenuOpen } = refs;
 
 function setDisplayGrid() {
 	playground.canvas.setIsDisplayGrid(!playground.canvas.isDisplayGrid);

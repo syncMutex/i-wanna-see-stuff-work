@@ -1,6 +1,6 @@
 import { disablePointerEvents, focusElement } from "../global";
 import { Playground } from "./playground-handler";
-import refs from "../components/refs";
+import { isMenuOpen, setIsMenuOpen } from "../components/refs";
 
 export type EventState = {
 	pointerDown: { x: number, y: number };
@@ -42,7 +42,7 @@ export class EventHandler {
 	pointerDown(e: PointerEvent, pgnd: Playground) {
 		disablePointerEvents.value = true;
 		if(e.target === null) return;
-		if(refs.isMenuOpen) refs.setIsMenuOpen(false);
+		if(isMenuOpen) setIsMenuOpen(false);
 		this.state.pointerDown = this.getRelXY(e);
 		pgnd.elementHandler = pgnd.canvas.findIntersection(this.state.pointerDown.x, this.state.pointerDown.y);
 

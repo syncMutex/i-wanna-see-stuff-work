@@ -2,14 +2,14 @@ import { readonly, ref, shallowReactive } from "vue";
 import { AlgorithmHandler } from "../algorithm-handler";
 // import bfs from "../graph/algorithms/bfs";
 
-const isMenuOpen = ref<boolean>(false);
+const _isMenuOpen = ref<boolean>(false);
 const _showToolBar = ref<boolean>(true);
 
 class AlgorithmState {
 	alg: null | AlgorithmHandler = null;
 	isDone: boolean = false;
 
-	initAlgorithm(handler: AlgorithmHandler) {
+	setAlgorithm(handler: AlgorithmHandler) {
 		this.alg = handler;
 		this.isDone = false;
 		setShowToolBar(false);
@@ -29,8 +29,8 @@ class AlgorithmState {
 
 export const algorithmState = shallowReactive<AlgorithmState>(new AlgorithmState);
 
-function setIsMenuOpen(v: boolean) {
-	isMenuOpen.value = v;
+export function setIsMenuOpen(v: boolean) {
+	_isMenuOpen.value = v;
 }
 
 export function setShowToolBar(v: boolean) {
@@ -38,9 +38,5 @@ export function setShowToolBar(v: boolean) {
 }
 
 export const showToolBar = readonly(_showToolBar);
-
-export default {
-	isMenuOpen: readonly(isMenuOpen),
-	setIsMenuOpen,
-}
+export const isMenuOpen = readonly(_isMenuOpen);
 

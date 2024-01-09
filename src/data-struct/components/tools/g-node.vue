@@ -5,13 +5,14 @@ import { useFocusedElement, unfocusElement } from '../../global';
 import { GraphAlgorithms } from "../../graph/algorithms/graph-algorithm";
 import Select from "../../../common-components/select.vue";
 import { ref } from 'vue';
-import { algorithmState, setShowToolBar } from '../refs';
+import { algorithmState } from '../refs';
 import dfs from '../../graph/algorithms/dfs';
 import bfs from '../../graph/algorithms/bfs';
+import { setToolDijkstra } from '../../graph/tool-dijkstra';
 
 const focusedElement = useFocusedElement<ElementGNode>();
 
-const currentAlg = ref(GraphAlgorithms.Bfs);
+const currentAlg = ref(GraphAlgorithms.Dijkstra);
 
 function setNodeValue(value: string) {
 	focusedElement.value.value = value;
@@ -30,20 +31,22 @@ function onChange(value: GraphAlgorithms) {
 }
 
 function run() {
-	let alg;
 	switch(currentAlg.value) {
 		case GraphAlgorithms.Dfs:
 			dfs.init(focusedElement.value);
-			alg = dfs;
+			algorithmState.setAlgorithm(dfs);
+			dfs.play(playground.canvas);
 			break;
 		case GraphAlgorithms.Bfs:
 			bfs.init(focusedElement.value);
-			alg = bfs;
+			algorithmState.setAlgorithm(bfs);
+			bfs.play(playground.canvas);
+			break;
+		case GraphAlgorithms.Dijkstra:
+			setToolDijkstra(playground, focusedElement.value);
 			break;
 	}
 
-	algorithmState.initAlgorithm(alg);
-	alg.play(playground.canvas);
 
 	unfocusElement();
 	playground.canvas.redraw();

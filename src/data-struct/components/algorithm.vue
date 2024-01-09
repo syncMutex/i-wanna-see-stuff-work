@@ -8,14 +8,19 @@ import Range from "../../common-components/range.vue";
 
 import Dfs from "../graph/algorithms/dfs";
 import DfsComp from "../graph/algorithms/components/dfs.vue";
+
 import Bfs from "../graph/algorithms/bfs";
 import BfsComp from "../graph/algorithms/components/bfs.vue";
+
+import Dijkstra from "../graph/algorithms/dijkstra";
+import DijkstraComp from "../graph/algorithms/components/dijkstra.vue";
 
 type ComponentMap = { [_:string]: any };
 
 const componentMap: ComponentMap = {
 	[Dfs.constructor.name]: DfsComp,
-	[Bfs.constructor.name]: BfsComp
+	[Bfs.constructor.name]: BfsComp,
+	[Dijkstra.constructor.name]: DijkstraComp,
 };
 
 const isPlaying = ref(true);

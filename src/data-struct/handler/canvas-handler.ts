@@ -115,7 +115,7 @@ export class CanvasHandler {
 		}
 	}
 
-	findIntersection(x: number, y: number): ElementHandler | null {
+	findIntersection(x: number, y: number): ElementHandler {
 		for(let i = this.elements.length - 1; i >= 0; i--) {
 			const e = this.elements[i].isIntersect(x, y, this.offset, this);
 			if(e) {

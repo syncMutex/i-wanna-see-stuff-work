@@ -211,3 +211,50 @@ export function createSampleBfs(canvas: CanvasHandler) {
 
 	canvas.redraw();
 }
+
+export function createSampleDijkstra(canvas: CanvasHandler) {
+	let y = 10;
+
+	const nodes = [];
+
+	let row = 3;
+	let col = 3;
+
+	for(let i = 0; i < row; i++) {
+		let x = 40;
+		for(let j = 0; j < col; j++) {
+			const enode = new ElementGNode(x * GAP, y * GAP, String(String(i) + j));
+			canvas.add(enode);
+			x += 15;
+			nodes.push(enode);
+		}
+		y += 15;
+	}
+
+	let wt = 1;
+
+	const addEdge = (a: ElementGNode, b: ElementGNode) => {
+		if(ElementGNode.hasDEdge(a, b)) {
+			return;
+		}
+		const edge = new ElementUEdge(a, b);
+
+		edge.weight = wt++;
+		edge.rectify();
+		canvas.add(edge);
+	}
+
+	addEdge(nodes[0], nodes[1]);
+	addEdge(nodes[0], nodes[3]);
+	addEdge(nodes[3], nodes[4]);
+	addEdge(nodes[1], nodes[3]);
+	addEdge(nodes[1], nodes[4]);
+	addEdge(nodes[2], nodes[4]);
+	addEdge(nodes[2], nodes[1]);
+	addEdge(nodes[6], nodes[3]);
+	addEdge(nodes[6], nodes[4]);
+	addEdge(nodes[6], nodes[5]);
+	addEdge(nodes[5], nodes[1]);
+
+	canvas.redraw();
+}
