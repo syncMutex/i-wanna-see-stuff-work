@@ -79,7 +79,8 @@ export function createSampleUGraph(canvas: CanvasHandler) {
 			}
 			const edge = new ElementUEdge(a, b);
 
-			edge.weight = randInt(0, 500);
+			// edge.weight = randInt(0, 500);
+			edge.weight = 0;
 			edge.rectify();
 			canvas.add(edge);
 		}

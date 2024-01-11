@@ -1,14 +1,22 @@
-import { ShallowRef, shallowRef } from "vue";
+import { Ref, ref } from "vue";
 import { AlgorithmHandler } from "../../algorithm-handler";
 import { CanvasHandler } from "../../handler/canvas-handler.ts";
 import { ElementGNode } from "../el-node.ts";
+import { ElementUEdge } from "../el-u-edge.ts";
+import { setPopupText } from "../../global.ts";
 
-// enum Color {
-// 	visited = "#00ff00"
-// };
+enum Color {
+	shortPath = "#00ff00",
+	curNode = "#0000ff",
+	visited = "#87ed90",
+	compare = "#ffff00"
+};
 
 class PriorityQueue {
-	private qArr: Array<{dist: number, node: ElementGNode}> = [];
+	private qArr: Array<{
+		dist: number,
+		node: ElementGNode,
+	}> = [];
 
 	private heapify(idx: number) {
 		let heap = this.qArr;
@@ -35,12 +43,16 @@ class PriorityQueue {
 		this.qArr.push(qNode);
 		let idx = this.qArr.length - 1;
 
-		while(idx > 0 && this.qArr[(idx - 1) / 2].dist > this.qArr[idx].dist) {
-			let pidx = (idx - 1) / 2;
+		while(idx > 0 && this.qArr[Math.floor((idx - 1) / 2)].dist > this.qArr[idx].dist) {
+			let pidx = Math.floor((idx - 1) / 2);
 			[this.qArr[idx], this.qArr[pidx]] = [this.qArr[pidx], this.qArr[idx]];
 
 			idx = pidx;
 		}
+	}
+
+	isEmpty() {
+		return this.qArr.length === 0;
 	}
 
 	extractMin(): ElementGNode | undefined {
@@ -52,35 +64,122 @@ class PriorityQueue {
 	}
 }
 
+class DistValue { 
+	dist: number;
+	prev: ElementGNode | null;
+
+	constructor(dist: number, prev: ElementGNode | null) {
+		this.dist = dist;
+		this.prev = prev;
+	}
+};
+
 class Dijkstra extends AlgorithmHandler {
 	startNode: null | ElementGNode = null;
 	endNode: null | ElementGNode = null;
-	visited: ShallowRef<Set<ElementGNode>> = shallowRef(new Set<ElementGNode>());
+	distanceTable: Ref<Map<ElementGNode, DistValue>> = ref(new Map());
 
 	init(startNode: ElementGNode, endNode: ElementGNode) {
 		this.startNode = startNode;
 		this.endNode = endNode;
-		this.visited.value = new Set<ElementGNode>();
+		this.distanceTable.value = new Map<ElementGNode, DistValue>();
 	}
 
-	uninit(canvas: CanvasHandler) {
-		this.startNode = null;
-		for(let n of this.visited.value) {
-			n.edges.forEach((_, e) => e.bg = "#ffffff");
-			n.resetStyle();
-		}
-		canvas.redraw();
+	uninit(_canvas: CanvasHandler) {
 	}
 
-	*dijkstra(startNode: ElementGNode, endNode: ElementGNodem, canvas: CanvasHandler) {
+	*dijkstraUEdge(startNode: ElementGNode, endNode: ElementGNode, canvas: CanvasHandler) {
 		let minQueue = new PriorityQueue();
-		let distanceTable: Map<ElementGNode, number> = new Map();
+		let distanceTable = this.distanceTable;
+
+		let visited = new Set<ElementGNode>();
+
+		distanceTable.value.set(startNode, new DistValue(0, null));
+		minQueue.insert(0, startNode);
+
+		outter:
+		while(!minQueue.isEmpty()) {
+			const cur = minQueue.extractMin();
+
+			if(!cur) throw new Error("priority queue is empty.");
+
+			if(visited.has(cur)) {
+				continue;
+			}
+
+			if(cur === endNode) {
+				break;
+			}
+
+			cur.bg = Color.curNode;
+			cur.draw(canvas.ctx);
+			yield null;
+
+			for(const edge of cur.edges.keys()) {
+				edge.bg = Color.compare;
+				edge.draw(canvas.ctx);
+				yield null;
+
+				const toNode = edge.toNode === cur ? edge.fromNode : edge.toNode;
+
+				if(!distanceTable.value.has(toNode)) {
+					distanceTable.value.set(toNode, new DistValue(Infinity, null));
+				}
+
+				const newDist = (distanceTable.value.get(cur)?.dist as number) + (edge.weight || 1);
+
+				if((distanceTable.value.get(toNode)?.dist as number) > newDist) {
+					distanceTable.value.set(toNode, new DistValue(newDist, cur));
+					minQueue.insert(newDist, toNode);
+				}
+				edge.bg = "#ffffff";
+				edge.draw(canvas.ctx);
+			}
+			cur.bg = Color.visited;
+			cur.color = "#000000";
+			cur.draw(canvas.ctx);
+			yield null;
+			visited.add(cur);
+		}
+
+		let temp = distanceTable.value.get(endNode);
+		if(!temp?.prev) {
+			setPopupText("The node is not reachable from the source node.");
+			return;
+		}
+
+		endNode.bg = Color.shortPath;
+		endNode.draw(canvas.ctx);
+
+		while(temp?.prev) {
+			temp.prev.bg = Color.shortPath;
+			temp.prev.draw(canvas.ctx);
+			temp = distanceTable.value.get(temp.prev);
+		}
+	}
+
+	*dijkstraDEdge(startNode: ElementGNode, endNode: ElementGNode, canvas: CanvasHandler) {
 	}
 
 	*generatorFn(canvas: CanvasHandler) {
-		console.log(this.startNode?.value, this.endNode?.value);
 		if(this.startNode && this.endNode) {
-			let gen = this.dijkstra(this.startNode, this.endNode, canvas);
+			if(this.startNode === this.endNode) {
+				return;
+			}
+
+			let gen;
+
+			this.startNode.resetStyle();
+			this.endNode.resetStyle();
+			this.startNode.draw(canvas.ctx);
+			this.endNode.draw(canvas.ctx);
+
+			if(this.startNode.edges.keys().next().value.constructor.name === ElementUEdge.name) {
+				gen = this.dijkstraUEdge(this.startNode, this.endNode, canvas);
+			} else {
+				gen = this.dijkstraDEdge(this.startNode, this.endNode, canvas);
+			}
+
 			while(!gen.next().done) {
 				yield null;
 			}

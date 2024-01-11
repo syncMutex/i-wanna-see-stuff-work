@@ -14,7 +14,7 @@ function done() {
 	<h2>Order</h2>
 
 	<div class="order scroll-bar" ref="orderContainer">
-		<div v-for="n of Dijkstra.visited.value.values()">{{n.value}}</div>
+		<div v-for="n of Dijkstra.distanceTable.value">{{n[0].value}} : {{n[1].dist}}</div>
 	</div>
 
 	<button v-if="algorithmState.isDone" class="btn btn-nobg" @click="done">done</button>
