@@ -1,11 +1,12 @@
 import { GAP, circleFill, setCanvasSize } from "../canvas";
 import { randInt } from "../utils";
 import { EventState } from "../handler/event-handler";
-import { CanvasHandler } from "../handler/canvas-handler";
 import { ToolHandler } from "../handler/tool-handler";
 import { ElementLLNode } from "./el-node";
 import { Arrow } from "./element-types/arrow";
 import { LLNode } from "./element-types/node";
+import { CanvasHandler } from "../handler/canvas-handler";
+import { Playground } from "../handler/playground-handler";
 
 export class ToolLLNode extends ToolHandler {
 	constructor() {
@@ -24,12 +25,13 @@ export class ToolLLNode extends ToolHandler {
 	pointerDown(_state: EventState, _canvas: CanvasHandler) {
 	}
 
-	pointerUp(state: EventState, canvas: CanvasHandler) {
+	pointerUp(state: EventState, pgnd: Playground) {
 		if(
 			state.pointerDown.y !== state.pointerUp.y ||
 			state.pointerUp.x !== state.pointerDown.x
 		) return;
 		let { x, y } = state.pointerUp;
+		const canvas = pgnd.canvas;
 
 		x = Math.floor(x / GAP) * GAP - LLNode.halfWidth;
 		y = Math.floor(y / GAP) * GAP - LLNode.halfHeight;

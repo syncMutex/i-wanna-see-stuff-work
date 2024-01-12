@@ -23,7 +23,6 @@ export class ElementPan implements ElementHandler {
 		let dy = state.pointerMove.y - state.pointerDown.y;
 
 		canvas.panTo(this.tempOff.x + dx, this.tempOff.y + dy);
-		canvas.redraw();
 	}
 
 	pointerEnter(_state: EventState, _canvas: CanvasHandler) {}

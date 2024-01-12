@@ -4,6 +4,7 @@ import { CanvasHandler } from "../../handler/canvas-handler.ts";
 import { ElementGNode } from "../el-node.ts";
 import { ElementUEdge } from "../el-u-edge.ts";
 import { setPopupText } from "../../global.ts";
+import { ElementDEdge } from "../el-d-edge.ts";
 
 enum Color {
 	shortPath = "#00ff00",
@@ -67,10 +68,12 @@ class PriorityQueue {
 class DistValue { 
 	dist: number;
 	prev: ElementGNode | null;
+	prevEdge: ElementUEdge | ElementDEdge | null;
 
-	constructor(dist: number, prev: ElementGNode | null) {
+	constructor(dist: number, prev: ElementGNode | null, prevEdge: ElementDEdge | ElementUEdge | null) {
 		this.dist = dist;
 		this.prev = prev;
+		this.prevEdge = prevEdge;
 	}
 };
 
@@ -88,16 +91,26 @@ class Dijkstra extends AlgorithmHandler {
 	uninit(_canvas: CanvasHandler) {
 	}
 
+	cleanup(canvas: CanvasHandler) {
+		for(let [node, { prevEdge }] of this.distanceTable.value) {
+			node.resetStyle();
+			node.draw(canvas.ctx);
+			if(prevEdge) {
+				prevEdge.bg = "#ffffff";
+				prevEdge.draw(canvas.ctx);
+			}
+		}
+	}
+
 	*dijkstraUEdge(startNode: ElementGNode, endNode: ElementGNode, canvas: CanvasHandler) {
 		let minQueue = new PriorityQueue();
 		let distanceTable = this.distanceTable;
 
 		let visited = new Set<ElementGNode>();
 
-		distanceTable.value.set(startNode, new DistValue(0, null));
+		distanceTable.value.set(startNode, new DistValue(0, null, null));
 		minQueue.insert(0, startNode);
 
-		outter:
 		while(!minQueue.isEmpty()) {
 			const cur = minQueue.extractMin();
 
@@ -105,10 +118,6 @@ class Dijkstra extends AlgorithmHandler {
 
 			if(visited.has(cur)) {
 				continue;
-			}
-
-			if(cur === endNode) {
-				break;
 			}
 
 			cur.bg = Color.curNode;
@@ -123,13 +132,13 @@ class Dijkstra extends AlgorithmHandler {
 				const toNode = edge.toNode === cur ? edge.fromNode : edge.toNode;
 
 				if(!distanceTable.value.has(toNode)) {
-					distanceTable.value.set(toNode, new DistValue(Infinity, null));
+					distanceTable.value.set(toNode, new DistValue(Infinity, null, edge));
 				}
 
 				const newDist = (distanceTable.value.get(cur)?.dist as number) + (edge.weight || 1);
 
 				if((distanceTable.value.get(toNode)?.dist as number) > newDist) {
-					distanceTable.value.set(toNode, new DistValue(newDist, cur));
+					distanceTable.value.set(toNode, new DistValue(newDist, cur, edge));
 					minQueue.insert(newDist, toNode);
 				}
 				edge.bg = "#ffffff";
@@ -149,16 +158,92 @@ class Dijkstra extends AlgorithmHandler {
 		}
 
 		endNode.bg = Color.shortPath;
+		endNode.color = "#000000";
 		endNode.draw(canvas.ctx);
 
-		while(temp?.prev) {
+		while(temp?.prev && temp.prevEdge) {
 			temp.prev.bg = Color.shortPath;
+			temp.prevEdge.bg = Color.shortPath;
+
+			temp.prevEdge.draw(canvas.ctx);
+			yield null;
 			temp.prev.draw(canvas.ctx);
+			yield null;
+
 			temp = distanceTable.value.get(temp.prev);
 		}
 	}
 
 	*dijkstraDEdge(startNode: ElementGNode, endNode: ElementGNode, canvas: CanvasHandler) {
+		let minQueue = new PriorityQueue();
+		let distanceTable = this.distanceTable;
+
+		let visited = new Set<ElementGNode>();
+
+		distanceTable.value.set(startNode, new DistValue(0, null, null));
+		minQueue.insert(0, startNode);
+
+		while(!minQueue.isEmpty()) {
+			const cur = minQueue.extractMin();
+
+			if(!cur) throw new Error("priority queue is empty.");
+
+			if(visited.has(cur)) {
+				continue;
+			}
+
+			cur.bg = Color.curNode;
+			cur.draw(canvas.ctx);
+			yield null;
+
+			for(const edge of cur.edges.keys()) {
+				edge.bg = Color.compare;
+				edge.draw(canvas.ctx);
+				yield null;
+
+				const toNode = edge.toNode;
+
+				if(!distanceTable.value.has(toNode)) {
+					distanceTable.value.set(toNode, new DistValue(Infinity, null, edge));
+				}
+
+				const newDist = (distanceTable.value.get(cur)?.dist as number) + (edge.weight || 1);
+
+				if((distanceTable.value.get(toNode)?.dist as number) > newDist) {
+					distanceTable.value.set(toNode, new DistValue(newDist, cur, edge));
+					minQueue.insert(newDist, toNode);
+				}
+				edge.bg = "#ffffff";
+				edge.draw(canvas.ctx);
+			}
+			cur.bg = Color.visited;
+			cur.color = "#000000";
+			cur.draw(canvas.ctx);
+			yield null;
+			visited.add(cur);
+		}
+
+		let temp = distanceTable.value.get(endNode);
+		if(!temp?.prev) {
+			setPopupText("The node is not reachable from the source node.");
+			return;
+		}
+
+		endNode.bg = Color.shortPath;
+		endNode.color = "#000000";
+		endNode.draw(canvas.ctx);
+
+		while(temp?.prev && temp.prevEdge) {
+			temp.prev.bg = Color.shortPath;
+			temp.prevEdge.bg = Color.shortPath;
+
+			temp.prevEdge.draw(canvas.ctx);
+			yield null;
+			temp.prev.draw(canvas.ctx);
+			yield null;
+
+			temp = distanceTable.value.get(temp.prev);
+		}
 	}
 
 	*generatorFn(canvas: CanvasHandler) {

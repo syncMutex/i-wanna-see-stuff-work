@@ -20,10 +20,11 @@ export class ToolDijstra extends ToolHandler {
 		panHandler.pointerDown(state, canvas);
 	}
 
-	pointerUp(state: EventState, canvas: CanvasHandler) {
+	pointerUp(state: EventState, pgnd: Playground) {
 		if(state.pointerDown.x !== state.pointerUp.x && state.pointerDown.y !== state.pointerUp.y) {
 			return;
 		}
+		const canvas = pgnd.canvas;
 
 		const endNode = canvas.findIntersectionOfType(
 			state.pointerUp.x,
@@ -43,6 +44,7 @@ export class ToolDijstra extends ToolHandler {
 		dijkstra.init(this.startNode, endNode);
 		algorithmState.setAlgorithm(dijkstra);
 		dijkstra.play(canvas);
+		pgnd.toolHandler = null;
 	}
 
 	pointerMove(state: EventState, canvas: CanvasHandler) {

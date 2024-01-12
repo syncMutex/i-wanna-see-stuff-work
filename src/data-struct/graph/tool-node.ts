@@ -5,6 +5,7 @@ import { CanvasHandler } from "../handler/canvas-handler";
 import { ToolHandler } from "../handler/tool-handler";
 import { ElementGNode } from "./el-node";
 import { GNode } from "./element-types/node";
+import { Playground } from "../handler/playground-handler";
 
 export class ToolGNode extends ToolHandler {
 	constructor() {
@@ -23,12 +24,13 @@ export class ToolGNode extends ToolHandler {
 	pointerDown(_state: EventState, _canvas: CanvasHandler) {
 	}
 
-	pointerUp(state: EventState, canvas: CanvasHandler) {
+	pointerUp(state: EventState, pgnd: Playground) {
 		if(
 			state.pointerDown.y !== state.pointerUp.y ||
 			state.pointerUp.x !== state.pointerDown.x
 		) return;
 		let { x, y } = state.pointerUp;
+		const canvas = pgnd.canvas;
 
 		x = Math.floor(x / GAP) * GAP;
 		y = Math.floor(y / GAP) * GAP;

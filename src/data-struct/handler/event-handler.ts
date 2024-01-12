@@ -65,7 +65,7 @@ export class EventHandler {
 		if(e.target === null) return;
 		this.state.pointerUp = this.getRelXY(e);
 		if(pgnd.toolHandler) {
-			pgnd.toolHandler.pointerUp(this.state, pgnd.canvas);
+			pgnd.toolHandler.pointerUp(this.state, pgnd);
 		} else if(pgnd.elementHandler) {
 			pgnd.elementHandler = pgnd.elementHandler.pointerUp(this.state, pgnd.canvas);
 		}

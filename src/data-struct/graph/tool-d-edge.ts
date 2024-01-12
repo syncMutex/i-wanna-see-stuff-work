@@ -7,6 +7,7 @@ import { ElementGNode } from "./el-node";
 import { DEdge } from "./element-types/d-edge";
 import { GNode } from "./element-types/node";
 import { panHandler } from "../handler/element-handler";
+import { Playground } from "../handler/playground-handler";
 
 export class ToolDEdge extends ToolHandler {
 	constructor() {
@@ -62,8 +63,9 @@ export class ToolDEdge extends ToolHandler {
 		gnode.draw(canvas.ctx);
 	}
 
-	pointerUp(state: EventState, canvas: CanvasHandler) {
+	pointerUp(state: EventState, pgnd: Playground) {
 		if(this.startNode === null) return;
+		const canvas = pgnd.canvas;
 		let { x, y } = state.pointerUp;
 
 		if(this.isStartNode) {

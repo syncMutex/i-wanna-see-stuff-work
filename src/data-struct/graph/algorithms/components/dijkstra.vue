@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { algorithmState } from "../../../components/refs";
+import { playground } from "../../../handler/playground-handler";
+import dijkstra from "../dijkstra";
 import Dijkstra from "../dijkstra";
 
 function done() {
+	dijkstra.cleanup(playground.canvas);
 	algorithmState.forceStopAlgorithm();
 }
 
@@ -13,8 +16,15 @@ function done() {
 	<h1>Dijkstra</h1>
 	<h2>Order</h2>
 
-	<div class="order scroll-bar" ref="orderContainer">
-		<div v-for="n of Dijkstra.distanceTable.value">{{n[0].value}} : {{n[1].dist}}</div>
+	<div class="dist-table scroll-bar">
+		<div class="row header">
+			<div>node</div>
+			<div>distance</div>
+		</div>
+		<div class="row" v-for="n of Dijkstra.distanceTable.value">
+			<div>{{n[0].value}}</div>
+			<div>{{n[1].dist}}</div>
+		</div>
 	</div>
 
 	<button v-if="algorithmState.isDone" class="btn btn-nobg" @click="done">done</button>
@@ -27,8 +37,8 @@ function done() {
 .dijkstra{
 	display: flex;
 	flex-direction: column;
-	width: 7rem;
-	max-width: 12rem;
+	width: 100%;
+	max-width: 11rem;
 	height: 70%;
 	position: absolute;
 	left: 1rem;
@@ -48,6 +58,31 @@ h2{
 	font-size: 1.2rem;
 	margin-top: 1rem;
 	text-align: center;
+}
+
+.dist-table{
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	background-color: red;
+	border-radius: 4px;
+	background-color: rgb(40, 40, 40);
+}
+
+.row{
+	display: flex;
+	flex-direction: row;
+}
+
+.row div{
+	width: 50%;
+	text-align: center;
+}
+
+.row.header{
+	background-color: rgb(0, 255, 0);
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
 }
 
 </style>

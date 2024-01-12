@@ -139,6 +139,7 @@ onUnmounted(() => {
 
 #info-popup{
 	max-width: 40rem;
+	min-width: 15rem;
 	min-height: 3rem;
 	background-color: rgb(40, 40, 40);
 	border: 2px solid rgb(255, 200, 100);
