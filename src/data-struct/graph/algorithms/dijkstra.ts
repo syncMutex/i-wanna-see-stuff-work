@@ -9,7 +9,7 @@ import { ElementDEdge } from "../el-d-edge.ts";
 enum Color {
 	shortPath = "#00ff00",
 	curNode = "#0000ff",
-	visited = "#87ed90",
+	visited = "#c7fccc",
 	compare = "#ffff00"
 };
 
@@ -92,14 +92,21 @@ class Dijkstra extends AlgorithmHandler {
 	}
 
 	cleanup(canvas: CanvasHandler) {
-		for(let [node, { prevEdge }] of this.distanceTable.value) {
+		for(let [node] of this.distanceTable.value) {
 			node.resetStyle();
 			node.draw(canvas.ctx);
-			if(prevEdge) {
-				prevEdge.bg = "#ffffff";
-				prevEdge.draw(canvas.ctx);
-			}
+			node.edges.forEach((_, e) => {
+				if(e.bg !== "#ffffff") {
+					e.bg = "#ffffff";
+					e.draw(canvas.ctx);
+				}
+			});
 		}
+	}
+
+	forceStop(canvas: CanvasHandler): void {
+		super.forceStop(canvas);
+		this.cleanup(canvas);
 	}
 
 	*dijkstraUEdge(startNode: ElementGNode, endNode: ElementGNode, canvas: CanvasHandler) {

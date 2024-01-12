@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { algorithmState } from "./refs";
 import { disablePointerEvents } from "../global";
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { playground } from "../handler/playground-handler";
 import { setDelay, DELAY } from "../global";
 import Range from "../../common-components/range.vue";
@@ -34,6 +34,12 @@ function togglePlay() {
 		algorithmState.alg?.pause();
 	}
 }
+
+watch(algorithmState, (newVal) => {
+	if(newVal.isDone) {
+		isPlaying.value = true;
+	}
+})
 
 function stop() {
 	algorithmState.alg?.forceStop(playground.canvas);
@@ -72,10 +78,7 @@ function stop() {
 @import "./css/common.css";
 
 *{
-	--control-bg: rgb(26, 0, 61);
-	--purple: rgb(112, 0, 255);
 	--aqua: rgb(3, 252, 161);
-	--pink: rgb(255, 0, 64);
 	--element-height: 1.3rem;
 }
 

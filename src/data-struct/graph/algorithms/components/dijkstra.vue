@@ -1,29 +1,40 @@
 <script setup lang="ts">
+import { ref, watch } from "vue";
 import { algorithmState } from "../../../components/refs";
 import { playground } from "../../../handler/playground-handler";
 import dijkstra from "../dijkstra";
 import Dijkstra from "../dijkstra";
+
+const table = ref<null | HTMLDivElement>(null);
 
 function done() {
 	dijkstra.cleanup(playground.canvas);
 	algorithmState.forceStopAlgorithm();
 }
 
+watch(dijkstra.distanceTable.value, () => {
+	setTimeout(() => {
+		if(table.value !== null) {
+			table.value.scrollTo({ top: table.value.scrollHeight, behavior: "smooth" });
+		}
+	}, 10);
+})
+
 </script>
 
 <template>
 <div class="dijkstra">
 	<h1>Dijkstra</h1>
-	<h2>Order</h2>
-
-	<div class="dist-table scroll-bar">
+	<div class="dist-table">
 		<div class="row header">
 			<div>node</div>
 			<div>distance</div>
 		</div>
-		<div class="row" v-for="n of Dijkstra.distanceTable.value">
-			<div>{{n[0].value}}</div>
-			<div>{{n[1].dist}}</div>
+		<div class="content scroll-bar" ref="table">
+			<div class="row" v-for="n of Dijkstra.distanceTable.value">
+				<div>{{n[0].value}}</div>
+				<div>{{n[1].dist}}</div>
+			</div>
 		</div>
 	</div>
 
@@ -66,7 +77,14 @@ h2{
 	width: 100%;
 	background-color: red;
 	border-radius: 4px;
-	background-color: rgb(40, 40, 40);
+	background-color: rgb(30, 30, 30);
+	max-height: 70%;
+	margin: 0.5rem 0;
+	overflow: hidden;
+}
+
+.content {
+	overflow: auto;
 }
 
 .row{
@@ -77,12 +95,35 @@ h2{
 .row div{
 	width: 50%;
 	text-align: center;
+	padding: 0.2rem 0;
 }
 
 .row.header{
-	background-color: rgb(0, 255, 0);
+	background-color: #c7fccc;
+	color: rgb(0, 0, 0);
 	border-top-left-radius: 4px;
 	border-top-right-radius: 4px;
+}
+
+.row.header div:first-child {
+	border-right: 2px solid rgb(40, 40, 40);
+}
+
+@media only screen and (max-width: 550px) {
+	.dijkstra{
+		display: flex;
+		flex-direction: column;
+		max-width: 90%;
+		height: 30%;
+		position: absolute;
+		top: auto;
+		left: auto;
+		bottom: 1rem;
+		border-radius: 4px;
+		box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+		color: white;
+		padding: 1rem;
+	}
 }
 
 </style>
