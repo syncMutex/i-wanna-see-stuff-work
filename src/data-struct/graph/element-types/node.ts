@@ -6,7 +6,7 @@ export class GNode {
 
 	bg: string = "";
 	color = "#ffffff";
-	borderColor = ""
+	borderColor = "";
 
 	x = -1;
 	y = -1;

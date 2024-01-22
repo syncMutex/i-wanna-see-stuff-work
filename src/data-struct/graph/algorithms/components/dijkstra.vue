@@ -59,6 +59,7 @@ watch(dijkstra.distanceTable.value, () => {
 	background-color: rgb(50, 50, 50);
 	color: white;
 	padding: 1rem;
+	z-index: 50;
 }
 
 h1{

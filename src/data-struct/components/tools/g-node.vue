@@ -2,17 +2,24 @@
 import { ElementGNode } from '../../graph/el-node';
 import { playground } from '../../handler/playground-handler';
 import { useFocusedElement, unfocusElement } from '../../global';
-import { GraphAlgorithms } from "../../graph/algorithms/graph-algorithm";
 import Select from "../../../common-components/select.vue";
 import { ref } from 'vue';
 import { algorithmState } from '../refs';
 import dfs from '../../graph/algorithms/dfs';
 import bfs from '../../graph/algorithms/bfs';
 import { setToolDijkstra } from '../../graph/tool-dijkstra';
+import prims from '../../graph/algorithms/prims';
+
+enum GraphAlgorithms {
+	Dfs = "Dfs",
+	Bfs = "Bfs",
+	Dijkstra = "Dijkstra",
+	Prims = "Prims"
+}
 
 const focusedElement = useFocusedElement<ElementGNode>();
 
-const currentAlg = ref(GraphAlgorithms.Dijkstra);
+const currentAlg = ref(GraphAlgorithms.Prims);
 
 function setNodeValue(value: string) {
 	focusedElement.value.value = value;
@@ -45,8 +52,12 @@ function run() {
 		case GraphAlgorithms.Dijkstra:
 			setToolDijkstra(playground, focusedElement.value);
 			break;
+		case GraphAlgorithms.Prims:
+			prims.init(focusedElement.value);
+			algorithmState.setAlgorithm(prims);
+			prims.play(playground.canvas);
+			break;
 	}
-
 
 	unfocusElement();
 	playground.canvas.redraw();

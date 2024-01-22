@@ -15,12 +15,16 @@ import BfsComp from "../graph/algorithms/components/bfs.vue";
 import Dijkstra from "../graph/algorithms/dijkstra";
 import DijkstraComp from "../graph/algorithms/components/dijkstra.vue";
 
+import Prims from "../graph/algorithms/prims";
+import PrimsComp from "../graph/algorithms/components/prims.vue";
+
 type ComponentMap = { [_:string]: any };
 
 const componentMap: ComponentMap = {
 	[Dfs.constructor.name]: DfsComp,
 	[Bfs.constructor.name]: BfsComp,
 	[Dijkstra.constructor.name]: DijkstraComp,
+	[Prims.constructor.name]: PrimsComp,
 };
 
 const isPlaying = ref(true);
