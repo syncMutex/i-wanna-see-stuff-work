@@ -18,6 +18,9 @@ import DijkstraComp from "../graph/algorithms/components/dijkstra.vue";
 import Prims from "../graph/algorithms/prims";
 import PrimsComp from "../graph/algorithms/components/prims.vue";
 
+import Kruskal from "../graph/algorithms/kruskal";
+import KruskalComp from "../graph/algorithms/components/kruskal.vue";
+
 type ComponentMap = { [_:string]: any };
 
 const componentMap: ComponentMap = {
@@ -25,6 +28,7 @@ const componentMap: ComponentMap = {
 	[Bfs.constructor.name]: BfsComp,
 	[Dijkstra.constructor.name]: DijkstraComp,
 	[Prims.constructor.name]: PrimsComp,
+	[Kruskal.constructor.name]: KruskalComp,
 };
 
 const isPlaying = ref(true);

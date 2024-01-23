@@ -9,17 +9,19 @@ import dfs from '../../graph/algorithms/dfs';
 import bfs from '../../graph/algorithms/bfs';
 import { setToolDijkstra } from '../../graph/tool-dijkstra';
 import prims from '../../graph/algorithms/prims';
+import kruskal from '../../graph/algorithms/kruskal';
 
 enum GraphAlgorithms {
 	Dfs = "Dfs",
 	Bfs = "Bfs",
 	Dijkstra = "Dijkstra",
-	Prims = "Prims"
+	Prims = "Prims",
+	Kruskal = "Kruskal",
 }
 
 const focusedElement = useFocusedElement<ElementGNode>();
 
-const currentAlg = ref(GraphAlgorithms.Prims);
+const currentAlg = ref(GraphAlgorithms.Kruskal);
 
 function setNodeValue(value: string) {
 	focusedElement.value.value = value;
@@ -56,6 +58,11 @@ function run() {
 			prims.init(focusedElement.value);
 			algorithmState.setAlgorithm(prims);
 			prims.play(playground.canvas);
+			break;
+		case GraphAlgorithms.Kruskal:
+			kruskal.init(focusedElement.value);
+			algorithmState.setAlgorithm(kruskal);
+			kruskal.play(playground.canvas);
 			break;
 	}
 
