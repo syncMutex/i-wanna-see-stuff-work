@@ -35,9 +35,7 @@ class Bfs extends AlgorithmHandler {
 				return;
 			}
 
-			front.bg = Color.visited;
-			front.borderColor = "#0000ff";
-			front.draw(canvas.ctx);
+			front.setStyle(Color.visited, undefined, "#0000ff").draw(canvas.ctx);
 			yield null;
 
 			for(let n of front.edges.keys()) {
@@ -78,9 +76,7 @@ class Bfs extends AlgorithmHandler {
 				return;
 			}
 
-			front.bg = Color.visited;
-			front.borderColor = "#0000ff";
-			front.draw(canvas.ctx);
+			front.setStyle(Color.visited, undefined, "#0000ff").draw(canvas.ctx);
 			yield null;
 
 			for(let n of front.edges.keys()) {

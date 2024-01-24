@@ -1,27 +1,42 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { algorithmState } from "../../../components/refs";
 import { playground } from "../../../handler/playground-handler";
 import kruskal from "../kruskal";
 
 const table = ref<null | HTMLDivElement>(null);
+const edgesClass = ref<{ [_:number]: string }>({});
 
 function done() {
 	kruskal.cleanup(playground.canvas);
 	algorithmState.forceStopAlgorithm();
 }
 
+watch(kruskal.updateInVue, (newVal) => {
+	switch(newVal.value) {
+		case "include":
+			edgesClass.value[newVal.idx] = newVal.value;
+			break;
+		case "exclude":
+			edgesClass.value[newVal.idx] = newVal.value;
+			break;
+		case null:
+			edgesClass.value = {};
+			break;
+	}
+});
+
 </script>
 
 <template>
 <div class="kruskal">
-	<h1>Dijkstra</h1>
+	<h1>Kruskal</h1>
 	<div class="dist-table">
 		<div class="header">
 			Edges
 		</div>
 		<div class="content scroll-bar" ref="table">
-			<div class="row" v-for="e of kruskal.edges.value">
+			<div :class="['row', edgesClass[idx]]" v-for="(e, idx) of kruskal.edges.value">
 				<div class="node">{{e.fromNode.value}}</div>
 				<div class="weight">{{e.weight}}</div>
 				<div class="node">{{e.toNode.value}}</div>
@@ -87,6 +102,15 @@ h2{
 	padding: 0 0.3rem;
 }
 
+.row.include .node{
+	background-color: #00ff00;
+	color: black;
+}
+
+.row.exclude .node{
+	background-color: red;
+}
+
 .row div{
 	text-align: center;
 	padding: 0.2rem 0;
@@ -102,12 +126,12 @@ h2{
 
 .weight{
 	font-size: 0.7rem;
+	width: 50%;
 }
 
 .weight::after{
 	content: "";
 	display: block;
-	width: 3rem;
 	max-height: 3px;
 	min-height: 3px;
 	background-color: white;

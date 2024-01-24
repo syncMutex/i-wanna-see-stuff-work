@@ -127,8 +127,7 @@ class Dijkstra extends AlgorithmHandler {
 				continue;
 			}
 
-			cur.bg = Color.curNode;
-			cur.draw(canvas.ctx);
+			cur.setStyle(Color.curNode).draw(canvas.ctx);
 			yield null;
 
 			for(const edge of cur.edges.keys()) {
@@ -151,9 +150,8 @@ class Dijkstra extends AlgorithmHandler {
 				edge.bg = "#ffffff";
 				edge.draw(canvas.ctx);
 			}
-			cur.bg = Color.visited;
-			cur.color = "#000000";
-			cur.draw(canvas.ctx);
+
+			cur.setStyle(Color.visited, "#000000").draw(canvas.ctx);
 			yield null;
 			visited.add(cur);
 		}
@@ -164,9 +162,7 @@ class Dijkstra extends AlgorithmHandler {
 			return;
 		}
 
-		endNode.bg = Color.shortPath;
-		endNode.color = "#000000";
-		endNode.draw(canvas.ctx);
+		endNode.setStyle(Color.shortPath, "#000000").draw(canvas.ctx);
 
 		while(temp?.prev && temp.prevEdge) {
 			temp.prev.bg = Color.shortPath;
@@ -223,9 +219,8 @@ class Dijkstra extends AlgorithmHandler {
 				edge.bg = "#ffffff";
 				edge.draw(canvas.ctx);
 			}
-			cur.bg = Color.visited;
-			cur.color = "#000000";
-			cur.draw(canvas.ctx);
+
+			cur.setStyle(Color.visited, "#000000").draw(canvas.ctx);
 			yield null;
 			visited.add(cur);
 		}
@@ -236,9 +231,7 @@ class Dijkstra extends AlgorithmHandler {
 			return;
 		}
 
-		endNode.bg = Color.shortPath;
-		endNode.color = "#000000";
-		endNode.draw(canvas.ctx);
+		endNode.setStyle(Color.shortPath, "#000000").draw(canvas.ctx);
 
 		while(temp?.prev && temp.prevEdge) {
 			temp.prev.bg = Color.shortPath;

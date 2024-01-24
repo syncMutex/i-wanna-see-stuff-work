@@ -14,17 +14,21 @@ export class GNode {
 
 	constructor(value: string) {
 		this.value = value;
-		this.setBg("#ff801f");
+		this.bg = "#ff801f";
 	}
 
-	setBg(bg: string) {
-		this.bg = bg;
+	setStyle(bg?: string, color?: string, borderColor?: string) {
+		this.bg = bg || this.bg;
+		this.color = color || this.color;
+		this.borderColor = borderColor || this.borderColor;
+		return this;
 	}
 
 	resetStyle() {
-		this.setBg("#ff801f");
+		this.bg = "#ff801f";
 		this.color = "#FFFFFF";
 		this.borderColor = "";
+		return this;
 	}
 
 	paint(ctx: CanvasRenderingContext2D) {

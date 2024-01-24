@@ -16,7 +16,7 @@ class Kruskal extends AlgorithmHandler {
 	startNode: null | ElementGNode = null;
 	visited: Set<ElementGNode> = new Set();
 	edges: Ref<Array<ElementUEdge>> = ref([]);
-	mst: Array<ElementUEdge> = [];
+	mst: Ref<Array<ElementUEdge>> = ref([]);
 	parent: Map<ElementGNode, ElementGNode> = new Map();
 	rank: Map<ElementGNode, number> = new Map();
 
@@ -26,26 +26,24 @@ class Kruskal extends AlgorithmHandler {
 		this.parent = new Map();
 		this.rank = new Map();
 		this.edges.value = [];
-		this.mst = [];
+		this.mst.value = [];
 	}
 
 	uninit(_canvas: CanvasHandler) {
 	}
 
 	cleanup(canvas: CanvasHandler) {
-		for(let edge of this.mst) {
+		for(let edge of this.mst.value) {
 			let fromNode = edge.fromNode;
 			let toNode = edge.toNode;
 
-			fromNode.resetStyle();
-			toNode.resetStyle();
-
-			fromNode.draw(canvas.ctx);
-			toNode.draw(canvas.ctx);
+			fromNode.resetStyle().draw(canvas.ctx);
+			toNode.resetStyle().draw(canvas.ctx);
 
 			edge.bg = "#ffffff";
 			edge.draw(canvas.ctx);
 		}
+		this.updateInVue.value = { idx: -1, value: null };
 	}
 
 	forceStop(canvas: CanvasHandler): void {
@@ -80,16 +78,17 @@ class Kruskal extends AlgorithmHandler {
 	}
 
 	find(node: ElementGNode): ElementGNode {
-		let root = node;
-
 		if(!this.parent.has(node)) {
 			this.parent.set(node, node);
+			return node;
 		}
 
-		while(this.parent.get(node) !== root) {
-			root = this.parent.get(node) as ElementGNode;
+		if(node === this.parent.get(node)) {
+            return node;
 		}
-		return root;
+        
+        this.parent.set(node, this.find(this.parent.get(node) as ElementGNode));
+        return this.parent.get(node) as ElementGNode;
 	}
 
 	union(a: ElementGNode, b: ElementGNode) {
@@ -122,6 +121,8 @@ class Kruskal extends AlgorithmHandler {
 		return this.find(a) === this.find(b);
 	}
 
+	updateInVue: Ref<{idx: number, value: null | "include" | "exclude"}> = ref({idx: -1, value: null});
+
 	*kruskal(startNode: ElementGNode, canvas: CanvasHandler) {
 		this.edges.value = this.getEdgeList(startNode);
 
@@ -131,20 +132,17 @@ class Kruskal extends AlgorithmHandler {
 			let toNode = edge.toNode;
 
 			if(!this.isConnected(fromNode, toNode)) {
-				this.mst.push(edge);
+				this.mst.value.push(edge);
+				this.updateInVue.value = { idx: i, value: "include" };
 
-				fromNode.bg = Color.span;
-				fromNode.color = "#000000";
-				fromNode.draw(canvas.ctx);
+				fromNode.setStyle(Color.span, "#000000").draw(canvas.ctx);
 				yield null;
 
 				edge.bg = Color.span;
 				edge.draw(canvas.ctx);
 				yield null;
 
-				toNode.bg = Color.span;
-				toNode.color = "#000000";
-				toNode.draw(canvas.ctx);
+				toNode.setStyle(Color.span, "#000000").draw(canvas.ctx);
 				yield null;
 
 				this.union(fromNode, toNode);
@@ -155,28 +153,22 @@ class Kruskal extends AlgorithmHandler {
 				const toPrevBg = fromNode.bg;
 				const toPrevColor = fromNode.color;
 
-				fromNode.bg = Color.cycle;
-				fromNode.color = "#ffffff";
-				fromNode.draw(canvas.ctx);
+				this.updateInVue.value = { idx: i, value: "exclude" };
+
+				fromNode.setStyle(Color.cycle, "#ffffff").draw(canvas.ctx);
 
 				edge.bg = Color.cycle;
 				edge.draw(canvas.ctx);
 
-				toNode.bg = Color.cycle;
-				toNode.color = "#ffffff";
-				toNode.draw(canvas.ctx);
+				toNode.setStyle(Color.cycle, "#ffffff").draw(canvas.ctx);
 				yield null;
 
-				fromNode.bg = fromPrevBg;
-				fromNode.color = fromPrevColor;
-				fromNode.draw(canvas.ctx);
+				fromNode.setStyle(fromPrevBg, fromPrevColor).draw(canvas.ctx);
 
 				edge.bg = prevEdgeBg;
 				edge.draw(canvas.ctx);
 
-				toNode.bg = toPrevBg;
-				toNode.color = toPrevColor;
-				toNode.draw(canvas.ctx);
+				toNode.setStyle(toPrevBg, toPrevColor).draw(canvas.ctx);
 			}
 		}
 	}
