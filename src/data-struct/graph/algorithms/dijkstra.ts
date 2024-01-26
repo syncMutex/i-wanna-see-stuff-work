@@ -3,7 +3,7 @@ import { AlgorithmHandler } from "../../algorithm-handler";
 import { CanvasHandler } from "../../handler/canvas-handler.ts";
 import { ElementGNode } from "../el-node.ts";
 import { ElementUEdge } from "../el-u-edge.ts";
-import { setPopupText } from "../../global.ts";
+import { setErrorPopupText } from "../../global.ts";
 import { ElementDEdge } from "../el-d-edge.ts";
 
 enum Color {
@@ -158,7 +158,7 @@ class Dijkstra extends AlgorithmHandler {
 
 		let temp = distanceTable.value.get(endNode);
 		if(!temp?.prev) {
-			setPopupText("The node is not reachable from the source node.");
+			setErrorPopupText("The node is not reachable from the source node.");
 			return;
 		}
 
@@ -227,7 +227,7 @@ class Dijkstra extends AlgorithmHandler {
 
 		let temp = distanceTable.value.get(endNode);
 		if(!temp?.prev) {
-			setPopupText("The node is not reachable from the source node.");
+			setErrorPopupText("The node is not reachable from the source node.");
 			return;
 		}
 

@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { ref, onMounted, onUnmounted } from "vue";
 import { playground } from "../handler/playground-handler";
-import { createSamplePrims } from "../samples";
+import { createSampleBellmanFord } from "../samples";
 import { EventHandler } from "../handler/event-handler";
-import { infoPopup, popup, setPopupText } from "../global";
+import { infoPopup, errorPopup, setErrorPopupText } from "../global";
 
 const playgroundSection = ref<null | HTMLElement>(null);
 const pgndCanvas = ref<null | HTMLCanvasElement>(null);
@@ -31,7 +31,7 @@ onMounted(() => {
 	// createSampleDfs(playground.canvas);
 	// createSampleDGraph(playground.canvas);
 	// createSampleBfs(playground.canvas);
-	createSamplePrims(playground.canvas);
+	createSampleBellmanFord(playground.canvas);
 })
 
 onUnmounted(() => {
@@ -58,12 +58,12 @@ onUnmounted(() => {
 		<div class="info-text">{{ infoPopup.text }}</div>
 	</div>
 
-	<div v-if="popup.text !== ''" id="popup-container" @click.self="setPopupText('')">
+	<div v-if="errorPopup.text !== ''" id="popup-container" @click.self="setErrorPopupText('')">
 		<div>
 			<div>
-				{{popup.text}}
+				{{errorPopup.text}}
 			</div>
-			<button class="btn btn-nobg" @click="setPopupText('')">ok</button>
+			<button class="btn btn-nobg" @click="setErrorPopupText('')">ok</button>
 		</div>
 	</div>
 </section>
@@ -113,7 +113,7 @@ onUnmounted(() => {
 	position: absolute;
 	top: 0;
 	left: 0;
-	z-index: 20;
+	z-index: 100;
 }
 
 #popup-container > div{

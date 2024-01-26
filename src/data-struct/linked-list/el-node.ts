@@ -2,7 +2,7 @@ import { GAP } from "../canvas";
 import { Line, Point } from "../geometry";
 import { EventState } from "../handler/event-handler";
 import { CanvasHandler } from "../handler/canvas-handler";
-import { setPopupText, focusedElement, DELAY } from "../global";
+import { setErrorPopupText, focusedElement, DELAY } from "../global";
 import { Arrow } from "./element-types/arrow";
 import { LLNode } from "./element-types/node";
 import { ElementArrow } from "./el-arrow";
@@ -293,10 +293,10 @@ export class ElementLLNode extends LLNode implements ElementHandler {
 
 		if(node === null) {
 			canvas.redraw();
-			setPopupText("element not found");
+			setErrorPopupText("element not found");
 		} else if(node.value !== value) {
 			canvas.redraw();
-			setPopupText("cycle detected. Aborting.");
+			setErrorPopupText("cycle detected. Aborting.");
 		} else {
 			node.bg = "#00FF00";
 			node.draw(canvas.ctx);

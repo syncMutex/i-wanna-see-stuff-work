@@ -306,3 +306,47 @@ export function createSamplePrims(canvas: CanvasHandler) {
 
 	canvas.redraw();
 }
+
+export function createSampleBellmanFord(canvas: CanvasHandler) {
+	let y = 10;
+
+	const nodes = [];
+
+	let row = 3;
+	let col = 3;
+
+	for(let i = 0; i < row; i++) {
+		let x = 40;
+		for(let j = 0; j < col; j++) {
+			const enode = new ElementGNode(x * GAP, y * GAP, String(String(i) + j));
+			canvas.add(enode);
+			x += 15;
+			nodes.push(enode);
+		}
+		y += 15;
+	}
+
+	const addEdge = (a: ElementGNode, b: ElementGNode, wt: number) => {
+		if(ElementGNode.hasDEdge(a, b)) {
+			return;
+		}
+		const edge = new ElementDEdge(a, b);
+
+		edge.weight = wt;
+		edge.rectify();
+		canvas.add(edge);
+	}
+
+	const A = nodes[0], B = nodes[1], C = nodes[3], D = nodes[2], E = nodes[4], F = nodes[5];
+
+	addEdge(A, B, 5);
+	addEdge(B, C, 1);
+	addEdge(C, E, 1);
+	addEdge(B, D, 2);
+	addEdge(E, D, -1);
+	addEdge(D, F, 2);
+	addEdge(F, E, -3);
+
+
+	canvas.redraw();
+}

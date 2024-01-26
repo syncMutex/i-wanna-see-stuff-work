@@ -7,11 +7,11 @@ import { ToolDEdge } from "./graph/tool-d-edge.ts";
 
 export const focusedElement = shallowRef<ElementHandler>(panHandler);
 export let DELAY = 200;
-const _popup = reactive({
+const _errorPopup = reactive({
 	text: ""
 })
 
-export const popup = readonly(_popup);
+export const errorPopup = readonly(_errorPopup);
 
 const _infoPopup = reactive({
 	text: ""
@@ -24,8 +24,8 @@ export function setDelay(d: number) {
 	DELAY = d;
 }
 
-export function setPopupText(text: string) {
-	_popup.text = text;
+export function setErrorPopupText(text: string) {
+	_errorPopup.text = text;
 }
 
 export function setInfoPopupText(text: string) {

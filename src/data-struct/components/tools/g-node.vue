@@ -10,6 +10,7 @@ import bfs from '../../graph/algorithms/bfs';
 import { setToolDijkstra } from '../../graph/tool-dijkstra';
 import prims from '../../graph/algorithms/prims';
 import kruskal from '../../graph/algorithms/kruskal';
+import { setToolBellmanFord } from '../../graph/tool-bellman-ford';
 
 enum GraphAlgorithms {
 	Dfs = "Dfs",
@@ -17,11 +18,12 @@ enum GraphAlgorithms {
 	Dijkstra = "Dijkstra",
 	Prims = "Prims",
 	Kruskal = "Kruskal",
+	BellmanFord = "Bellman-Ford",
 }
 
 const focusedElement = useFocusedElement<ElementGNode>();
 
-const currentAlg = ref(GraphAlgorithms.Kruskal);
+const currentAlg = ref(GraphAlgorithms.BellmanFord);
 
 function setNodeValue(value: string) {
 	focusedElement.value.value = value;
@@ -63,6 +65,9 @@ function run() {
 			kruskal.init(focusedElement.value);
 			algorithmState.setAlgorithm(kruskal);
 			kruskal.play(playground.canvas);
+			break;
+		case GraphAlgorithms.BellmanFord:
+			setToolBellmanFord(playground, focusedElement.value);
 			break;
 	}
 
