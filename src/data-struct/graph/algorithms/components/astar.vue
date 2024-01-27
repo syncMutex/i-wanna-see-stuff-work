@@ -1,28 +1,29 @@
 <script setup lang="ts">
 import { algorithmState } from "../../../components/refs";
 import { playground } from "../../../handler/playground-handler";
-import dijkstra from "../dijkstra";
-import Dijkstra from "../dijkstra";
+import astar from "../astar";
 
 function done() {
-	dijkstra.cleanup(playground.canvas);
+	astar.cleanup(playground.canvas);
 	algorithmState.forceStopAlgorithm();
 }
 
 </script>
 
 <template>
-<div class="dijkstra">
-	<h1>Dijkstra</h1>
+<div class="astar">
+	<h1>A*</h1>
 	<div class="dist-table">
 		<div class="row header">
 			<div>node</div>
-			<div>distance</div>
+			<div>f</div>
+			<div>g</div>
 		</div>
 		<div class="content scroll-bar">
-			<div class="row" v-for="n of Dijkstra.distanceTable.value">
+			<div class="row" v-for="n of astar.distanceTable.value">
 				<div>{{n[0].value}}</div>
-				<div>{{n[1].dist}}</div>
+				<div>{{n[1].f.toFixed(1)}}</div>
+				<div>{{n[1].g.toFixed(1)}}</div>
 			</div>
 		</div>
 	</div>
@@ -34,7 +35,7 @@ function done() {
 <style scoped>
 @import "../../../components/css/common.css";
 
-.dijkstra{
+.astar{
 	display: flex;
 	flex-direction: column;
 	width: 100%;
@@ -95,12 +96,13 @@ h2{
 	border-top-right-radius: 4px;
 }
 
-.row.header div:first-child {
+.row.header div:first-child,
+.row.header div:nth-child(2) {
 	border-right: 2px solid rgb(40, 40, 40);
 }
 
 @media only screen and (max-width: 550px) {
-	.dijkstra{
+	.astar{
 		display: flex;
 		flex-direction: column;
 		max-width: 90%;

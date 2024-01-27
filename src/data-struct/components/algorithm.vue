@@ -24,6 +24,9 @@ import KruskalComp from "../graph/algorithms/components/kruskal.vue";
 import BellmanFord from "../graph/algorithms/bellman-ford";
 import BellmanFordComp from "../graph/algorithms/components/bellman-ford.vue";
 
+import Astar from "../graph/algorithms/astar";
+import AstarComp from "../graph/algorithms/components/astar.vue";
+
 type ComponentMap = { [_:string]: any };
 
 const componentMap: ComponentMap = {
@@ -33,6 +36,7 @@ const componentMap: ComponentMap = {
 	[Prims.constructor.name]: PrimsComp,
 	[Kruskal.constructor.name]: KruskalComp,
 	[BellmanFord.constructor.name]: BellmanFordComp,
+	[Astar.constructor.name]: AstarComp,
 };
 
 const isPlaying = ref(true);

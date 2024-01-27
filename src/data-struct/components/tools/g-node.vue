@@ -11,6 +11,9 @@ import { setToolDijkstra } from '../../graph/tool-dijkstra';
 import prims from '../../graph/algorithms/prims';
 import kruskal from '../../graph/algorithms/kruskal';
 import { setToolBellmanFord } from '../../graph/tool-bellman-ford';
+import { Heuristics } from "../../graph/algorithms/astar";
+import { setToolAstar } from '../../graph/tool-astar';
+import astar from '../../graph/algorithms/astar';
 
 enum GraphAlgorithms {
 	Dfs = "Dfs",
@@ -19,11 +22,14 @@ enum GraphAlgorithms {
 	Prims = "Prims",
 	Kruskal = "Kruskal",
 	BellmanFord = "Bellman-Ford",
+	Astar = "A*",
 }
 
 const focusedElement = useFocusedElement<ElementGNode>();
 
-const currentAlg = ref(GraphAlgorithms.BellmanFord);
+const currentAlg = ref(GraphAlgorithms.Astar);
+
+const curHeuristics = ref(astar.curHeuristics);
 
 function setNodeValue(value: string) {
 	focusedElement.value.value = value;
@@ -39,6 +45,10 @@ async function deleteNode() {
 
 function onChange(value: GraphAlgorithms) {
 	currentAlg.value = value;
+}
+
+function onChangeHeuristics(value: Heuristics) {
+	curHeuristics.value = value;
 }
 
 function run() {
@@ -68,6 +78,9 @@ function run() {
 			break;
 		case GraphAlgorithms.BellmanFord:
 			setToolBellmanFord(playground, focusedElement.value);
+			break;
+		case GraphAlgorithms.Astar:
+			setToolAstar(playground, focusedElement.value, curHeuristics.value);
 			break;
 	}
 
@@ -103,6 +116,17 @@ function run() {
 					:value="currentAlg"
 				/>
 			</div>
+
+			<br>
+
+			<div v-if="currentAlg === GraphAlgorithms.Astar" class="custom-select-container algorithms">
+				<Select
+					:options="Heuristics"
+					:onChange="(value) => onChangeHeuristics(value as Heuristics)"
+					:value="currentAlg"
+				/>
+			</div>
+
 			<div style="margin-top: 1rem">
 				<button class="btn btn-nobg" @click="run()">run</button>
 			</div>

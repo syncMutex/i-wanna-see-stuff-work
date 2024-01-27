@@ -51,7 +51,7 @@ export class DEdge {
 
 			ctx.translate(-p.x, -p.y);
 
-			ctx.fillStyle = "#FFFFFF";
+			ctx.fillStyle = this.bg;
 			ctx.textBaseline = "bottom";
 			ctx.textAlign = "center";
 			ctx.font = "16px monospace";

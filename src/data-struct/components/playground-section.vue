@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref, onMounted, onUnmounted } from "vue";
 import { playground } from "../handler/playground-handler";
-import { createSampleBellmanFord } from "../samples";
+import { createSampleDijkstra } from "../samples";
 import { EventHandler } from "../handler/event-handler";
 import { infoPopup, errorPopup, setErrorPopupText } from "../global";
 
@@ -31,7 +31,8 @@ onMounted(() => {
 	// createSampleDfs(playground.canvas);
 	// createSampleDGraph(playground.canvas);
 	// createSampleBfs(playground.canvas);
-	createSampleBellmanFord(playground.canvas);
+	// createSampleBellmanFord(playground.canvas);
+	createSampleDijkstra(playground.canvas);
 })
 
 onUnmounted(() => {

@@ -66,26 +66,37 @@ class PriorityQueue {
 }
 
 class DistValue { 
-	dist: number;
+	g: number = Infinity;
+	f: number = Infinity;
 	prev: ElementGNode | null;
 	prevEdge: ElementUEdge | ElementDEdge | null;
 
-	constructor(dist: number, prev: ElementGNode | null, prevEdge: ElementDEdge | ElementUEdge | null) {
-		this.dist = dist;
+	constructor(prev: ElementGNode | null, prevEdge: ElementDEdge | ElementUEdge | null, f: number, g: number) {
+		this.f = f;
+		this.g = g;
 		this.prev = prev;
 		this.prevEdge = prevEdge;
 	}
 };
 
-class Dijkstra extends AlgorithmHandler {
+export enum Heuristics {
+	Manhattan = "Manhattan",
+	Euclidian = "Euclidian",
+	ChebyshevDistance = "Chebyshev",
+	OctileDistance = "Octile",
+}
+
+class Astar extends AlgorithmHandler {
 	startNode: null | ElementGNode = null;
 	endNode: null | ElementGNode = null;
 	distanceTable: Ref<Map<ElementGNode, DistValue>> = ref(new Map());
+	curHeuristics: Heuristics = Heuristics.Euclidian;
 
-	init(startNode: ElementGNode, endNode: ElementGNode) {
+	init(startNode: ElementGNode, endNode: ElementGNode, heuristics: Heuristics) {
 		this.startNode = startNode;
 		this.endNode = endNode;
 		this.distanceTable.value = new Map<ElementGNode, DistValue>();
+		this.curHeuristics = heuristics;
 	}
 
 	uninit(_canvas: CanvasHandler) {
@@ -133,13 +144,54 @@ class Dijkstra extends AlgorithmHandler {
 		}
 	}
 
-	*dijkstraUEdge(startNode: ElementGNode, endNode: ElementGNode, canvas: CanvasHandler) {
+	manhattan(node: ElementGNode, dest: ElementGNode) {
+		const D = 1;
+		const dx = Math.abs(node.x - dest.x);
+		const dy = Math.abs(node.y - dest.y);
+		return D * (dx + dy);
+	}
+
+	euclidian(node: ElementGNode, dest: ElementGNode) {
+		const D = 1;
+		const dx = Math.abs(node.x - dest.x);
+		const dy = Math.abs(node.y - dest.y);
+		return D * Math.sqrt(dx * dx + dy * dy);
+	}
+
+	chebyshevDistance(node: ElementGNode, dest: ElementGNode) {
+		const D = 1, D2 = 2;
+		const dx = Math.abs(node.x - dest.x)
+		const dy = Math.abs(node.y - dest.y)
+		return D * (dx + dy) + (D2 - 2 * D) * Math.min(dx, dy);
+	}
+
+	octileDistance(node: ElementGNode, dest: ElementGNode) {
+		const D = 1, D2 = Math.sqrt(2);
+		const dx = Math.abs(node.x - dest.x)
+		const dy = Math.abs(node.y - dest.y)
+		return D * (dx + dy) + (D2 - 2 * D) * Math.min(dx, dy);
+	}
+
+	heuristics(node: ElementGNode, dest: ElementGNode) {
+		switch(this.curHeuristics) {
+			case Heuristics.Manhattan:
+				return this.manhattan(node, dest);
+			case Heuristics.Euclidian:
+				return this.euclidian(node, dest);
+			case Heuristics.OctileDistance:
+				return this.octileDistance(node, dest);
+			case Heuristics.ChebyshevDistance:
+				return this.chebyshevDistance(node, dest);
+		}
+	}
+
+	*astarUEdge(startNode: ElementGNode, endNode: ElementGNode, canvas: CanvasHandler) {
 		let minQueue = new PriorityQueue();
 		let distanceTable = this.distanceTable;
 
 		let visited = new Set<ElementGNode>();
 
-		distanceTable.value.set(startNode, new DistValue(0, null, null));
+		distanceTable.value.set(startNode, new DistValue(null, null, 0, this.heuristics(startNode, endNode)));
 		minQueue.insert(0, startNode);
 
 		while(!minQueue.isEmpty()) {
@@ -147,9 +199,13 @@ class Dijkstra extends AlgorithmHandler {
 
 			if(!cur) throw new Error("priority queue is empty.");
 
-			if(visited.has(cur)) {
-				continue;
+			if(cur === endNode) {
+				let gen = this.finalPath(canvas, endNode);
+				while(!gen.next().done) yield null;
+				return;
 			}
+
+			const curDistVal = distanceTable.value.get(cur) as DistValue;
 
 			cur.setStyle(Color.curNode).draw(canvas.ctx);
 			yield null;
@@ -162,14 +218,20 @@ class Dijkstra extends AlgorithmHandler {
 				const toNode = edge.toNode === cur ? edge.fromNode : edge.toNode;
 
 				if(!distanceTable.value.has(toNode)) {
-					distanceTable.value.set(toNode, new DistValue(Infinity, null, edge));
+					distanceTable.value.set(toNode, new DistValue(null, edge, Infinity, Infinity));
 				}
+				const toNodeDistVal = distanceTable.value.get(toNode) as DistValue;
 
-				const newDist = (distanceTable.value.get(cur)?.dist as number) + (edge.weight || 1);
+				const tentativeG = curDistVal.g + edge.weight;
 
-				if((distanceTable.value.get(toNode)?.dist as number) > newDist) {
-					distanceTable.value.set(toNode, new DistValue(newDist, cur, edge));
-					minQueue.insert(newDist, toNode);
+				if(tentativeG < toNodeDistVal.g) {
+					const g = tentativeG + this.heuristics(toNode, endNode);
+					distanceTable.value.set(toNode, new DistValue(cur, edge, tentativeG, g))
+					
+					if(!visited.has(toNode)) {
+						visited.add(toNode);
+						minQueue.insert(tentativeG, toNode);
+					}
 				}
 				edge.bg = "#ffffff";
 				edge.draw(canvas.ctx);
@@ -180,17 +242,16 @@ class Dijkstra extends AlgorithmHandler {
 			visited.add(cur);
 		}
 
-		let gen = this.finalPath(canvas, endNode);
-		while(!gen.next().done) yield null;
+		setErrorPopupText("The node is unreachable.");
 	}
 
-	*dijkstraDEdge(startNode: ElementGNode, endNode: ElementGNode, canvas: CanvasHandler) {
+	*astarDEdge(startNode: ElementGNode, endNode: ElementGNode, canvas: CanvasHandler) {
 		let minQueue = new PriorityQueue();
 		let distanceTable = this.distanceTable;
 
 		let visited = new Set<ElementGNode>();
 
-		distanceTable.value.set(startNode, new DistValue(0, null, null));
+		distanceTable.value.set(startNode, new DistValue(null, null, 0, this.heuristics(startNode, endNode)));
 		minQueue.insert(0, startNode);
 
 		while(!minQueue.isEmpty()) {
@@ -198,12 +259,15 @@ class Dijkstra extends AlgorithmHandler {
 
 			if(!cur) throw new Error("priority queue is empty.");
 
-			if(visited.has(cur)) {
-				continue;
+			if(cur === endNode) {
+				let gen = this.finalPath(canvas, endNode);
+				while(!gen.next().done) yield null;
+				return;
 			}
 
-			cur.bg = Color.curNode;
-			cur.draw(canvas.ctx);
+			const curDistVal = distanceTable.value.get(cur) as DistValue;
+
+			cur.setStyle(Color.curNode).draw(canvas.ctx);
 			yield null;
 
 			for(const edge of cur.edges.keys()) {
@@ -214,14 +278,20 @@ class Dijkstra extends AlgorithmHandler {
 				const toNode = edge.toNode;
 
 				if(!distanceTable.value.has(toNode)) {
-					distanceTable.value.set(toNode, new DistValue(Infinity, null, edge));
+					distanceTable.value.set(toNode, new DistValue(null, edge, Infinity, Infinity));
 				}
+				const toNodeDistVal = distanceTable.value.get(toNode) as DistValue;
 
-				const newDist = (distanceTable.value.get(cur)?.dist as number) + (edge.weight || 1);
+				const tentativeG = curDistVal.g + edge.weight;
 
-				if((distanceTable.value.get(toNode)?.dist as number) > newDist) {
-					distanceTable.value.set(toNode, new DistValue(newDist, cur, edge));
-					minQueue.insert(newDist, toNode);
+				if(tentativeG < toNodeDistVal.g) {
+					const g = tentativeG + this.heuristics(toNode, endNode);
+					distanceTable.value.set(toNode, new DistValue(cur, edge, tentativeG, g))
+					
+					if(!visited.has(toNode)) {
+						visited.add(toNode);
+						minQueue.insert(tentativeG, toNode);
+					}
 				}
 				edge.bg = "#ffffff";
 				edge.draw(canvas.ctx);
@@ -232,8 +302,7 @@ class Dijkstra extends AlgorithmHandler {
 			visited.add(cur);
 		}
 
-		let gen = this.finalPath(canvas, endNode);
-		while(!gen.next().done) yield null;
+		setErrorPopupText("The node is unreachable.");
 	}
 
 	*generatorFn(canvas: CanvasHandler) {
@@ -250,9 +319,9 @@ class Dijkstra extends AlgorithmHandler {
 			this.endNode.draw(canvas.ctx);
 
 			if(this.startNode.edges.keys().next().value.constructor.name === ElementUEdge.name) {
-				gen = this.dijkstraUEdge(this.startNode, this.endNode, canvas);
+				gen = this.astarUEdge(this.startNode, this.endNode, canvas);
 			} else {
-				gen = this.dijkstraDEdge(this.startNode, this.endNode, canvas);
+				gen = this.astarDEdge(this.startNode, this.endNode, canvas);
 			}
 
 			while(!gen.next().done) {
@@ -262,4 +331,4 @@ class Dijkstra extends AlgorithmHandler {
 	}
 }
 
-export default new Dijkstra();
+export default new Astar();
