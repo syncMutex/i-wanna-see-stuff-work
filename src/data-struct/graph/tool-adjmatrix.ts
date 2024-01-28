@@ -39,8 +39,18 @@ export class ToolAdjMatrix extends ToolHandler {
 
 		const { x: vx, y: vy } = canvas.toVirtualPosition(x, y);
 
-		const node = new ElementAdjMatrix(vx + GAP * 2, vy + GAP * 2, Array(5).fill(Array(5).fill(0, 0, 5), 0, 5));
+		const node = new ElementAdjMatrix(vx + GAP * 2, vy + GAP * 2, ToolAdjMatrix.newAdjMatrix());
 		canvas.add(node);
+	}
+
+	static newAdjMatrix() {
+		return [
+			[0, 0, 0, 0, 0],
+			[0, 0, 0, 0, 0],
+			[0, 0, 0, 0, 0],
+			[0, 0, 0, 0, 0],
+			[0, 0, 0, 0, 0],
+		]
 	}
 
 	pointerMove(state: EventState, canvas: CanvasHandler) {
@@ -56,7 +66,7 @@ export class ToolAdjMatrix extends ToolHandler {
 		canvas.toolCanvas.style.left = x + "px";
 	}
 
-	static mat = new AdjMatrix(GAP * 2, GAP * 2, Array(5).fill(Array(5).fill(0, 0, 5), 0, 5));
+	static mat = new AdjMatrix(GAP * 2, GAP * 2, this.newAdjMatrix());
 
 	draw(ctx: CanvasRenderingContext2D) {
 		ToolAdjMatrix.mat.paint(ctx);

@@ -2,12 +2,11 @@ import { GAP } from "../canvas";
 import { Point } from "../geometry";
 import { EventState } from "../handler/event-handler";
 import { CanvasHandler } from "../handler/canvas-handler";
-import { AdjMatrix } from "./element-types/adjacency-matrix";
+import { AdjMatrix, CELL_SIZE, EventType } from "./element-types/adjacency-matrix";
 import { ElementHandler } from "../handler/element-handler";
 
 export class ElementAdjMatrix extends AdjMatrix implements ElementHandler {
 	pointerEnter(_state: EventState, _canvas: CanvasHandler) {};
-	pointerUp(_state: EventState, _canvas: CanvasHandler): ElementHandler | null { return null };
 	pointerLeave(_state: EventState, _canvas: CanvasHandler) {};
 
 	static COUNT = 0;
@@ -36,16 +35,95 @@ export class ElementAdjMatrix extends AdjMatrix implements ElementHandler {
 		this.setXY(x, y);
 	}
 
+	static addedWalls = new Set<string>();
+
+	checkEvent(x: number, y: number, canvas: CanvasHandler) {
+		const relMouseX = x - this.gridLeft - canvas.offset.x;
+		const relMouseY = y - this.gridTop - canvas.offset.y;
+
+		let gridX = Math.floor(relMouseX / CELL_SIZE);
+		let gridY = Math.floor(relMouseY / CELL_SIZE);
+
+		switch(this.eventType) {
+		case EventType.AddingWalls:
+			if(gridX < 0 || gridX >= this.columns || gridY < 0 || gridY >= this.rows ||
+				(gridX === this.src.x && gridY === this.src.y) ||
+				(gridX === this.dest.x && gridY === this.dest.y)
+			) {
+				break;
+			}
+
+			const id = `${gridY}-${gridX}`;
+			if(ElementAdjMatrix.addedWalls.has(id)) {
+				break;
+			}
+
+			ElementAdjMatrix.addedWalls.add(id);
+			this.mat[gridY][gridX] = (this.mat[gridY][gridX] !== 0) ? 0 : 1;
+			break;
+		case EventType.MovingSrc:
+			if(gridX < 0) {
+				gridX = 0;
+			} else if(gridX >= this.columns) {
+				gridX = this.columns - 1;
+			}
+
+			if(gridY < 0) {
+				gridY = 0;
+			} else if(gridY >= this.rows) {
+				gridY = this.rows - 1;
+			}
+
+			if(
+				(this.mat[gridY][gridX] !== 0) ||
+				(gridX === this.dest.x && gridY === this.dest.y)
+			) {
+				break;
+			}
+
+			this.src.x = gridX;
+			this.src.y = gridY;
+			break;
+		case EventType.MovingDest:
+			if(gridX < 0) {
+				gridX = 0;
+			} else if(gridX >= this.columns) {
+				gridX = this.columns - 1;
+			}
+
+			if(gridY < 0) {
+				gridY = 0;
+			} else if(gridY >= this.rows) {
+				gridY = this.rows - 1;
+			}
+
+			if(
+				(this.mat[gridY][gridX] !== 0) ||
+				(gridX === this.src.x && gridY === this.src.y)
+			) {
+				break;
+			}
+
+			this.dest.x = gridX;
+			this.dest.y = gridY;
+			break;
+		}
+		this.draw(canvas.ctx);
+	}
+
 	pointerMove(state: EventState, canvas: CanvasHandler): void {
 		if(state.pointerDown.x === -1) return;
 		let { x, y } = state.pointerMove;
 
-		x = Math.floor(x / GAP) * GAP - this.pointerDx;
-		y = Math.floor(y / GAP) * GAP - this.pointerDy;
+		if(this.eventType === EventType.Move) {
+			x = Math.floor(x / GAP) * GAP - this.pointerDx;
+			y = Math.floor(y / GAP) * GAP - this.pointerDy;
 
-		this.moveTo(x, y);
-
-		canvas.redraw();
+			this.setXY(x, y);
+			canvas.redraw();
+			return;
+		}
+		this.checkEvent(x, y, canvas);
 	}
 
 	remove(canvas: CanvasHandler) {
@@ -60,11 +138,20 @@ export class ElementAdjMatrix extends AdjMatrix implements ElementHandler {
 		}
 	}
 
-	pointerDown(state: EventState): void {
-		let { x: nodex, y: nodey } = this;
+	pointerDown(state: EventState, canvas: CanvasHandler): void {
+		let { x: elx, y: ely } = this;
 		let { x: statex, y: statey } = state.pointerDown;
-		this.pointerDx = Math.floor((statex - nodex) / GAP) * GAP;
-		this.pointerDy = Math.floor((statey - nodey) / GAP) * GAP;
+		this.pointerDx = Math.floor((statex - elx) / GAP) * GAP;
+		this.pointerDy = Math.floor((statey - ely) / GAP) * GAP;
+
+		this.checkEvent(statex, statey, canvas);
+	}
+
+	pointerUp(_state: EventState, _canvas: CanvasHandler): ElementHandler | null {
+		ElementAdjMatrix.addedWalls.clear();
+		this.eventType = EventType.None;
+		console.log(this.src, this.dest);
+		return null;
 	}
 
 	isIntersect(x: number, y: number, _: Point, canvas: CanvasHandler): null | ElementHandler {

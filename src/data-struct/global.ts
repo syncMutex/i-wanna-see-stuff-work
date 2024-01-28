@@ -38,7 +38,7 @@ export function useFocusedElement<T>() {
 }
 
 export function focusElement(el: ElementHandler) {
-	if(focusedElement.value !== panHandler) {
+	if(focusedElement.value && focusedElement.value !== el) {
 		focusedElement.value.unfocus();
 	}
 	focusedElement.value = el;

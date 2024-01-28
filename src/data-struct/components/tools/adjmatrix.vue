@@ -19,6 +19,9 @@ const currentAlg = ref(GraphAlgorithms.Dijkstra);
 
 const curHeuristics = ref(astar.curHeuristics);
 
+const rows = ref(focusedElement.value.rows);
+const columns = ref(focusedElement.value.columns);
+
 function onChange(value: GraphAlgorithms) {
 	currentAlg.value = value;
 }
@@ -27,13 +30,21 @@ function onChangeHeuristics(value: Heuristics) {
 	curHeuristics.value = value;
 }
 
-function setRows(rows: number) {
-	focusedElement.value.rows = rows;
+function setRows() {
+	if(rows.value < 2) {
+		rows.value = 2;
+	}
+
+	focusedElement.value.setRows(rows.value);
 	playground.canvas.redraw();
 }
 
-function setColumns(columns: number) {
-	focusedElement.value.columns = columns;
+function setColumns() {
+	if(columns.value < 2) {
+		columns.value = 2;
+	}
+
+	focusedElement.value.setColumns(columns.value);
 	playground.canvas.redraw();
 }
 
@@ -70,15 +81,15 @@ function deleteMatrix() {
 			<input
 				placeholder="rows"
 				type="number"
-				:value="focusedElement.rows"
-				@input="setRows(+($event.target as any).value)"
+				v-model="rows"
+				@input="setRows()"
 			/>
 			<span>x</span>
 			<input
 				placeholder="cols"
 				type="number"
-				:value="focusedElement.columns"
-				@input="setColumns(+($event.target as any).value)"
+				v-model="columns"
+				@input="setColumns()"
 			/>
 		</div>
 
