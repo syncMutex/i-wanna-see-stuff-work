@@ -28,6 +28,10 @@ export class ElementDEdge extends DEdge implements ElementHandler {
 		this.head = { x: this.tail.x + GAP, y: this.tail.y };
 	}
 
+	getToNode(): ElementGNode {
+		return this.toNode;
+	}
+
 	doRectifyFor(node: ElementGNode, end: Point) {
 		if(node === null) return;
 

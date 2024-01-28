@@ -32,6 +32,10 @@ export class ElementUEdge extends UEdge implements ElementHandler {
 
 	toMoveEnd: Point = new Point(-1, -1);
 	toMoveNode: ElementGNode = new ElementGNode(-1, -1, "");
+
+	getToNode(node: ElementGNode): ElementGNode {
+		return this.toNode === node ? this.fromNode : this.toNode;
+	}
 	
 	constructor(fromNode: ElementGNode, toNode: ElementGNode) {
 		super();

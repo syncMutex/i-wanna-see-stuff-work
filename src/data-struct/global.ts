@@ -4,6 +4,7 @@ import { ToolLLNode } from "./linked-list/tool-node";
 import { ToolGNode } from "./graph/tool-node.ts";
 import { ToolUEdge } from "./graph/tool-u-edge.ts";
 import { ToolDEdge } from "./graph/tool-d-edge.ts";
+import { ToolAdjMatrix } from "./graph/tool-adjmatrix.ts";
 
 export const focusedElement = shallowRef<ElementHandler>(panHandler);
 export let DELAY = 200;
@@ -64,5 +65,6 @@ export const ToolList: ToolType[] = [
 	{ name: "Graph Node", toolClass: ToolGNode },
 	{ name: "UEdge", toolClass: ToolUEdge },
 	{ name: "DEdge", toolClass: ToolDEdge },
+	{ name: "AdjMatrix", toolClass: ToolAdjMatrix },
 ];
 

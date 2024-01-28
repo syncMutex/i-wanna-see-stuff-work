@@ -185,7 +185,7 @@ class Astar extends AlgorithmHandler {
 		}
 	}
 
-	*astarUEdge(startNode: ElementGNode, endNode: ElementGNode, canvas: CanvasHandler) {
+	*astar(startNode: ElementGNode, endNode: ElementGNode, canvas: CanvasHandler) {
 		let minQueue = new PriorityQueue();
 		let distanceTable = this.distanceTable;
 
@@ -215,67 +215,7 @@ class Astar extends AlgorithmHandler {
 				edge.draw(canvas.ctx);
 				yield null;
 
-				const toNode = edge.toNode === cur ? edge.fromNode : edge.toNode;
-
-				if(!distanceTable.value.has(toNode)) {
-					distanceTable.value.set(toNode, new DistValue(null, edge, Infinity, Infinity));
-				}
-				const toNodeDistVal = distanceTable.value.get(toNode) as DistValue;
-
-				const tentativeG = curDistVal.g + edge.weight;
-
-				if(tentativeG < toNodeDistVal.g) {
-					const g = tentativeG + this.heuristics(toNode, endNode);
-					distanceTable.value.set(toNode, new DistValue(cur, edge, tentativeG, g))
-					
-					if(!visited.has(toNode)) {
-						visited.add(toNode);
-						minQueue.insert(tentativeG, toNode);
-					}
-				}
-				edge.bg = "#ffffff";
-				edge.draw(canvas.ctx);
-			}
-
-			cur.setStyle(Color.visited, "#000000").draw(canvas.ctx);
-			yield null;
-			visited.add(cur);
-		}
-
-		setErrorPopupText("The node is unreachable.");
-	}
-
-	*astarDEdge(startNode: ElementGNode, endNode: ElementGNode, canvas: CanvasHandler) {
-		let minQueue = new PriorityQueue();
-		let distanceTable = this.distanceTable;
-
-		let visited = new Set<ElementGNode>();
-
-		distanceTable.value.set(startNode, new DistValue(null, null, 0, this.heuristics(startNode, endNode)));
-		minQueue.insert(0, startNode);
-
-		while(!minQueue.isEmpty()) {
-			const cur = minQueue.extractMin();
-
-			if(!cur) throw new Error("priority queue is empty.");
-
-			if(cur === endNode) {
-				let gen = this.finalPath(canvas, endNode);
-				while(!gen.next().done) yield null;
-				return;
-			}
-
-			const curDistVal = distanceTable.value.get(cur) as DistValue;
-
-			cur.setStyle(Color.curNode).draw(canvas.ctx);
-			yield null;
-
-			for(const edge of cur.edges.keys()) {
-				edge.bg = Color.compare;
-				edge.draw(canvas.ctx);
-				yield null;
-
-				const toNode = edge.toNode;
+				const toNode = edge.getToNode(cur);
 
 				if(!distanceTable.value.has(toNode)) {
 					distanceTable.value.set(toNode, new DistValue(null, edge, Infinity, Infinity));
@@ -311,18 +251,12 @@ class Astar extends AlgorithmHandler {
 				return;
 			}
 
-			let gen;
-
 			this.startNode.resetStyle();
 			this.endNode.resetStyle();
 			this.startNode.draw(canvas.ctx);
 			this.endNode.draw(canvas.ctx);
 
-			if(this.startNode.edges.keys().next().value.constructor.name === ElementUEdge.name) {
-				gen = this.astarUEdge(this.startNode, this.endNode, canvas);
-			} else {
-				gen = this.astarDEdge(this.startNode, this.endNode, canvas);
-			}
+			let gen = this.astar(this.startNode, this.endNode, canvas);
 
 			while(!gen.next().done) {
 				yield null;

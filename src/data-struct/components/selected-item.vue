@@ -7,11 +7,13 @@ import { ElementLLNode } from "../linked-list/el-node";
 import { ElementGNode } from "../graph/el-node";
 import { ElementUEdge } from "../graph/el-u-edge";
 import { ElementDEdge } from "../graph/el-d-edge";
+import { ElementAdjMatrix } from "../graph/el-adjmatrix";
 
 import LLNode from "./tools/ll-node.vue";
 import GNode from "./tools/g-node.vue";
 import UEdge from "./tools/u-edge.vue";
 import DEdge from "./tools/d-edge.vue";
+import AdjMatrix from "./tools/adjmatrix.vue";
 
 const className = computed(() => {
 	return ['selected-item floating-panel', disablePointerEvents.value ? 'pointer-events-none' : '']
@@ -24,6 +26,7 @@ const componentMap: ComponentMap = {
 	[ElementGNode.name]: GNode,
 	[ElementUEdge.name]: UEdge,
 	[ElementDEdge.name]: DEdge,
+	[ElementAdjMatrix.name]: AdjMatrix,
 };
 
 </script>

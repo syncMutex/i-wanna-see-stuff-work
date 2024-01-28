@@ -133,7 +133,7 @@ class Dijkstra extends AlgorithmHandler {
 		}
 	}
 
-	*dijkstraUEdge(startNode: ElementGNode, endNode: ElementGNode, canvas: CanvasHandler) {
+	*dijkstra(startNode: ElementGNode, endNode: ElementGNode, canvas: CanvasHandler) {
 		let minQueue = new PriorityQueue();
 		let distanceTable = this.distanceTable;
 
@@ -159,59 +159,7 @@ class Dijkstra extends AlgorithmHandler {
 				edge.draw(canvas.ctx);
 				yield null;
 
-				const toNode = edge.toNode === cur ? edge.fromNode : edge.toNode;
-
-				if(!distanceTable.value.has(toNode)) {
-					distanceTable.value.set(toNode, new DistValue(Infinity, null, edge));
-				}
-
-				const newDist = (distanceTable.value.get(cur)?.dist as number) + (edge.weight || 1);
-
-				if((distanceTable.value.get(toNode)?.dist as number) > newDist) {
-					distanceTable.value.set(toNode, new DistValue(newDist, cur, edge));
-					minQueue.insert(newDist, toNode);
-				}
-				edge.bg = "#ffffff";
-				edge.draw(canvas.ctx);
-			}
-
-			cur.setStyle(Color.visited, "#000000").draw(canvas.ctx);
-			yield null;
-			visited.add(cur);
-		}
-
-		let gen = this.finalPath(canvas, endNode);
-		while(!gen.next().done) yield null;
-	}
-
-	*dijkstraDEdge(startNode: ElementGNode, endNode: ElementGNode, canvas: CanvasHandler) {
-		let minQueue = new PriorityQueue();
-		let distanceTable = this.distanceTable;
-
-		let visited = new Set<ElementGNode>();
-
-		distanceTable.value.set(startNode, new DistValue(0, null, null));
-		minQueue.insert(0, startNode);
-
-		while(!minQueue.isEmpty()) {
-			const cur = minQueue.extractMin();
-
-			if(!cur) throw new Error("priority queue is empty.");
-
-			if(visited.has(cur)) {
-				continue;
-			}
-
-			cur.bg = Color.curNode;
-			cur.draw(canvas.ctx);
-			yield null;
-
-			for(const edge of cur.edges.keys()) {
-				edge.bg = Color.compare;
-				edge.draw(canvas.ctx);
-				yield null;
-
-				const toNode = edge.toNode;
+				const toNode = edge.getToNode(cur);
 
 				if(!distanceTable.value.has(toNode)) {
 					distanceTable.value.set(toNode, new DistValue(Infinity, null, edge));
@@ -242,19 +190,13 @@ class Dijkstra extends AlgorithmHandler {
 				return;
 			}
 
-			let gen;
 
 			this.startNode.resetStyle();
 			this.endNode.resetStyle();
 			this.startNode.draw(canvas.ctx);
 			this.endNode.draw(canvas.ctx);
 
-			if(this.startNode.edges.keys().next().value.constructor.name === ElementUEdge.name) {
-				gen = this.dijkstraUEdge(this.startNode, this.endNode, canvas);
-			} else {
-				gen = this.dijkstraDEdge(this.startNode, this.endNode, canvas);
-			}
-
+			let gen = this.dijkstra(this.startNode, this.endNode, canvas);
 			while(!gen.next().done) {
 				yield null;
 			}
