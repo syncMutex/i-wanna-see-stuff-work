@@ -11,7 +11,7 @@ import { setToolDijkstra } from '../../graph/tool-dijkstra';
 import prims from '../../graph/algorithms/prims';
 import kruskal from '../../graph/algorithms/kruskal';
 import { setToolBellmanFord } from '../../graph/tool-bellman-ford';
-import { Heuristics } from "../../graph/algorithms/astar";
+import { Heuristics } from "../../graph/algorithms/heuristics";
 import { setToolAstar } from '../../graph/tool-astar';
 import astar from '../../graph/algorithms/astar';
 

@@ -3,10 +3,10 @@ import { playground } from '../../handler/playground-handler';
 import { unfocusElement, useFocusedElement } from '../../global';
 import Select from "../../../common-components/select.vue";
 import { ref } from 'vue';
-import astar, { Heuristics } from '../../graph/algorithms/astar';
 import { ElementAdjMatrix } from '../../graph/el-adjmatrix';
-import { DijkstraAdjMatrix } from '../../graph/algorithms/adjmatrix';
+import { DijkstraAdjMatrix, BfsAdjMatrix, DfsAdjMatrix, AstarAdjMatrix } from '../../graph/algorithms/adjmatrix';
 import { algorithmState } from '../refs';
+import { Heuristics } from '../../graph/algorithms/heuristics';
 
 enum GraphAlgorithms {
 	Dfs = "Dfs",
@@ -17,9 +17,9 @@ enum GraphAlgorithms {
 
 const focusedElement = useFocusedElement<ElementAdjMatrix>();
 
-const currentAlg = ref(GraphAlgorithms.Dijkstra);
+const currentAlg = ref(GraphAlgorithms.Astar);
 
-const curHeuristics = ref(astar.curHeuristics);
+const curHeuristics = ref(AstarAdjMatrix.curHeuristics);
 
 const rows = ref(focusedElement.value.rows);
 const columns = ref(focusedElement.value.columns);
@@ -53,8 +53,14 @@ function setColumns() {
 function run() {
 	switch(currentAlg.value) {
 		case GraphAlgorithms.Dfs:
+			DfsAdjMatrix.init(focusedElement.value, playground.canvas);
+			algorithmState.setAlgorithm(DfsAdjMatrix);
+			DfsAdjMatrix.play(playground.canvas);
 			break;
 		case GraphAlgorithms.Bfs:
+			BfsAdjMatrix.init(focusedElement.value, playground.canvas);
+			algorithmState.setAlgorithm(BfsAdjMatrix);
+			BfsAdjMatrix.play(playground.canvas);
 			break;
 		case GraphAlgorithms.Dijkstra:
 			DijkstraAdjMatrix.init(focusedElement.value, playground.canvas);
@@ -62,6 +68,9 @@ function run() {
 			DijkstraAdjMatrix.play(playground.canvas);
 			break;
 		case GraphAlgorithms.Astar:
+			AstarAdjMatrix.init(focusedElement.value, curHeuristics.value, playground.canvas);
+			algorithmState.setAlgorithm(AstarAdjMatrix);
+			AstarAdjMatrix.play(playground.canvas);
 			break;
 	}
 

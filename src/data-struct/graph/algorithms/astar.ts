@@ -5,6 +5,7 @@ import { ElementGNode } from "../el-node.ts";
 import { ElementUEdge } from "../el-u-edge.ts";
 import { setErrorPopupText } from "../../global.ts";
 import { ElementDEdge } from "../el-d-edge.ts";
+import { euclidian, chebyshevDistance, octileDistance, manhattan, Heuristics } from "./heuristics.ts";
 
 enum Color {
 	shortPath = "#00ff00",
@@ -79,13 +80,6 @@ class DistValue {
 	}
 };
 
-export enum Heuristics {
-	Manhattan = "Manhattan",
-	Euclidian = "Euclidian",
-	ChebyshevDistance = "Chebyshev",
-	OctileDistance = "Octile",
-}
-
 class Astar extends AlgorithmHandler {
 	startNode: null | ElementGNode = null;
 	endNode: null | ElementGNode = null;
@@ -144,44 +138,17 @@ class Astar extends AlgorithmHandler {
 		}
 	}
 
-	manhattan(node: ElementGNode, dest: ElementGNode) {
-		const D = 1;
-		const dx = Math.abs(node.x - dest.x);
-		const dy = Math.abs(node.y - dest.y);
-		return D * (dx + dy);
-	}
-
-	euclidian(node: ElementGNode, dest: ElementGNode) {
-		const D = 1;
-		const dx = Math.abs(node.x - dest.x);
-		const dy = Math.abs(node.y - dest.y);
-		return D * Math.sqrt(dx * dx + dy * dy);
-	}
-
-	chebyshevDistance(node: ElementGNode, dest: ElementGNode) {
-		const D = 1, D2 = 2;
-		const dx = Math.abs(node.x - dest.x)
-		const dy = Math.abs(node.y - dest.y)
-		return D * (dx + dy) + (D2 - 2 * D) * Math.min(dx, dy);
-	}
-
-	octileDistance(node: ElementGNode, dest: ElementGNode) {
-		const D = 1, D2 = Math.sqrt(2);
-		const dx = Math.abs(node.x - dest.x)
-		const dy = Math.abs(node.y - dest.y)
-		return D * (dx + dy) + (D2 - 2 * D) * Math.min(dx, dy);
-	}
 
 	heuristics(node: ElementGNode, dest: ElementGNode) {
 		switch(this.curHeuristics) {
 			case Heuristics.Manhattan:
-				return this.manhattan(node, dest);
+				return manhattan(node, dest);
 			case Heuristics.Euclidian:
-				return this.euclidian(node, dest);
+				return euclidian(node, dest);
 			case Heuristics.OctileDistance:
-				return this.octileDistance(node, dest);
+				return octileDistance(node, dest);
 			case Heuristics.ChebyshevDistance:
-				return this.chebyshevDistance(node, dest);
+				return chebyshevDistance(node, dest);
 		}
 	}
 
