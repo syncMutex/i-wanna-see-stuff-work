@@ -1,6 +1,7 @@
+import { circleFill } from "../../canvas";
 import { Point } from "../../geometry";
 
-export const CELL_SIZE: number = 16;
+export const CELL_SIZE: number = 20;
 
 export enum EventType {
 	None,
@@ -10,25 +11,53 @@ export enum EventType {
 	MovingDest,
 }
 
-export class AdjMatrix {
-	static bg: string = "#ff00ff";
-	static cellColor: string = "#ffffff";
-	static wallColor: string = "#787878";
-	static srcColor: string = "#ffff00";
-	static destColor: string = "#0000ff";
+export enum CellType {
+	Cell,
+	Wall,
+	Src,
+	Dest,
+	Path,
+	Visited,
+	AdjNode
+}
 
+export const CellColor = {
+	[CellType.Cell]: "#ffffff",
+	[CellType.Wall]: "#787878",
+	[CellType.Src]: "#ff0000",
+	[CellType.Dest]: "#0000ff",
+	[CellType.Path]: "#00ff00",
+	[CellType.Visited]: "#8d58c7",
+	[CellType.AdjNode]: "#6f13d1"
+}
+
+export class Node {
+	x: number;
+	y: number;
+
+	constructor(x: number, y: number) {
+		this.x = x;
+		this.y = y;
+	}
+
+	get id() {
+		return `${this.y}-${this.x}`;
+	}
+}
+
+export class AdjMatrix {
 	rows: number;
 	columns: number;
 
 	x: number;
 	y: number;
 
-	mat: Array<Array<number>>;
+	mat: Array<Array<CellType>>;
 
 	borderColor = "#ffffff";
 
-	src: Point = { x: 0, y: 0 };
-	dest: Point = { x: 1, y: 1 };
+	src: Node = new Node(0, 0);
+	dest: Node = new Node(0, 0);
 
 	eventType: EventType = EventType.None;
 
@@ -36,8 +65,76 @@ export class AdjMatrix {
 		this.mat = mat;
 		this.rows = mat.length;
 		this.columns = mat[0]?.length || 0;
+
 		this.x = x;
 		this.y = y;
+
+		this.setDestXY(1, 1);
+		this.setSrcXY(0, 0);
+	}
+
+	setDestXY(x: number, y: number) {
+		this.mat[this.dest.y][this.dest.x] = CellType.Cell;
+		this.dest.x = x;
+		this.dest.y = y;
+		this.mat[y][x] = CellType.Dest;
+	}
+
+	setSrcXY(x: number, y: number) {
+		this.mat[this.src.y][this.src.x] = CellType.Cell;
+		this.src.x = x;
+		this.src.y = y;
+		this.mat[y][x] = CellType.Src;
+	}
+
+	renderCell(ctx: CanvasRenderingContext2D, x: number, y: number) {
+		ctx.fillStyle = CellColor[this.mat[y][x]];
+		ctx.fillRect(
+			this.gridLeft + x * CELL_SIZE,
+			this.gridTop + y * CELL_SIZE,
+			CELL_SIZE - 2,
+			CELL_SIZE - 2
+		);
+	}
+
+	resetCells(ctx: CanvasRenderingContext2D) {
+		let x;
+		let y = this.y + 1 + CELL_SIZE;
+
+		for(let i = 0; i < this.rows; i++, y += CELL_SIZE) {
+			x = this.x + 1 + CELL_SIZE;
+			for(let j = 0; j < this.columns; j++, x += CELL_SIZE) {
+				const cell = this.mat[i][j];
+				if(cell === CellType.Visited || cell === CellType.Path || cell === CellType.AdjNode) {
+					this.mat[i][j] = CellType.Cell;
+				}
+				ctx.fillStyle = CellColor[this.mat[i][j]];
+				ctx.fillRect(x, y, CELL_SIZE - 2, CELL_SIZE - 2);
+			}
+		}
+
+		this.renderSrcDest(ctx);
+	}
+
+	clearCells(ctx: CanvasRenderingContext2D) {
+		let x;
+		let y = this.y + 1 + CELL_SIZE;
+
+		for(let i = 0; i < this.rows; i++, y += CELL_SIZE) {
+			x = this.x + 1 + CELL_SIZE;
+			for(let j = 0; j < this.columns; j++, x += CELL_SIZE) {
+				const cell = this.mat[i][j];
+
+				if(cell !== CellType.Src && cell !== CellType.Dest) {
+					this.mat[i][j] = CellType.Cell;
+				}
+
+				ctx.fillStyle = CellColor[this.mat[i][j]];
+				ctx.fillRect(x, y, CELL_SIZE - 2, CELL_SIZE - 2);
+			}
+		}
+
+		this.renderSrcDest(ctx);
 	}
 
 	setRows(rows: number) {
@@ -56,6 +153,17 @@ export class AdjMatrix {
 				this.mat = this.mat.slice(0, rows);
 				this.rows = rows;
 			}
+
+			const lastIdx = rows - 1;
+
+			if(this.src.y >= rows) {
+				this.src.y = lastIdx;
+				this.mat[lastIdx][this.src.x] = CellType.Src;
+			}
+			if(this.dest.y >= rows) {
+				this.dest.y = lastIdx;
+				this.mat[lastIdx][this.dest.x] = CellType.Dest;
+			}
 		}
 	}
 
@@ -71,6 +179,17 @@ export class AdjMatrix {
 			} else {
 				this.mat = this.mat.map(row => row.slice(0, columns));
 				this.columns = columns;
+			}
+
+			const lastIdx = columns - 1;
+
+			if(this.src.x >= columns) {
+				this.src.x = lastIdx;
+				this.mat[this.src.y][lastIdx] = CellType.Src;
+			}
+			if(this.dest.x >= columns) {
+				this.dest.x = lastIdx;
+				this.mat[this.dest.y][lastIdx] = CellType.Dest;
 			}
 		}
 	}
@@ -105,33 +224,50 @@ export class AdjMatrix {
 		let x;
 		let y = this.y + 1 + CELL_SIZE;
 
-
 		for(let i = 0; i < this.rows; i++, y += CELL_SIZE) {
 			x = this.x + 1 + CELL_SIZE;
 			for(let j = 0; j < this.columns; j++, x += CELL_SIZE) {
-				if(this.mat[i][j] !== 0) {
-					ctx.fillStyle = AdjMatrix.wallColor;
-				} else {
-					ctx.fillStyle = AdjMatrix.cellColor;
-				}
+				ctx.fillStyle = CellColor[this.mat[i][j]];
 				ctx.fillRect(x, y, CELL_SIZE - 2, CELL_SIZE - 2);
 			}
 		}
 
-		ctx.fillStyle = AdjMatrix.srcColor;
-		ctx.fillRect(
-			this.gridLeft + this.src.x * CELL_SIZE,
-			this.gridTop + this.src.y * CELL_SIZE,
-			CELL_SIZE - 2,
-			CELL_SIZE - 2
-		);
+		this.renderSrcDest(ctx);
+	}
 
-		ctx.fillStyle = AdjMatrix.destColor;
-		ctx.fillRect(
-			this.gridLeft + this.dest.x * CELL_SIZE,
-			this.gridTop + this.dest.y * CELL_SIZE,
-			CELL_SIZE - 2,
-			CELL_SIZE - 2
+	renderSrcDest(ctx: CanvasRenderingContext2D) {
+		const HCELL_SIZE = (CELL_SIZE - 2) / 2;
+
+		// src
+		this.mat[this.src.y][this.src.x] = CellType.Cell;
+		this.renderCell(ctx, this.src.x, this.src.y);
+
+		this.mat[this.src.y][this.src.x] = CellType.Src;
+		ctx.fillStyle = CellColor[this.mat[this.src.y][this.src.x]];
+
+		let sx = this.gridLeft + (this.src.x * CELL_SIZE);
+		let sy = this.gridTop + (this.src.y * CELL_SIZE);
+
+		ctx.beginPath();
+		ctx.lineWidth = 2;
+		ctx.moveTo(sx + 2, sy + 2);
+		ctx.lineTo(sx + 2, sy + CELL_SIZE - 4);
+		ctx.lineTo(sx + CELL_SIZE - 2, sy + HCELL_SIZE);
+		ctx.closePath();
+		ctx.fill();
+
+		// dest
+
+		this.mat[this.dest.y][this.dest.x] = CellType.Cell;
+		this.renderCell(ctx, this.dest.x, this.dest.y);
+
+		this.mat[this.dest.y][this.dest.x] = CellType.Dest;
+		ctx.fillStyle = CellColor[this.mat[this.dest.y][this.dest.x]];
+		circleFill(
+			ctx,
+			this.gridLeft + this.dest.x * CELL_SIZE + HCELL_SIZE,
+			this.gridTop + this.dest.y * CELL_SIZE + HCELL_SIZE,
+			HCELL_SIZE - 1,
 		);
 	}
 
@@ -185,12 +321,10 @@ export class AdjMatrix {
 		);
 
 		if(isIntersectGrid) {
-			const sTop = this.src.x * CELL_SIZE;
-			const sLeft = this.src.y * CELL_SIZE;
-			const dTop = this.dest.x * CELL_SIZE;
-			const dLeft = this.dest.y * CELL_SIZE;
-
-			console.log(dTop, dLeft, relMouseX, relMouseY);
+			const sTop = this.src.y * CELL_SIZE;
+			const sLeft = this.src.x * CELL_SIZE;
+			const dTop = this.dest.y * CELL_SIZE;
+			const dLeft = this.dest.x * CELL_SIZE;
 
 			if(
 				(relMouseX >= sLeft && relMouseX <= sLeft + CELL_SIZE) &&

@@ -39,8 +39,8 @@ export class ToolAdjMatrix extends ToolHandler {
 
 		const { x: vx, y: vy } = canvas.toVirtualPosition(x, y);
 
-		const node = new ElementAdjMatrix(vx + GAP * 2, vy + GAP * 2, ToolAdjMatrix.newAdjMatrix());
-		canvas.add(node);
+		const mat = new ElementAdjMatrix(vx + GAP * 2, vy + GAP * 2, ToolAdjMatrix.newAdjMatrix());
+		canvas.add(mat);
 	}
 
 	static newAdjMatrix() {

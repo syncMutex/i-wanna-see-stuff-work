@@ -2,7 +2,7 @@ import { GAP } from "../canvas";
 import { Point } from "../geometry";
 import { EventState } from "../handler/event-handler";
 import { CanvasHandler } from "../handler/canvas-handler";
-import { AdjMatrix, CELL_SIZE, EventType } from "./element-types/adjacency-matrix";
+import { AdjMatrix, CELL_SIZE, CellType, EventType } from "./element-types/adjacency-matrix";
 import { ElementHandler } from "../handler/element-handler";
 
 export class ElementAdjMatrix extends AdjMatrix implements ElementHandler {
@@ -44,6 +44,8 @@ export class ElementAdjMatrix extends AdjMatrix implements ElementHandler {
 		let gridX = Math.floor(relMouseX / CELL_SIZE);
 		let gridY = Math.floor(relMouseY / CELL_SIZE);
 
+		let tempX, tempY;
+
 		switch(this.eventType) {
 		case EventType.AddingWalls:
 			if(gridX < 0 || gridX >= this.columns || gridY < 0 || gridY >= this.rows ||
@@ -59,7 +61,10 @@ export class ElementAdjMatrix extends AdjMatrix implements ElementHandler {
 			}
 
 			ElementAdjMatrix.addedWalls.add(id);
-			this.mat[gridY][gridX] = (this.mat[gridY][gridX] !== 0) ? 0 : 1;
+
+			this.mat[gridY][gridX] = (this.mat[gridY][gridX] !== CellType.Cell) ? CellType.Cell : CellType.Wall;
+
+			this.renderCell(canvas.ctx, gridX, gridY);
 			break;
 		case EventType.MovingSrc:
 			if(gridX < 0) {
@@ -81,8 +86,13 @@ export class ElementAdjMatrix extends AdjMatrix implements ElementHandler {
 				break;
 			}
 
-			this.src.x = gridX;
-			this.src.y = gridY;
+			tempX = this.src.x;
+			tempY = this.src.y;
+
+			this.setSrcXY(gridX, gridY);
+
+			this.renderCell(canvas.ctx, tempX, tempY);
+			this.renderSrcDest(canvas.ctx);
 			break;
 		case EventType.MovingDest:
 			if(gridX < 0) {
@@ -104,11 +114,15 @@ export class ElementAdjMatrix extends AdjMatrix implements ElementHandler {
 				break;
 			}
 
-			this.dest.x = gridX;
-			this.dest.y = gridY;
+			tempX = this.dest.x;
+			tempY = this.dest.y;
+
+			this.setDestXY(gridX, gridY);
+
+			this.renderCell(canvas.ctx, tempX, tempY);
+			this.renderSrcDest(canvas.ctx);
 			break;
 		}
-		this.draw(canvas.ctx);
 	}
 
 	pointerMove(state: EventState, canvas: CanvasHandler): void {
@@ -150,7 +164,6 @@ export class ElementAdjMatrix extends AdjMatrix implements ElementHandler {
 	pointerUp(_state: EventState, _canvas: CanvasHandler): ElementHandler | null {
 		ElementAdjMatrix.addedWalls.clear();
 		this.eventType = EventType.None;
-		console.log(this.src, this.dest);
 		return null;
 	}
 

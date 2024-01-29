@@ -1,7 +1,9 @@
 import { GAP } from "./canvas";
+import { ElementAdjMatrix } from "./graph/el-adjmatrix";
 import { ElementDEdge } from "./graph/el-d-edge";
 import { ElementGNode } from "./graph/el-node";
 import { ElementUEdge } from "./graph/el-u-edge";
+import { ToolAdjMatrix } from "./graph/tool-adjmatrix";
 import { CanvasHandler } from "./handler/canvas-handler";
 import { ElementLLNode } from "./linked-list/el-node";
 import { randInt } from "./utils";
@@ -349,4 +351,11 @@ export function createSampleBellmanFord(canvas: CanvasHandler) {
 
 
 	canvas.redraw();
+}
+
+export function createSampleAdjMatrix(canvas: CanvasHandler) {
+	const m = new ElementAdjMatrix(40 * GAP, 15 * GAP, ToolAdjMatrix.newAdjMatrix());
+	m.setColumns(20);
+	m.setRows(20);
+	canvas.add(m);
 }

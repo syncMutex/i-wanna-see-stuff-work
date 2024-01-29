@@ -5,6 +5,8 @@ import Select from "../../../common-components/select.vue";
 import { ref } from 'vue';
 import astar, { Heuristics } from '../../graph/algorithms/astar';
 import { ElementAdjMatrix } from '../../graph/el-adjmatrix';
+import { DijkstraAdjMatrix } from '../../graph/algorithms/adjmatrix';
+import { algorithmState } from '../refs';
 
 enum GraphAlgorithms {
 	Dfs = "Dfs",
@@ -55,6 +57,9 @@ function run() {
 		case GraphAlgorithms.Bfs:
 			break;
 		case GraphAlgorithms.Dijkstra:
+			DijkstraAdjMatrix.init(focusedElement.value, playground.canvas);
+			algorithmState.setAlgorithm(DijkstraAdjMatrix);
+			DijkstraAdjMatrix.play(playground.canvas);
 			break;
 		case GraphAlgorithms.Astar:
 			break;
@@ -62,6 +67,16 @@ function run() {
 
 	unfocusElement();
 	playground.canvas.redraw();
+}
+
+function resetMatrix() {
+	focusedElement.value.resetCells(playground.canvas.ctx);
+	focusedElement.value.draw(playground.canvas.ctx);
+}
+
+function clearMatrix() {
+	focusedElement.value.clearCells(playground.canvas.ctx);
+	focusedElement.value.draw(playground.canvas.ctx);
 }
 
 function deleteMatrix() {
@@ -95,6 +110,8 @@ function deleteMatrix() {
 
 		<div class="buttons">
 			<button class="btn btn-nobg clr-red" @click="deleteMatrix()">delete</button>
+			<button class="btn btn-nobg" @click="resetMatrix()">reset</button>
+			<button class="btn btn-nobg clr-blue" @click="clearMatrix()">clear</button>
 		</div>
 
 		<div>

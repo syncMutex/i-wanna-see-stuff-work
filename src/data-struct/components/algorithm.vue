@@ -27,6 +27,8 @@ import BellmanFordComp from "../graph/algorithms/components/bellman-ford.vue";
 import Astar from "../graph/algorithms/astar";
 import AstarComp from "../graph/algorithms/components/astar.vue";
 
+import { DijkstraAdjMatrix } from "../graph/algorithms/adjmatrix.ts";
+
 type ComponentMap = { [_:string]: any };
 
 const componentMap: ComponentMap = {
@@ -37,6 +39,7 @@ const componentMap: ComponentMap = {
 	[Kruskal.constructor.name]: KruskalComp,
 	[BellmanFord.constructor.name]: BellmanFordComp,
 	[Astar.constructor.name]: AstarComp,
+	[DijkstraAdjMatrix.constructor.name]: null,
 };
 
 const isPlaying = ref(true);
