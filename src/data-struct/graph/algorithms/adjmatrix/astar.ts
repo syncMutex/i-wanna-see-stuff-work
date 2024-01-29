@@ -1,5 +1,4 @@
 import { AlgorithmHandler } from "../../../algorithm-handler";
-import { GAP } from "../../../canvas";
 import { setErrorPopupText } from "../../../global";
 import { CanvasHandler } from "../../../handler/canvas-handler";
 import { AdjMatrix, CellType, Node } from "../../element-types/adjacency-matrix";
@@ -167,19 +166,21 @@ export default class AstarAdjMatrix extends AlgorithmHandler {
 				if(!(adjNode.id in distanceTable)) {
 					distanceTable[adjNode.id] = new DistValue(null, Infinity, Infinity);
 				}
-				const toNodeDistVal = distanceTable[adjNode.id] as DistValue;
+				const adjDistVal = distanceTable[adjNode.id] as DistValue;
 
-				const tentativeG = curDistVal.g + 1;
+				const gNew = curDistVal.g + 1;
+				const hNew = this.heuristics(adjNode, dest);
+				const fNew = gNew + hNew;
 
-				if(tentativeG < toNodeDistVal.g) {
-					const g = tentativeG + this.heuristics(adjNode, dest);
-					distanceTable[adjNode.id] = new DistValue(cur, tentativeG, g);
+				if(adjDistVal.f > fNew) {
+					distanceTable[adjNode.id] = new DistValue(cur, fNew, gNew);
 					
 					if(adjNode.id === dest.id) {
 						let gen = this.finalPath(adjMatrix, canvas);
 						while(!gen.next().done) yield null;
 						return;
 					}
+
 					if(!visited.has(adjNode.id)) {
 						if(adjNode.id !== src.id && adjNode.id !== dest.id) {
 							adjMatrix.mat[adjNode.y][adjNode.x] = CellType.AdjNode;
@@ -187,7 +188,7 @@ export default class AstarAdjMatrix extends AlgorithmHandler {
 							yield null;
 						}
 						visited.add(adjNode.id);
-						minQueue.insert(tentativeG, adjNode);
+						minQueue.insert(fNew, adjNode);
 					}
 				}
 			}
