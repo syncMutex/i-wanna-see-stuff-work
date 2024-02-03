@@ -123,7 +123,7 @@ function run() {
 				<Select
 					:options="Heuristics"
 					:onChange="(value) => onChangeHeuristics(value as Heuristics)"
-					:value="currentAlg"
+					:value="curHeuristics"
 				/>
 			</div>
 

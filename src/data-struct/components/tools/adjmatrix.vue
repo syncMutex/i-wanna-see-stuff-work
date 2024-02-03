@@ -17,7 +17,7 @@ enum GraphAlgorithms {
 
 const focusedElement = useFocusedElement<ElementAdjMatrix>();
 
-const currentAlg = ref(GraphAlgorithms.Astar);
+const currentAlg = ref(GraphAlgorithms.Dijkstra);
 
 const curHeuristics = ref(AstarAdjMatrix.curHeuristics);
 
@@ -138,7 +138,7 @@ function deleteMatrix() {
 				<Select
 					:options="Heuristics"
 					:onChange="(value) => onChangeHeuristics(value as Heuristics)"
-					:value="currentAlg"
+					:value="curHeuristics"
 				/>
 			</div>
 

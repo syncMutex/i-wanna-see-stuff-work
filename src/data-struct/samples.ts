@@ -5,6 +5,7 @@ import { ElementGNode } from "./graph/el-node";
 import { ElementUEdge } from "./graph/el-u-edge";
 import { ToolAdjMatrix } from "./graph/tool-adjmatrix";
 import { CanvasHandler } from "./handler/canvas-handler";
+import { Playground } from "./handler/playground-handler";
 import { ElementLLNode } from "./linked-list/el-node";
 import { randInt } from "./utils";
 // import { randInt } from "./utils";
@@ -357,5 +358,62 @@ export function createSampleAdjMatrix(canvas: CanvasHandler) {
 	const m = new ElementAdjMatrix(40 * GAP, 15 * GAP, ToolAdjMatrix.newAdjMatrix());
 	m.setColumns(20);
 	m.setRows(20);
+	m.setSrcXY(3, 10);
+	m.setDestXY(10, 10);
 	canvas.add(m);
 }
+
+export function createSampleAstar(canvas: CanvasHandler) {
+	let y = 10;
+
+	const nodes: Array<Array<ElementGNode>> = [[]];
+
+	let row = 10;
+	let col = 10;
+
+	for(let i = 0; i < row; i++) {
+		let x = 10;
+		nodes.push([]);
+		for(let j = 0; j < col; j++) {
+			const enode = new ElementGNode(x * GAP, y * GAP, String(String(i) + j));
+			canvas.add(enode);
+			x += 7;
+			nodes[i].push(enode);
+		}
+		y += 7;
+	}
+
+	for(let i = 0; i < nodes.length; i++) {
+		for(let j = 0; j < nodes[i].length; j++) {
+			const adjacentNodes = [
+				[j, i - 1],
+				[j + 1, i],
+				[j, i + 1],
+				[j - 1, i],
+			]; 
+			const a = nodes[i][j];
+			for(let [c, r] of adjacentNodes) {
+				if((c < 0 || c >= col) || (r < 0 || r >= row)) {
+					continue;
+				}
+
+				const b = nodes[r][c];
+				if(ElementGNode.hasUEdge(a, b)) {
+					continue;
+				}
+
+				const edge = new ElementUEdge(a, b);
+				edge.weight = 1;
+				edge.rectify();
+				canvas.add(edge);
+			}
+		}
+	}
+
+	canvas.redraw();
+}
+
+export function runSample(playground: Playground) {
+	createSampleAdjMatrix(playground.canvas);
+}
+

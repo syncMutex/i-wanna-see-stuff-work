@@ -28,7 +28,8 @@ export const CellColor = {
 	[CellType.Dest]: "#0000ff",
 	[CellType.Path]: "#00ff00",
 	[CellType.Visited]: "#8d58c7",
-	[CellType.AdjNode]: "#6f13d1"
+	[CellType.AdjNode]: "#6f13d1",
+	// [CellType.AdjNode]: "#111100",
 }
 
 export class Node {
@@ -232,7 +233,33 @@ export class AdjMatrix {
 			}
 		}
 
+		// this.debugInfo(ctx);
+
 		this.renderSrcDest(ctx);
+	}
+
+	debugInfo(ctx: CanvasRenderingContext2D) {
+		let y = this.y + CELL_SIZE;
+		let x = this.x;
+
+		ctx.fillStyle = "#ffffff";
+
+		for(let i = 0; i < this.rows; i++, y += CELL_SIZE) {
+			ctx.textBaseline = "middle";
+			ctx.textAlign = "center";
+			ctx.font = `14px monospace`;
+			ctx.fillText(String(i), x + CELL_SIZE / 2, y + CELL_SIZE / 2);
+		}
+
+		y = this.y;
+		x = this.x + CELL_SIZE;
+
+		for(let i = 0; i < this.columns; i++, x += CELL_SIZE) {
+			ctx.textBaseline = "middle";
+			ctx.textAlign = "center";
+			ctx.font = `14px monospace`;
+			ctx.fillText(String(i), x + CELL_SIZE / 2, y + CELL_SIZE / 2);
+		}
 	}
 
 	renderSrcDest(ctx: CanvasRenderingContext2D) {

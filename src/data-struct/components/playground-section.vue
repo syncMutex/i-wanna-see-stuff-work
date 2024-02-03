@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref, onMounted, onUnmounted } from "vue";
 import { playground } from "../handler/playground-handler";
-import { createSampleAdjMatrix } from "../samples";
+import { runSample } from "../samples";
 import { EventHandler } from "../handler/event-handler";
 import { infoPopup, errorPopup, setErrorPopupText } from "../global";
 
@@ -26,14 +26,8 @@ onMounted(() => {
 	);
 	resizeCanvas();
 	window.addEventListener("resize", resizeCanvas);
-	// createSampleLinkedList(playground.canvas);
-	// createSampleUGraph(playground.canvas);
-	// createSampleDfs(playground.canvas);
-	// createSampleDGraph(playground.canvas);
-	// createSampleBfs(playground.canvas);
-	// createSampleBellmanFord(playground.canvas);
-	// createSampleDijkstra(playground.canvas);
-	createSampleAdjMatrix(playground.canvas);
+
+	runSample(playground);
 })
 
 onUnmounted(() => {

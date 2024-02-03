@@ -6,6 +6,7 @@ import { ElementUEdge } from "../el-u-edge.ts";
 import { setErrorPopupText } from "../../global.ts";
 import { ElementDEdge } from "../el-d-edge.ts";
 import { euclidian, chebyshevDistance, octileDistance, manhattan, Heuristics } from "./heuristics.ts";
+import { PriorityQueue } from "./adjmatrix/common.ts";
 
 enum Color {
 	shortPath = "#00ff00",
@@ -13,58 +14,6 @@ enum Color {
 	visited = "#c7fccc",
 	compare = "#ffff00"
 };
-
-class PriorityQueue {
-	private qArr: Array<{
-		dist: number,
-		node: ElementGNode,
-	}> = [];
-
-	private heapify(idx: number) {
-		let heap = this.qArr;
-		let smallestIdx = idx;
-		const leftIdx = 2 * idx + 1;
-		const rightIdx = 2 * idx + 2;
-
-		if(leftIdx < heap.length && heap[leftIdx] < heap[smallestIdx]) {
-			smallestIdx = leftIdx;
-		}
-
-		if(rightIdx < heap.length && heap[rightIdx] < heap[smallestIdx]) {
-			smallestIdx = rightIdx;
-		}
-
-		if(smallestIdx !== idx) {
-			[heap[smallestIdx], heap[idx]] = [heap[idx], heap[smallestIdx]];
-			this.heapify(smallestIdx);
-		}
-	}
-
-	insert(dist: number, node: ElementGNode): void {
-		const qNode = { dist, node };
-		this.qArr.push(qNode);
-		let idx = this.qArr.length - 1;
-
-		while(idx > 0 && this.qArr[Math.floor((idx - 1) / 2)].dist > this.qArr[idx].dist) {
-			let pidx = Math.floor((idx - 1) / 2);
-			[this.qArr[idx], this.qArr[pidx]] = [this.qArr[pidx], this.qArr[idx]];
-
-			idx = pidx;
-		}
-	}
-
-	isEmpty() {
-		return this.qArr.length === 0;
-	}
-
-	extractMin(): ElementGNode | undefined {
-		[this.qArr[0], this.qArr[this.qArr.length - 1]] = [this.qArr[this.qArr.length - 1], this.qArr[0]];
-		const min = this.qArr.pop()?.node;
-
-		this.heapify(0);
-		return min;
-	}
-}
 
 class DistValue { 
 	g: number = Infinity;
@@ -153,13 +102,18 @@ class Astar extends AlgorithmHandler {
 	}
 
 	*astar(startNode: ElementGNode, endNode: ElementGNode, canvas: CanvasHandler) {
-		let minQueue = new PriorityQueue();
+		let minQueue = new PriorityQueue<ElementGNode>();
 		let distanceTable = this.distanceTable;
 
 		let visited = new Set<ElementGNode>();
 
-		distanceTable.value.set(startNode, new DistValue(null, null, 0, this.heuristics(startNode, endNode)));
-		minQueue.insert(0, startNode);
+		let f = this.heuristics(startNode, endNode);
+
+		distanceTable.value.set(
+			startNode,
+			new DistValue(null, null, f, 0)
+		);
+		minQueue.insert(f, startNode);
 
 		while(!minQueue.isEmpty()) {
 			const cur = minQueue.extractMin();
@@ -192,12 +146,12 @@ class Astar extends AlgorithmHandler {
 				const tentativeG = curDistVal.g + edge.weight;
 
 				if(tentativeG < toNodeDistVal.g) {
-					const g = tentativeG + this.heuristics(toNode, endNode);
-					distanceTable.value.set(toNode, new DistValue(cur, edge, tentativeG, g))
+					const f = tentativeG + this.heuristics(toNode, endNode);
+					distanceTable.value.set(toNode, new DistValue(cur, edge, f, tentativeG))
 					
 					if(!visited.has(toNode)) {
 						visited.add(toNode);
-						minQueue.insert(tentativeG, toNode);
+						minQueue.insert(f, toNode);
 					}
 				}
 				edge.bg = "#ffffff";

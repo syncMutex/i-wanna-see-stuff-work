@@ -3,58 +3,7 @@ import { setErrorPopupText } from "../../../global";
 import { CanvasHandler } from "../../../handler/canvas-handler";
 import { AdjMatrix, CellType, Node } from "../../element-types/adjacency-matrix";
 import { Heuristics, chebyshevDistance, euclidian, manhattan, octileDistance } from "../heuristics";
-
-class PriorityQueue {
-	private qArr: Array<{
-		dist: number,
-		node: Node,
-	}> = [];
-
-	private heapify(idx: number) {
-		let heap = this.qArr;
-		let smallestIdx = idx;
-		const leftIdx = 2 * idx + 1;
-		const rightIdx = 2 * idx + 2;
-
-		if(leftIdx < heap.length && heap[leftIdx] < heap[smallestIdx]) {
-			smallestIdx = leftIdx;
-		}
-
-		if(rightIdx < heap.length && heap[rightIdx] < heap[smallestIdx]) {
-			smallestIdx = rightIdx;
-		}
-
-		if(smallestIdx !== idx) {
-			[heap[smallestIdx], heap[idx]] = [heap[idx], heap[smallestIdx]];
-			this.heapify(smallestIdx);
-		}
-	}
-
-	insert(dist: number, node: Node): void {
-		const qNode = { dist, node };
-		this.qArr.push(qNode);
-		let idx = this.qArr.length - 1;
-
-		while(idx > 0 && this.qArr[Math.floor((idx - 1) / 2)].dist > this.qArr[idx].dist) {
-			let pidx = Math.floor((idx - 1) / 2);
-			[this.qArr[idx], this.qArr[pidx]] = [this.qArr[pidx], this.qArr[idx]];
-
-			idx = pidx;
-		}
-	}
-
-	isEmpty() {
-		return this.qArr.length === 0;
-	}
-
-	extractMin(): Node | undefined {
-		[this.qArr[0], this.qArr[this.qArr.length - 1]] = [this.qArr[this.qArr.length - 1], this.qArr[0]];
-		const min = this.qArr.pop()?.node;
-
-		this.heapify(0);
-		return min;
-	}
-}
+import { PriorityQueue } from "./common";
 
 class DistValue { 
 	g: number = Infinity;
@@ -123,12 +72,14 @@ export default class AstarAdjMatrix extends AlgorithmHandler {
 	*astar(adjMatrix: AdjMatrix, canvas: CanvasHandler) {
 		const src = adjMatrix.src;
 		const dest = adjMatrix.dest;
-		let minQueue = new PriorityQueue();
+		let minQueue = new PriorityQueue<Node>();
 		let distanceTable = this.distanceTable;
 		let visited = new Set<string>();
 
-		distanceTable[src.id] = new DistValue(null, 0, this.heuristics(src, dest));
-		minQueue.insert(0, src);
+		const fh = this.heuristics(src, dest);
+
+		distanceTable[src.id] = new DistValue(null, fh, 0);
+		minQueue.insert(fh, src);
 
 		while(!minQueue.isEmpty()) {
 			const cur = minQueue.extractMin();
@@ -154,46 +105,43 @@ export default class AstarAdjMatrix extends AlgorithmHandler {
 				new Node(cur.x - 1, cur.y),
 			]; 
 
-			for(const adjNode of adjacentNodes) {
+			for(const toNode of adjacentNodes) {
 				if(
-					(adjNode.x < 0 || adjNode.x >= adjMatrix.columns) ||
-					(adjNode.y < 0 || adjNode.y >= adjMatrix.rows) ||
-					(adjMatrix.mat[adjNode.y][adjNode.x] === CellType.Wall)
+					(toNode.x < 0 || toNode.x >= adjMatrix.columns) ||
+					(toNode.y < 0 || toNode.y >= adjMatrix.rows) ||
+					(adjMatrix.mat[toNode.y][toNode.x] === CellType.Wall)
 				) {
 					continue;
 				}
 
-				if(!(adjNode.id in distanceTable)) {
-					distanceTable[adjNode.id] = new DistValue(null, Infinity, Infinity);
+				if(!distanceTable[toNode.id]) {
+					distanceTable[toNode.id] = new DistValue(null, Infinity, Infinity);
 				}
-				const adjDistVal = distanceTable[adjNode.id] as DistValue;
 
-				const gNew = curDistVal.g + 1;
-				const hNew = this.heuristics(adjNode, dest);
-				const fNew = gNew + hNew;
+				const toNodeDistVal = distanceTable[toNode.id] as DistValue;
 
-				if(adjDistVal.f > fNew) {
-					distanceTable[adjNode.id] = new DistValue(cur, fNew, gNew);
+				const tentativeG = curDistVal.g;
+
+				if(tentativeG < toNodeDistVal.g) {
+					const f = this.heuristics(toNode, dest);
+					distanceTable[toNode.id].prev = cur;
+					distanceTable[toNode.id].f = f;
+					distanceTable[toNode.id].g = tentativeG;
 					
-					if(adjNode.id === dest.id) {
-						let gen = this.finalPath(adjMatrix, canvas);
-						while(!gen.next().done) yield null;
-						return;
-					}
-
-					if(!visited.has(adjNode.id)) {
-						if(adjNode.id !== src.id && adjNode.id !== dest.id) {
-							adjMatrix.mat[adjNode.y][adjNode.x] = CellType.AdjNode;
-							adjMatrix.renderCell(canvas.ctx, adjNode.x, adjNode.y);
+					if(!visited.has(toNode.id)) {
+						visited.add(toNode.id);
+						minQueue.insert(f, toNode);
+						if(toNode.id !== src.id && toNode.id !== dest.id) {
+							adjMatrix.mat[toNode.y][toNode.x] = CellType.AdjNode;
+							adjMatrix.renderCell(canvas.ctx, toNode.x, toNode.y);
 							yield null;
 						}
-						visited.add(adjNode.id);
-						minQueue.insert(fNew, adjNode);
 					}
 				}
 			}
 
 			visited.add(cur.id);
+
 			if(cur.id !== src.id && cur.id !== dest.id) {
 				adjMatrix.mat[cur.y][cur.x] = CellType.Visited;
 				adjMatrix.renderCell(canvas.ctx, cur.x, cur.y);

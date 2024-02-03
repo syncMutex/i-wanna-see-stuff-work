@@ -46,7 +46,7 @@ export default class DijkstraAdjMatrix extends AlgorithmHandler {
 		const src = adjMatrix.src;
 		const dest = adjMatrix.dest;
 
-		let minQueue = new PriorityQueue();
+		let minQueue = new PriorityQueue<Node>();
 		let distanceTable = this.distanceTable;
 
 		let visited = new Set<string>();
