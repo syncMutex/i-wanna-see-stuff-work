@@ -4,7 +4,7 @@ import { unfocusElement, useFocusedElement } from '../../global';
 import Select from "../../../common-components/select.vue";
 import { ref } from 'vue';
 import { ElementAdjMatrix } from '../../graph/el-adjmatrix';
-import { DijkstraAdjMatrix, BfsAdjMatrix, DfsAdjMatrix, AstarAdjMatrix } from '../../graph/algorithms/adjmatrix';
+import { DijkstraAdjMatrix, BfsAdjMatrix, DfsAdjMatrix, AstarAdjMatrix, Maze } from '../../graph/algorithms/adjmatrix';
 import { algorithmState } from '../refs';
 import { Heuristics } from '../../graph/algorithms/heuristics';
 
@@ -78,6 +78,15 @@ function run() {
 	playground.canvas.redraw();
 }
 
+function generateMaze() {
+	Maze.init(focusedElement.value, playground.canvas);
+	algorithmState.setAlgorithm(Maze);
+	Maze.play(playground.canvas);
+
+	unfocusElement();
+	playground.canvas.redraw();
+}
+
 function resetMatrix() {
 	focusedElement.value.resetCells(playground.canvas.ctx);
 	focusedElement.value.draw(playground.canvas.ctx);
@@ -121,6 +130,7 @@ function deleteMatrix() {
 			<button class="btn btn-nobg clr-red" @click="deleteMatrix()">delete</button>
 			<button class="btn btn-nobg" @click="resetMatrix()">reset</button>
 			<button class="btn btn-nobg clr-blue" @click="clearMatrix()">clear</button>
+			<button class="btn btn-nobg clr-yellow" @click="generateMaze()">maze</button>
 		</div>
 
 		<div>

@@ -23,7 +23,7 @@ export enum CellType {
 
 export const CellColor = {
 	[CellType.Cell]: "#ffffff",
-	[CellType.Wall]: "#787878",
+	[CellType.Wall]: "#000000",
 	[CellType.Src]: "#ff0000",
 	[CellType.Dest]: "#0000ff",
 	[CellType.Path]: "#00ff00",
@@ -42,7 +42,7 @@ export class Node {
 	}
 
 	get id() {
-		return `${this.y}-${this.x}`;
+		return `${this.y}|${this.x}`;
 	}
 }
 

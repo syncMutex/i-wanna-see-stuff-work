@@ -27,7 +27,7 @@ import BellmanFordComp from "../graph/algorithms/components/bellman-ford.vue";
 import Astar from "../graph/algorithms/astar";
 import AstarComp from "../graph/algorithms/components/astar.vue";
 
-import { DijkstraAdjMatrix, BfsAdjMatrix, DfsAdjMatrix, AstarAdjMatrix } from "../graph/algorithms/adjmatrix.ts";
+import { DijkstraAdjMatrix, BfsAdjMatrix, DfsAdjMatrix, AstarAdjMatrix, Maze } from "../graph/algorithms/adjmatrix.ts";
 
 type ComponentMap = { [_:string]: any };
 
@@ -43,6 +43,7 @@ const componentMap: ComponentMap = {
 	[BfsAdjMatrix.constructor.name]: null,
 	[DfsAdjMatrix.constructor.name]: null,
 	[AstarAdjMatrix.constructor.name]: null,
+	[Maze.constructor.name]: null,
 };
 
 const isPlaying = ref(true);

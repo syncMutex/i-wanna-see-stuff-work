@@ -47,6 +47,10 @@
 	--clr: rgb(255, 41, 41);
 }
 
+.clr-yellow{
+	--clr: rgb(255, 255, 41);
+}
+
 .clr-blue{
 	--clr: rgb(38, 42, 255);
 }

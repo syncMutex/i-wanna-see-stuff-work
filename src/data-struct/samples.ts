@@ -415,5 +415,6 @@ export function createSampleAstar(canvas: CanvasHandler) {
 
 export function runSample(playground: Playground) {
 	createSampleAdjMatrix(playground.canvas);
+	// createSampleAstar(playground.canvas);
 }
 
