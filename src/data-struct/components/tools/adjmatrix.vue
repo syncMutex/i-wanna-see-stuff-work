@@ -33,21 +33,51 @@ function onChangeHeuristics(value: Heuristics) {
 }
 
 function setRows() {
-	if(rows.value < 2) {
-		rows.value = 2;
-	}
-
+	rows.value = Math.floor(rows.value);
 	focusedElement.value.setRows(rows.value);
 	playground.canvas.redraw();
 }
 
 function setColumns() {
-	if(columns.value < 2) {
-		columns.value = 2;
-	}
-
+	columns.value = Math.floor(columns.value);
 	focusedElement.value.setColumns(columns.value);
 	playground.canvas.redraw();
+}
+
+const MAX = 10000;
+
+function validateInputs() {
+	if(+rows.value <= 2) {
+		rows.value = 2;
+		rowsInput();
+	}
+
+	if(+rows.value >= MAX) {
+		rows.value = MAX;
+		rowsInput();
+	}
+
+	if(+columns.value <= 2) {
+		columns.value = 2;
+		columnsInput();
+	}
+
+	if(+columns.value >= MAX) {
+		columns.value = MAX;
+		columnsInput();
+	}
+}
+
+function columnsInput() {
+	if(columns.value >= 2 && columns.value < MAX) {
+		setColumns();
+	}
+}
+
+function rowsInput() {
+	if(rows.value >= 2 && rows.value < MAX) {
+		setRows();
+	}
 }
 
 function run() {
@@ -112,17 +142,19 @@ function deleteMatrix() {
 	<div class="sub-sections-container">
 		<div class="dims">
 			<input
+				@focusout="validateInputs"
+				@input="rowsInput"
 				placeholder="rows"
 				type="number"
 				v-model="rows"
-				@input="setRows()"
 			/>
 			<span>x</span>
 			<input
+				@focusout="validateInputs"
+				@input="columnsInput"
 				placeholder="cols"
 				type="number"
 				v-model="columns"
-				@input="setColumns()"
 			/>
 		</div>
 

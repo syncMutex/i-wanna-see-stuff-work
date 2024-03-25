@@ -11,15 +11,15 @@ import { randInt } from "./utils";
 // import { randInt } from "./utils";
 
 export function createSampleLinkedList(canvas: CanvasHandler) {
-	let y = 30;
+	let y = 10;
 
 	const nodes = [];
 
-	let row = 5;
-	let col = 5;
+	let row = 2;
+	let col = 2;
 
 	for(let i = 0; i < row; i++) {
-		let x = 0;
+		let x = 10;
 		for(let j = 0; j < col; j++) {
 			const enode = new ElementLLNode(x * GAP, y * GAP, String(String(i) + j));
 			canvas.add(enode, enode.arrow);
@@ -414,7 +414,8 @@ export function createSampleAstar(canvas: CanvasHandler) {
 }
 
 export function runSample(playground: Playground) {
-	createSampleAdjMatrix(playground.canvas);
+	// createSampleAdjMatrix(playground.canvas);
 	// createSampleAstar(playground.canvas);
+	createSampleLinkedList(playground.canvas);
 }
 

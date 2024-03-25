@@ -8,12 +8,14 @@ import { LLNode } from "./element-types/node";
 import { ElementArrow } from "./el-arrow";
 import { ElementHandler } from "../handler/element-handler";
 import { sleep } from "../utils";
+import allocator, { AllocDisplay, Ptr } from "../memory-allocator/allocator";
 
-export class ElementLLNode extends LLNode implements ElementHandler {
+export class ElementLLNode extends LLNode implements ElementHandler, AllocDisplay {
 	arrow: ElementArrow;
 
 	referedBy: Set<ElementLLNode> = new Set();
 	next: ElementLLNode | null = null;
+	ptr: Ptr<ElementLLNode>;
 
 	pointerEnter(_state: EventState, _canvas: CanvasHandler) {};
 	pointerUp(_state: EventState, _canvas: CanvasHandler): ElementHandler | null { return null };
@@ -26,6 +28,17 @@ export class ElementLLNode extends LLNode implements ElementHandler {
 		this.arrow = new ElementArrow(this);
 		this.updateArrowTail();
 		this.arrow.head = { x: this.arrow.tail.x + GAP, y: this.arrow.tail.y };
+
+		// Ptr(next) + Str(value) = 16
+		this.ptr = allocator.malloc(16, this);
+	}
+
+    getBytes(): Array<string> {
+		return [...this.value.ptr.value.getBytes(), ...(this.next?.ptr.getBytes() || [])]
+	}
+
+    getString(): string {
+		return `value: ${this.value.value}, next: ${this.next?.value.ptr.getString() || '0x00000000'}`;
 	}
 
 	pointerDy: number = -1;
@@ -260,7 +273,7 @@ export class ElementLLNode extends LLNode implements ElementHandler {
 
 			await sleep(DELAY);
 
-			if(node.value === value) {
+			if(node.value.value === value) {
 				break;
 			}
 
@@ -294,7 +307,7 @@ export class ElementLLNode extends LLNode implements ElementHandler {
 		if(node === null) {
 			canvas.redraw();
 			setErrorPopupText("element not found");
-		} else if(node.value !== value) {
+		} else if(node.value.value !== value) {
 			canvas.redraw();
 			setErrorPopupText("cycle detected. Aborting.");
 		} else {

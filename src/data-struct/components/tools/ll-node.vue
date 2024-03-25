@@ -1,4 +1,5 @@
 <script setup lang="ts">
+
 import { ref } from 'vue';
 import { ElementLLNode } from '../../linked-list/el-node';
 import { playground } from '../../handler/playground-handler';
@@ -8,7 +9,7 @@ const focusedElement = useFocusedElement<ElementLLNode>();
 const toFindValue = ref('');
 
 function setNodeValue(value: string) {
-	focusedElement.value.value = value;
+	focusedElement.value.value.setStr(value);
 	focusedElement.value.draw(playground.canvas.ctx);
 }
 
@@ -49,7 +50,7 @@ function find() {
 				placeholder="value"
 				type="text"
 				spellcheck="false"
-				:value="focusedElement.value"
+				:value="focusedElement.value.value"
 				@input="setNodeValue(($event.target as any).value)"
 			/>
 		</div>

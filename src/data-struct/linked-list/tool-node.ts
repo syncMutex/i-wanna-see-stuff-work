@@ -7,6 +7,7 @@ import { Arrow } from "./element-types/arrow";
 import { LLNode } from "./element-types/node";
 import { CanvasHandler } from "../handler/canvas-handler";
 import { Playground } from "../handler/playground-handler";
+import allocator from "../memory-allocator/allocator";
 
 export class ToolLLNode extends ToolHandler {
 	constructor() {
@@ -63,6 +64,7 @@ export class ToolLLNode extends ToolHandler {
 	static {
 		ToolLLNode.node.x = 0;
 		ToolLLNode.node.y = 0;
+		allocator.free(ToolLLNode.node.value.ptr);
 	}
 
 	draw(ctx: CanvasRenderingContext2D) {

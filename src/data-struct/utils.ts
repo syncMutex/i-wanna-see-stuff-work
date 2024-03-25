@@ -15,3 +15,8 @@ export function hexToRGB(s: string) {
 	return { r, g, b };
 }
 
+export function ptrToHexStr(ptr: number) {
+	let hex = ptr.toString(16);
+	hex = "0".repeat(8 - hex.length) + hex;
+	return `0x${hex}`;
+}

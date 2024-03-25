@@ -23,13 +23,12 @@ export enum CellType {
 
 export const CellColor = {
 	[CellType.Cell]: "#ffffff",
-	[CellType.Wall]: "#000000",
+	[CellType.Wall]: "#444444",
 	[CellType.Src]: "#ff0000",
 	[CellType.Dest]: "#0000ff",
 	[CellType.Path]: "#00ff00",
 	[CellType.Visited]: "#8d58c7",
 	[CellType.AdjNode]: "#6f13d1",
-	// [CellType.AdjNode]: "#111100",
 }
 
 export class Node {

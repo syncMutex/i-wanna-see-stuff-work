@@ -4,6 +4,7 @@ import PlaygroundSection from "./playground-section.vue";
 import SelectedItem from "./selected-item.vue";
 import SettingsMenu from "./settings-menu.vue";
 import Algorithm from "./algorithm.vue";
+import MemoryAlloc from "./memory-alloc/memory-alloc.vue";
 
 </script>
 
@@ -14,6 +15,7 @@ import Algorithm from "./algorithm.vue";
 	<PlaygroundSection />
 	<SelectedItem />
 	<Algorithm />
+	<MemoryAlloc />
 </div>
 </template>
 
