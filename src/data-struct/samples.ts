@@ -15,8 +15,8 @@ export function createSampleLinkedList(canvas: CanvasHandler) {
 
 	const nodes = [];
 
-	let row = 2;
-	let col = 2;
+	let row = 5;
+	let col = 5;
 
 	for(let i = 0; i < row; i++) {
 		let x = 10;

@@ -8,7 +8,7 @@ import { LLNode } from "./element-types/node";
 import { ElementArrow } from "./el-arrow";
 import { ElementHandler } from "../handler/element-handler";
 import { sleep } from "../utils";
-import allocator, { AllocDisplay, Ptr } from "../memory-allocator/allocator";
+import allocator, { AllocDisplay, Null, Ptr } from "../memory-allocator/allocator";
 
 export class ElementLLNode extends LLNode implements ElementHandler, AllocDisplay {
 	arrow: ElementArrow;
@@ -21,6 +21,8 @@ export class ElementLLNode extends LLNode implements ElementHandler, AllocDispla
 	pointerUp(_state: EventState, _canvas: CanvasHandler): ElementHandler | null { return null };
 	pointerLeave(_state: EventState, _canvas: CanvasHandler) {};
 
+	static Size = 16;
+
 	constructor(x: number, y: number, value: string) {
 		super(value);
 		this.x = x;
@@ -29,16 +31,15 @@ export class ElementLLNode extends LLNode implements ElementHandler, AllocDispla
 		this.updateArrowTail();
 		this.arrow.head = { x: this.arrow.tail.x + GAP, y: this.arrow.tail.y };
 
-		// Ptr(next) + Str(value) = 16
-		this.ptr = allocator.malloc(16, this);
+		this.ptr = allocator.malloc(ElementLLNode.Size, this);
 	}
 
-    getBytes(): Array<string> {
-		return [...this.value.ptr.value.getBytes(), ...(this.next?.ptr.getBytes() || [])]
+    toBytes(): Array<string> {
+		return [...this.value.toBytes(), ...(this.next?.ptr.toBytes() || Null.Bytes)]
 	}
 
-    getString(): string {
-		return `value: ${this.value.value}, next: ${this.next?.value.ptr.getString() || '0x00000000'}`;
+    toString(): string {
+		return `LLNode { value: ${this.value}, next: ${this.next?.value || 'NULL'} }`;
 	}
 
 	pointerDy: number = -1;
@@ -273,7 +274,7 @@ export class ElementLLNode extends LLNode implements ElementHandler, AllocDispla
 
 			await sleep(DELAY);
 
-			if(node.value.value === value) {
+			if(node.value.v.chars === value) {
 				break;
 			}
 
@@ -307,7 +308,7 @@ export class ElementLLNode extends LLNode implements ElementHandler, AllocDispla
 		if(node === null) {
 			canvas.redraw();
 			setErrorPopupText("element not found");
-		} else if(node.value.value !== value) {
+		} else if(node.value.v.chars !== value) {
 			canvas.redraw();
 			setErrorPopupText("cycle detected. Aborting.");
 		} else {

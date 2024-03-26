@@ -1,6 +1,7 @@
 import { GAP, line } from "../../canvas";
 import { Point } from "../../geometry";
-import { Str } from "../../memory-allocator/allocator";
+import { Ptr } from "../../memory-allocator/allocator";
+import { Str } from "../../memory-allocator/types";
 
 export class LLNode {
 	static width = GAP * 9;
@@ -15,10 +16,10 @@ export class LLNode {
 
 	x = -1;
 	y = -1;
-	value: Str;
+	value: Ptr<Str>;
 
 	constructor(value: string) {
-		this.value = new Str(value);
+		this.value = Str.new(value);
 		this.setBg("#8400ff");
 	}
 
@@ -49,7 +50,7 @@ export class LLNode {
 		ctx.textBaseline = "middle";
 		ctx.textAlign = "center";
 		ctx.font = "16px monospace";
-		let text = this.value.value;
+		let text = this.value.v.chars;
 		const tlen = text.length;
 		if(tlen > 5) {
 			text = text.slice(0, 5) + " ";

@@ -9,7 +9,7 @@ const focusedElement = useFocusedElement<ElementLLNode>();
 const toFindValue = ref('');
 
 function setNodeValue(value: string) {
-	focusedElement.value.value.setStr(value);
+	focusedElement.value.value.v.setStr(value);
 	focusedElement.value.draw(playground.canvas.ctx);
 }
 
@@ -50,7 +50,7 @@ function find() {
 				placeholder="value"
 				type="text"
 				spellcheck="false"
-				:value="focusedElement.value.value"
+				:value="focusedElement.value.v.chars"
 				@input="setNodeValue(($event.target as any).value)"
 			/>
 		</div>

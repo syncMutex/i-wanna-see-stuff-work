@@ -15,8 +15,18 @@ export function hexToRGB(s: string) {
 	return { r, g, b };
 }
 
-export function ptrToHexStr(ptr: number) {
-	let hex = ptr.toString(16);
-	hex = "0".repeat(8 - hex.length) + hex;
-	return `0x${hex}`;
+export function numberToHex(n: number) {
+	let hex = n.toString(16);
+	return "0".repeat(8 - hex.length) + hex;
+}
+
+export function numberToBytes(n: number): Array<string> {
+	let hex = numberToHex(n);
+	let arr: Array<string> = [];
+
+	for(let i = 0; i < hex.length; i += 2) {
+		arr.push(hex.slice(i, i + 2));
+	}
+
+	return arr;
 }

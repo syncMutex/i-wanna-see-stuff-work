@@ -1,27 +1,34 @@
 <script lang="ts" setup>
-import { watchEffect } from "vue";
 import allocator from "../../memory-allocator/allocator";
 
-watchEffect(() => {
-	allocator.allocated.forEach(a => {
-		console.log(a, a.value.getBytes());
-	})
-})
+// import { watchEffect } from "vue";
+// watchEffect(() => {
+// 	allocator.allocated.forEach(a => {
+// 		console.log(a, a.v.getBytes());
+// 	})
+// })
+
+function refresh() {
+	allocator.refreshToggle = !allocator.refreshToggle;
+}
 
 </script>
 
 <template>
 <div id="memory-alloc" class="floating-panel">
-	<div class="top-bar">
+	<div id="top-bar">
+		<button @click="refresh">refresh</button>
 	</div>
-	<div>
+	<div id="alloc-container">
 		<div v-for="block in allocator.allocated">
+			{{block}} 
 			<div>
-				{{block.value.getString()}}
+				{{block.v}}
 			</div>
 			<div>
-				{{block.value.getBytes().join(" ")}}
+				{{block.v.toBytes().join(" ")}}
 			</div>
+			<br>
 		</div>
 	</div>
 </div>
@@ -37,11 +44,17 @@ watchEffect(() => {
 	bottom: 1%;
 	z-index: 100;
 	overflow: hidden;
+	display: flex;
+	flex-direction: column;
 }
 
-.top-bar{
+#top-bar{
 	background-color: rgb(10, 10, 10);
 	width: 100%;
 	height: 1.75rem;
+}
+
+#alloc-container{
+	overflow: auto;
 }
 </style>

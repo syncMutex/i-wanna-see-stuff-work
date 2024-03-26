@@ -64,7 +64,7 @@ export class ToolLLNode extends ToolHandler {
 	static {
 		ToolLLNode.node.x = 0;
 		ToolLLNode.node.y = 0;
-		allocator.free(ToolLLNode.node.value.ptr);
+		allocator.free(ToolLLNode.node.value);
 	}
 
 	draw(ctx: CanvasRenderingContext2D) {

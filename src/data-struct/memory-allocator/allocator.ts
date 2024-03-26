@@ -1,9 +1,13 @@
-import { reactive } from "vue";
-import { ptrToHexStr } from "../utils";
+import { reactive, ref } from "vue";
+import { numberToBytes, numberToHex } from "../utils";
 
 export interface AllocDisplay {
-	getBytes: () => Array<string>;
-	getString: () => string;
+	toBytes: () => Array<string>;
+	toString: () => string;
+}
+
+export interface Dealloc {
+	dealloc: () => void;
 }
 
 export class AllocBlock {
@@ -24,27 +28,35 @@ export class AllocBlock {
 	}
 }
 
-export class Ptr<T extends AllocDisplay> extends AllocBlock implements AllocDisplay {
-	value: T;
+export class Null implements AllocDisplay {
+	static Bytes = ["00", "00", "00", "00"];
+	static Hex = "0x00000000";
+
+    toBytes(): Array<string> {
+		return Null.Bytes;
+	}
+
+    toString() {
+		return `NULL: ${Null.Hex}`;
+	}
+}
+
+export class Ptr<T extends AllocDisplay | Dealloc> extends AllocBlock implements AllocDisplay {
+	static Size = 4;
+
+	v: T;
 
 	constructor(size: number, start: number, idx: number, value: T) {
 		super(size, start, idx, "");
-		this.value = value;
+		this.v = value;
 	}
 
-    getBytes(): Array<string> {
-		let hex = ptrToHexStr(this.start);
-		let arr: Array<string> = [];
-
-		for(let i = 2; i < hex.length; i += 2) {
-			arr.push(hex.slice(i, i + 2));
-		}
-
-		return arr;
+    toBytes(): Array<string> {
+		return numberToBytes(this.start);
 	}
 
-    getString() {
-		return ptrToHexStr(this.start);
+    toString() {
+		return `0x${numberToHex(this.start)}`;
 	}
 
 	end() {
@@ -55,6 +67,8 @@ export class Ptr<T extends AllocDisplay> extends AllocBlock implements AllocDisp
 class Allocator {
 	allocated: Array<Ptr<AllocDisplay>> = [];
 	freed: Array<Ptr<AllocDisplay>> = [];
+
+	refreshToggle = ref(false);
 
 	public malloc<T extends AllocDisplay>(size: number, value: T): Ptr<T> {
 		const last = this.allocated[this.allocated.length - 1];
@@ -68,51 +82,15 @@ class Allocator {
 		return new Ptr(0, newSize, this.allocated.length, newVal);
 	}
 
-	public free(ptr: AllocBlock) {
+	public free<T extends AllocDisplay | Dealloc>(ptr: Ptr<T>) {
 		this.allocated.splice(ptr.idx, 1);
-	}
-}
-
-export class Str implements AllocDisplay {
-	value: string;
-	ptr: Ptr<Str>;
-
-	constructor(value: string) {
-		this.value = value;
-		this.ptr = allocator.malloc(value.length, this);
-	}
-
-	setStr(value: string) {
-		this.value = value;
-		// TODO: if value.length > ptr.size then realloc
-	}
-
-    getBytes(): Array<string> {
-		return this.value.split("").map(v => v.charCodeAt(0).toString());
-	}
-
-    getString() {
-		return `string: "${this.value}", length: ${this.value.length}`;
-	}
-}
-
-export class Arr<T> implements AllocDisplay {
-	value: Array<T>;
-	ptr: Ptr<Arr<T>>;
-
-	constructor(value: Array<T>) {
-		this.value = value;
-		this.ptr = allocator.malloc(value.length, this);
-	}
-
-    getBytes() {
-		return []
-	}
-
-    getString() {
-		return "";
+		if((ptr.v as Dealloc).dealloc !== undefined) {
+			(ptr.v as Dealloc).dealloc();
+		}
 	}
 }
 
 const allocator = new Allocator;
+export const NULL = allocator.malloc<Null>(4, new Null);
+
 export default reactive(allocator);
