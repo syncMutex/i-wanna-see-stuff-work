@@ -1,18 +1,24 @@
+import { ShallowRef, shallowRef } from "vue";
 import { numberToBytes } from "../utils";
 import allocator, { AllocDisplay, Dealloc, Ptr } from "./allocator";
 
 export class Chars implements AllocDisplay {
-	chars: string;
+	charsRef: ShallowRef<string>;
 	cap: number;
 
 	static new(value: string): Ptr<Chars> {
 		const newChars = new Chars(value);
-		return allocator.malloc<Chars>(value.length, newChars);
+		const mem = allocator.malloc<Chars>(value.length, newChars, "#00ff00");
+		return mem;
 	}
 
 	constructor(value: string) {
-		this.chars = value;
+		this.charsRef = shallowRef(value);
 		this.cap = value.length;
+	}
+
+	get chars(): string {
+		return this.charsRef.value;
 	}
 
     toBytes(): Array<string> {
@@ -20,7 +26,7 @@ export class Chars implements AllocDisplay {
 	}
 
     toString() {
-		return `chars: [${this.chars.split("").map(v => `'${v}'`).join(", ")}]`;
+		return `chars [${this.chars.split("").map(v => `'${v}'`).join(", ")}]`;
 	}
 }
 
@@ -29,7 +35,8 @@ export class Str implements AllocDisplay, Dealloc {
 
 	static new(value: string): Ptr<Str> {
 		const newStr = new Str(value);
-		return allocator.malloc<Str>(Str.Size, newStr);
+		const mem = allocator.malloc<Str>(Str.Size, newStr, "rgb(200, 120, 0)");
+		return mem;
 	}
 
 	charPtr: Ptr<Chars>;
@@ -40,7 +47,7 @@ export class Str implements AllocDisplay, Dealloc {
 
 	setStr(value: string) {
 		let charPtr = this.charPtr.v;
-		charPtr.chars = value;
+		charPtr.charsRef.value = value;
 		if(value.length > charPtr.cap) {
 			// TODO
 		}
@@ -63,20 +70,22 @@ export class Str implements AllocDisplay, Dealloc {
 	}
 
     toString() {
-		return `str { cap: ${this.charPtr.size}, len: ${this.charPtr.v.chars.length}, charPtr: ${this.charPtr} }`;
+		return `str { cap: ${this.charPtr.size}, len: ${this.charPtr.v.chars.length}, ptr: ${this.charPtr} }`;
 	}
 }
 
-export class List<T extends AllocDisplay | number> implements AllocDisplay {
+export class Arr<T extends AllocDisplay | number> implements AllocDisplay {
 	arr: Array<T>;
+	cap: number;
 
-	static new<T extends AllocDisplay | number>(arr: Array<T>, dsize: number): Ptr<List<T>> {
-		const obj = new List<T>(arr);
+	static new<T extends AllocDisplay | number>(arr: Array<T>, dsize: number): Ptr<Arr<T>> {
+		const obj = new Arr<T>(arr);
 		return allocator.malloc(arr.length * dsize, obj);
 	}
 
 	constructor(arr: Array<T>) {
 		this.arr = arr;
+		this.cap = arr.length;
 	}
 
     toBytes(): Array<string> {
@@ -101,5 +110,33 @@ export class List<T extends AllocDisplay | number> implements AllocDisplay {
 
     toString(): string {
 		return `[${this.arr.map(a => a.toString()).join(", ")}]`;
+	}
+}
+
+export class List<T extends AllocDisplay | number> implements AllocDisplay {
+	static Size = 4 + 4 + 4;
+
+	arrPtr: Ptr<Arr<T>>;
+
+	static new<T extends AllocDisplay | number>(arr: Array<T>, dsize: number): Ptr<List<T>> {
+		const obj = new List<T>(arr, dsize);
+		const mem = allocator.malloc(List.Size, obj);
+		return mem;
+	}
+
+	constructor(arr: Array<T>, dsize: number) {
+		this.arrPtr = Arr.new(arr, dsize);
+	}
+
+    toBytes(): Array<string> {
+		return [
+			...numberToBytes(this.arrPtr.v.cap),
+			...numberToBytes(this.arrPtr.v.arr.length),
+			...this.arrPtr.toBytes()
+		];
+	}
+
+    toString(): string {
+		return `List { cap: ${this.arrPtr.v.cap}, length: ${this.arrPtr.v.arr.length}, ptr: ${this.arrPtr} }`;
 	}
 }

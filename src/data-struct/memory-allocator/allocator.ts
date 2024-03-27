@@ -1,4 +1,4 @@
-import { reactive, ref } from "vue";
+import { ShallowReactive, shallowReactive } from "vue";
 import { numberToBytes, numberToHex } from "../utils";
 
 export interface AllocDisplay {
@@ -14,13 +14,17 @@ export class AllocBlock {
 	size: number;
 	start: number;
 	idx: number;
-	color: string;
+	bg: string;
+	fg: string;
+	isFree: boolean;
 	
-	constructor(size: number, start: number, idx: number, color: string) {
+	constructor(size: number, start: number, idx: number, bg: string, fg: string) {
 		this.size = size;
 		this.start = start;
 		this.idx = idx;
-		this.color = color;
+		this.bg = bg;
+		this.fg = fg;
+		this.isFree = false;
 	}
 
 	end() {
@@ -46,8 +50,8 @@ export class Ptr<T extends AllocDisplay | Dealloc> extends AllocBlock implements
 
 	v: T;
 
-	constructor(size: number, start: number, idx: number, value: T) {
-		super(size, start, idx, "");
+	constructor(size: number, start: number, idx: number, value: T, bg: string, fg: string) {
+		super(size, start, idx, bg, fg);
 		this.v = value;
 	}
 
@@ -65,25 +69,38 @@ export class Ptr<T extends AllocDisplay | Dealloc> extends AllocBlock implements
 }
 
 class Allocator {
-	allocated: Array<Ptr<AllocDisplay>> = [];
-	freed: Array<Ptr<AllocDisplay>> = [];
+	allocated: Array<ShallowReactive<Ptr<AllocDisplay>>> = shallowReactive([]);
+	freed: Array<ShallowReactive<Ptr<AllocDisplay>>> = shallowReactive([]);
 
-	refreshToggle = ref(false);
-
-	public malloc<T extends AllocDisplay>(size: number, value: T): Ptr<T> {
+	public malloc<T extends AllocDisplay>(
+		size: number,
+		value: T,
+		bg: string = "rgb(255, 255, 255)",
+		fg: string = "rgb(0, 0, 0)"
+	): ShallowReactive<Ptr<T>> {
 		const last = this.allocated[this.allocated.length - 1];
-		const ptr = new Ptr(size, last ? last.end() : 0, this.allocated.length, value);
-		this.allocated.push(ptr);
+		const ptr = shallowReactive(new Ptr(
+			size,
+			last ? last.end() : 0,
+			this.allocated.length,
+			value,
+			bg, fg
+		));
+		this.allocated.push(shallowReactive(ptr));
 		return ptr;
 	}
 
 	public realloc<T extends AllocDisplay>(ptr: Ptr<T>, newSize: number, newVal: T): Ptr<T> {
 		ptr;
-		return new Ptr(0, newSize, this.allocated.length, newVal);
+		return new Ptr(0, newSize, this.allocated.length, newVal, "", "");
+	}
+
+	public resetExceptNull() {
+		this.allocated.splice(1, this.allocated.length);
 	}
 
 	public free<T extends AllocDisplay | Dealloc>(ptr: Ptr<T>) {
-		this.allocated.splice(ptr.idx, 1);
+		this.allocated[ptr.idx].isFree = true;
 		if((ptr.v as Dealloc).dealloc !== undefined) {
 			(ptr.v as Dealloc).dealloc();
 		}
@@ -91,6 +108,6 @@ class Allocator {
 }
 
 const allocator = new Allocator;
-export const NULL = allocator.malloc<Null>(4, new Null);
+export const NULL = allocator.malloc<Null>(4, new Null, "#ffffff", "#000000");
 
-export default reactive(allocator);
+export default allocator;

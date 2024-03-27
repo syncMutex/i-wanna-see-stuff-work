@@ -59,12 +59,13 @@ export class ToolLLNode extends ToolHandler {
 		canvas.toolCanvas.style.left = x + "px";
 	}
 
-	static node = new LLNode("");
+	static node;
 
 	static {
+		this.node = new LLNode("");
+		allocator.resetExceptNull();
 		ToolLLNode.node.x = 0;
 		ToolLLNode.node.y = 0;
-		allocator.free(ToolLLNode.node.value);
 	}
 
 	draw(ctx: CanvasRenderingContext2D) {

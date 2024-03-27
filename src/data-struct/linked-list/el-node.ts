@@ -8,14 +8,15 @@ import { LLNode } from "./element-types/node";
 import { ElementArrow } from "./el-arrow";
 import { ElementHandler } from "../handler/element-handler";
 import { sleep } from "../utils";
-import allocator, { AllocDisplay, Null, Ptr } from "../memory-allocator/allocator";
+import allocator, { AllocDisplay, Dealloc, Null, Ptr } from "../memory-allocator/allocator";
+import { Ref, ShallowReactive, ref } from "vue";
 
-export class ElementLLNode extends LLNode implements ElementHandler, AllocDisplay {
+export class ElementLLNode extends LLNode implements ElementHandler, AllocDisplay, Dealloc {
 	arrow: ElementArrow;
 
 	referedBy: Set<ElementLLNode> = new Set();
-	next: ElementLLNode | null = null;
-	ptr: Ptr<ElementLLNode>;
+	nextRef: Ref<Ptr<ElementLLNode> | null> = ref(null);
+	ptr: ShallowReactive<Ptr<ElementLLNode>>;
 
 	pointerEnter(_state: EventState, _canvas: CanvasHandler) {};
 	pointerUp(_state: EventState, _canvas: CanvasHandler): ElementHandler | null { return null };
@@ -31,7 +32,14 @@ export class ElementLLNode extends LLNode implements ElementHandler, AllocDispla
 		this.updateArrowTail();
 		this.arrow.head = { x: this.arrow.tail.x + GAP, y: this.arrow.tail.y };
 
-		this.ptr = allocator.malloc(ElementLLNode.Size, this);
+		this.ptr = allocator.malloc(ElementLLNode.Size, this, "#8400ff", "#ffffff");
+	}
+
+	get next(): ElementLLNode | null {
+		return this.nextRef.value?.v || null;
+	}
+	set next(v: Ptr<ElementLLNode> | null) {
+		this.nextRef.value = v;
 	}
 
     toBytes(): Array<string> {
@@ -39,7 +47,11 @@ export class ElementLLNode extends LLNode implements ElementHandler, AllocDispla
 	}
 
     toString(): string {
-		return `LLNode { value: ${this.value}, next: ${this.next?.value || 'NULL'} }`;
+		return `lnode { val: ${this.value}, next: ${this.nextRef.value || 'NULL'} }`;
+	}
+
+	dealloc() {
+		allocator.free(this.value);
 	}
 
 	pointerDy: number = -1;
@@ -95,6 +107,7 @@ export class ElementLLNode extends LLNode implements ElementHandler, AllocDispla
 	}
 
 	remove(canvas: CanvasHandler) {
+		allocator.free(this.ptr);
 		canvas.removeElements(this, this.arrow);
 	}
 
@@ -112,13 +125,13 @@ export class ElementLLNode extends LLNode implements ElementHandler, AllocDispla
 		}
 	}
 
-	setNext(next: ElementLLNode | null) {
+	setNext(next: Ptr<ElementLLNode> | null) {
 		this.next = next;
 		if(next === null) {
 			this.arrow.bg = Arrow.notPointingColor;
 		} else {
 			this.arrow.bg = Arrow.pointingColor;
-			next.referedBy.add(this);
+			next.v.referedBy.add(this);
 		}
 	}
 
@@ -138,9 +151,9 @@ export class ElementLLNode extends LLNode implements ElementHandler, AllocDispla
 		rectified = toInsertArrow.getRectifiedPos(next, new Line(toInsertArrow.tail, next.defaultArrowPointPos()));
 		await toInsertArrow.animateArrowHeadTo(canvas, rectified);
 
-		toInsertStart.setNext(next);
+		toInsertStart.setNext(next.ptr);
 		next.removeRefs(this);
-		this.setNext(toInsertStart);
+		this.setNext(toInsertStart.ptr);
 
 		toInsertArrow.bg = Arrow.pointingColor;
 		canvas.redraw();
@@ -182,7 +195,7 @@ export class ElementLLNode extends LLNode implements ElementHandler, AllocDispla
 				r.arrow.bg = Arrow.pointingColor;
 				let rectified = r.arrow.getRectifiedPos(next, new Line(r.arrow.tail, next.defaultArrowPointPos()));
 				await r.arrow.animateArrowHeadTo(canvas, rectified);
-				r.next = this.next;
+				r.next = this.next?.ptr || null;
 				next.referedBy.add(r);
 			}
 		}

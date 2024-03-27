@@ -15,8 +15,8 @@ export function createSampleLinkedList(canvas: CanvasHandler) {
 
 	const nodes = [];
 
-	let row = 5;
-	let col = 5;
+	let row = 3;
+	let col = 3;
 
 	for(let i = 0; i < row; i++) {
 		let x = 10;
@@ -30,7 +30,7 @@ export function createSampleLinkedList(canvas: CanvasHandler) {
 	}
 
 	for(let i = 0; i < nodes.length - 1; i++) {
-		nodes[i].setNext(nodes[i + 1]);
+		nodes[i].setNext(nodes[i + 1].ptr);
 		// nodes[i].moveTo(randInt(-400, 400), randInt(-400, 400));
 		nodes[i].updateArrowTail();
 		nodes[i].updateArrowHead();

@@ -92,7 +92,7 @@ export class ElementArrow extends Arrow implements ElementHandler {
 		if(this.insertAfterLLNode) {
 			this.bg = Arrow.insertColor;
 		} else {
-			this.parentLLNode.next = el;
+			this.parentLLNode.next = el.ptr;
 			el.referedBy.add(this.parentLLNode as any);
 			this.bg = Arrow.pointingColor;
 		}

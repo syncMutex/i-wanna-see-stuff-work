@@ -32,11 +32,15 @@ async function next() {
 }
 
 function deleteAll() {
-	focusedElement.value.deleteAllReachable(playground.canvas);
+	const el = focusedElement.value;
+	unfocusElement();
+	el.deleteAllReachable(playground.canvas);
 }
 
 function find() {
-	focusedElement.value.find(toFindValue.value, playground.canvas);
+	const el = focusedElement.value;
+	unfocusElement();
+	el.find(toFindValue.value, playground.canvas);
 }
 
 </script>
