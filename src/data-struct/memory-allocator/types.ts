@@ -8,7 +8,7 @@ export class Chars implements AllocDisplay {
 
 	static new(value: string): Ptr<Chars> {
 		const newChars = new Chars(value);
-		const mem = allocator.malloc<Chars>(value.length, newChars, "#00ff00");
+		const mem = allocator.malloc<Chars>(value.length, newChars);
 		return mem;
 	}
 
@@ -35,7 +35,7 @@ export class Str implements AllocDisplay, Dealloc {
 
 	static new(value: string): Ptr<Str> {
 		const newStr = new Str(value);
-		const mem = allocator.malloc<Str>(Str.Size, newStr, "rgb(200, 120, 0)");
+		const mem = allocator.malloc<Str>(Str.Size, newStr);
 		return mem;
 	}
 

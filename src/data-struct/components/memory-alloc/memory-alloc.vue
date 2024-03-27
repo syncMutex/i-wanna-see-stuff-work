@@ -27,24 +27,23 @@ function refresh() {
 			:value="mode"
 		/>
 	</div>
-	<div id="alloc-container" :key="String(refreshToggle)">
+	<div id="alloc-container" class="scroll-bar" :key="String(refreshToggle)">
 		<template v-if="mode === Mode.Bytes">
 			<span
-				:style="block.isFree ? {} : { color: block.bg }"
-				:class="['bytes', block.isFree ? 'freed' : '']"
 				v-for="(block, idx) in allocator.allocated" :key="idx"
+				:class="['bytes', block.v.constructor.name, block.isFree ? 'freed' : '']"
 			>
-				{{block.v.toBytes().join(" ") + " "}}
+				<span v-for="b in block.v.toBytes()">{{b + " "}}</span>
 			</span>
 		</template>
 
 		<template v-if="mode === Mode.String">
 			<span 
-				:style="block.isFree ? {} : { backgroundColor: block.bg, color: block.fg }"
-				:class="['simplified', block.isFree ? 'freed' : '']"
 				v-for="(block, idx) in allocator.allocated" :key="idx"
+				:class="['simplified', block.v.constructor.name, block.isFree ? 'freed' : '']"
 			>
-				{{" " + block.v + " "}}
+				<span class="address">{{" " + block.toString() + " "}}</span>
+				<span class="content">{{" " + block.v + " "}}</span>
 			</span>
 		</template>
 	</div>
@@ -53,6 +52,49 @@ function refresh() {
 
 <style scoped>
 @import "../css/common.css";
+
+*{
+	--chars: #0ba316;
+	--str: #57c95e;
+	--lnode: #8400ff;
+	--null: #ffffff;
+}
+
+.Chars.simplified{
+	background-color: var(--chars);
+	color: white;
+}
+
+.Str.simplified{
+	background-color: var(--str);
+	color: black;
+}
+
+.ElementLLNode.simplified{
+	background-color: var(--lnode);
+	color: white;
+}
+
+.Null.simplified{
+	background-color: var(--null);
+	color: black;
+}
+
+.Chars.bytes{
+	color: var(--chars);
+}
+
+.Str.bytes{
+	color: var(--str);
+}
+
+.ElementLLNode.bytes{
+	color: var(--lnode);
+}
+
+.Null.bytes{
+	color: var(--null);
+}
 
 #memory-alloc{
 	position: absolute;
@@ -82,6 +124,7 @@ function refresh() {
 }
 
 #alloc-container{
+	height: 100%;
 	overflow-y: auto;
 	font-family: monospace;
 	text-wrap: wrap;
@@ -95,10 +138,36 @@ function refresh() {
 	color: white;
 }
 
+.bytes > span {
+	display: inline-block;
+	white-space: pre;
+}
+
 .simplified{
+	display: inline;
+	position: relative;
 	border-radius: 5px;
-	font-size: 0.7rem;
-	margin-bottom: 0.3ch;
+	font-size: 0.8rem;
+	line-height: 1.3em;
+}
+
+.address{
+	display: none;
+	opacity: 0;
+	position: absolute;
+	white-space: pre;
+	pointer-events: none;
+	border-radius: 5px;
+	transition: all 0.2s;
+}
+
+.simplified:hover .address{
+	display: inline-block;
+	opacity: 1 !important;
+	background-color: white;
+	color: black;
+	transform: scale(1.1);
+	z-index: 100;
 }
 
 .bytes.freed{
@@ -110,4 +179,5 @@ function refresh() {
 	color: grey;
 	opacity: 0.4;
 }
+
 </style>

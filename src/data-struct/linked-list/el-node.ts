@@ -32,7 +32,7 @@ export class ElementLLNode extends LLNode implements ElementHandler, AllocDispla
 		this.updateArrowTail();
 		this.arrow.head = { x: this.arrow.tail.x + GAP, y: this.arrow.tail.y };
 
-		this.ptr = allocator.malloc(ElementLLNode.Size, this, "#8400ff", "#ffffff");
+		this.ptr = allocator.malloc(ElementLLNode.Size, this);
 	}
 
 	get next(): ElementLLNode | null {

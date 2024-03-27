@@ -14,16 +14,12 @@ export class AllocBlock {
 	size: number;
 	start: number;
 	idx: number;
-	bg: string;
-	fg: string;
 	isFree: boolean;
 	
-	constructor(size: number, start: number, idx: number, bg: string, fg: string) {
+	constructor(size: number, start: number, idx: number) {
 		this.size = size;
 		this.start = start;
 		this.idx = idx;
-		this.bg = bg;
-		this.fg = fg;
 		this.isFree = false;
 	}
 
@@ -50,8 +46,8 @@ export class Ptr<T extends AllocDisplay | Dealloc> extends AllocBlock implements
 
 	v: T;
 
-	constructor(size: number, start: number, idx: number, value: T, bg: string, fg: string) {
-		super(size, start, idx, bg, fg);
+	constructor(size: number, start: number, idx: number, value: T) {
+		super(size, start, idx);
 		this.v = value;
 	}
 
@@ -72,19 +68,13 @@ class Allocator {
 	allocated: Array<ShallowReactive<Ptr<AllocDisplay>>> = shallowReactive([]);
 	freed: Array<ShallowReactive<Ptr<AllocDisplay>>> = shallowReactive([]);
 
-	public malloc<T extends AllocDisplay>(
-		size: number,
-		value: T,
-		bg: string = "rgb(255, 255, 255)",
-		fg: string = "rgb(0, 0, 0)"
-	): ShallowReactive<Ptr<T>> {
+	public malloc<T extends AllocDisplay>(size: number, value: T): ShallowReactive<Ptr<T>> {
 		const last = this.allocated[this.allocated.length - 1];
 		const ptr = shallowReactive(new Ptr(
 			size,
 			last ? last.end() : 0,
 			this.allocated.length,
 			value,
-			bg, fg
 		));
 		this.allocated.push(shallowReactive(ptr));
 		return ptr;
@@ -92,7 +82,7 @@ class Allocator {
 
 	public realloc<T extends AllocDisplay>(ptr: Ptr<T>, newSize: number, newVal: T): Ptr<T> {
 		ptr;
-		return new Ptr(0, newSize, this.allocated.length, newVal, "", "");
+		return new Ptr(0, newSize, this.allocated.length, newVal);
 	}
 
 	public resetExceptNull() {
@@ -108,6 +98,6 @@ class Allocator {
 }
 
 const allocator = new Allocator;
-export const NULL = allocator.malloc<Null>(4, new Null, "#ffffff", "#000000");
+export const NULL = allocator.malloc<Null>(4, new Null, );
 
 export default allocator;
