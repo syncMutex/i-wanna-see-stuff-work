@@ -65,8 +65,8 @@ export class Ptr<T extends AllocDisplay | Dealloc> extends AllocBlock implements
 }
 
 class Allocator {
-	allocated: Array<ShallowReactive<Ptr<AllocDisplay>>> = shallowReactive([]);
-	freed: Array<ShallowReactive<Ptr<AllocDisplay>>> = shallowReactive([]);
+	allocated: ShallowReactive<Array<ShallowReactive<Ptr<AllocDisplay>>>> = shallowReactive([]);
+	freed: ShallowReactive<Array<ShallowReactive<Ptr<AllocDisplay>>>> = shallowReactive([]);
 
 	public malloc<T extends AllocDisplay>(size: number, value: T): ShallowReactive<Ptr<T>> {
 		const last = this.allocated[this.allocated.length - 1];
