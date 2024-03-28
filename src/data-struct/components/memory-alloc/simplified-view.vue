@@ -1,5 +1,10 @@
 <script setup lang="ts">
 import allocator from '../../memory-allocator/allocator';
+
+const props = defineProps<{
+	showAddressOnHover: boolean
+}>();
+
 </script>
 
 <template>
@@ -8,7 +13,7 @@ import allocator from '../../memory-allocator/allocator';
 		v-for="(block, idx) in allocator.allocated" :key="idx"
 		:class="['simplified', block.v.constructor.name, block.isFree ? 'freed' : '']"
 	>
-		<span class="address">{{" " + block.toString() + " "}}</span>
+		<span class="address" v-if="props.showAddressOnHover">{{" " + block.toString() + " "}}</span>
 		<span class="content">{{" " + block.v + " "}}</span>
 	</span>
 </div>

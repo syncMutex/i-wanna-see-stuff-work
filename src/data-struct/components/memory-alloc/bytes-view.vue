@@ -4,16 +4,28 @@ import allocator from "../../memory-allocator/allocator";
 import { numberToHex } from "../../utils";
 import { computed } from "@vue/reactivity";
 
+const props = defineProps<{
+	byteAlign: "auto" | number
+}>();
+
 const bytesContainer = ref<null | HTMLDivElement>(null);
 const incBy = ref<number>(0);
 const countOfRows = ref<number>(0);
 const bytes = computed<Array<string>>(() => {
 	const b: Array<string> = ["0x00000000"];
-	for(let i = 1, count = incBy.value; i < countOfRows.value; i++, count += incBy.value) {
+	let count = props.byteAlign === "auto" ? incBy.value : props.byteAlign;
+	for(let i = 1; i < countOfRows.value; i++, count += incBy.value) {
 		b.push(`0x${numberToHex(count)}`)
 	}
 	return b;
 });
+const style = computed(() => {
+	if(props.byteAlign === "auto") {
+		return {};
+	}
+	const w = `${props.byteAlign * 3.5}ch`;
+	return { maxWidth: w, width: w, minWidth: w };
+})
 
 function createDebouncer(fn: Function, delay: number) {
 	let timeout: number;
@@ -23,9 +35,9 @@ function createDebouncer(fn: Function, delay: number) {
 	}
 }
 
-const debouncedCalcBytesInc = createDebouncer(calcBytesInc, 200);
+const debouncedCalcBytesInc = createDebouncer(calcBytesInc, 100);
 
-watch(allocator.allocated, calcBytesInc, { flush: "post" })
+watch([allocator.allocated, props], calcBytesInc, { flush: "post" })
 
 onMounted(() => {
 	window.addEventListener("resize", debouncedCalcBytesInc);
@@ -69,7 +81,7 @@ function calcBytesInc() {
 	</span>
 </div>
 
-<div ref="bytesContainer" id="bytes-container">
+<div ref="bytesContainer" id="bytes-container" :style="style">
 	<span
 		v-for="(block, idx) in allocator.allocated" :key="idx"
 		:class="['bytes', block.v.constructor.name, block.isFree ? 'freed' : '']"
@@ -120,7 +132,8 @@ function calcBytesInc() {
 }
 
 #bytes-label-container{
-	flex-basis: 20ch;
+	flex-basis: 2ch;
+	width: 20ch;
 }
 
 #bytes-container, #bytes-label-container{
