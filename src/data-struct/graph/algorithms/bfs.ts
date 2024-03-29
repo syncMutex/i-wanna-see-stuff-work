@@ -11,7 +11,7 @@ class Bfs extends AlgorithmHandler {
 	startNode: null | ElementGNode = null;
 
 	visited: ShallowRef<Set<ElementGNode>> = shallowRef(new Set<ElementGNode>());
-	queue: ShallowReactive<Array<ElementGNode>> = shallowReactive([1, 2, 3, 4, 4, 5, 7, 7, 32, 51].map((v) => new ElementGNode(0, 0, String(v)))); 
+	queue: ShallowReactive<Array<ElementGNode>> = shallowReactive([]); 
 
 	init(node: ElementGNode) {
 		this.startNode = node;
@@ -37,14 +37,14 @@ class Bfs extends AlgorithmHandler {
 			front.setStyle(Color.visited, undefined, "#0000ff").draw(canvas.ctx);
 			yield null;
 
-			for(let n of front.edges.keys()) {
-				n.bg = "#ffff00";
-				n.draw(canvas.ctx);
+			for(let n of front.edges.v.list()) {
+				n.v.bg = "#ffff00";
+				n.v.draw(canvas.ctx);
 				yield null;
-				n.bg = "#ffffff";
-				n.draw(canvas.ctx);
+				n.v.bg = "#ffffff";
+				n.v.draw(canvas.ctx);
 
-				let temp = n.getToNode(front);
+				let temp = n.v.getToNode(front);
 
 				if(!this.visited.value.has(temp)) {
 					this.visited.value.add(temp);
@@ -63,7 +63,7 @@ class Bfs extends AlgorithmHandler {
 	uninit(canvas: CanvasHandler) {
 		this.startNode = null;
 		for(let n of this.visited.value) {
-			n.edges.forEach((_, e) => e.bg = "#ffffff");
+			n.edges.v.list().forEach((e) => e.v.bg = "#ffffff");
 			n.resetStyle();
 		}
 		canvas.redraw();

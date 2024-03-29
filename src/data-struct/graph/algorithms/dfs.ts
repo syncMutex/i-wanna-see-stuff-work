@@ -26,14 +26,14 @@ class Dfs extends AlgorithmHandler {
 		node.draw(canvas.ctx);
 		yield null;
 
-		for(let n of node.edges.keys()) {
-			n.bg = "#ffff00";
-			n.draw(canvas.ctx);
+		for(let n of node.edges.v.list()) {
+			n.v.bg = "#ffff00";
+			n.v.draw(canvas.ctx);
 			yield null;
-			n.bg = "#ffffff";
-			n.draw(canvas.ctx);
+			n.v.bg = "#ffffff";
+			n.v.draw(canvas.ctx);
 
-			let temp = n.getToNode(node);
+			let temp = n.v.getToNode(node);
 
 			if(!this.visited.value.has(temp)) {
 				let gen = this.dfs(temp, canvas);
@@ -53,7 +53,7 @@ class Dfs extends AlgorithmHandler {
 	uninit(canvas: CanvasHandler) {
 		this.startNode = null;
 		for(let n of this.visited.value) {
-			n.edges.forEach((_, e) => e.bg = "#ffffff");
+			n.edges.v.list().forEach((e) => e.v.bg = "#ffffff");
 			n.resetStyle();
 		}
 		canvas.redraw();

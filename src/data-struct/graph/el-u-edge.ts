@@ -5,8 +5,11 @@ import { UEdge } from "./element-types/u-edge.ts";
 import { ElementHandler } from "../handler/element-handler";
 import { ElementGNode } from "./el-node";
 import { GNode } from "./element-types/node.ts";
+import allocator, { AllocDisplay, Ptr } from "../memory-allocator/allocator.ts";
+import { ShallowReactive, ShallowRef, shallowRef } from "vue";
+import { numberToBytes } from "../utils.ts";
 
-export class ElementUEdge extends UEdge implements ElementHandler {
+export class ElementUEdge extends UEdge implements ElementHandler, AllocDisplay {
 	pointerEnter(_state: EventState, _canvas: CanvasHandler) {}
 	pointerLeave(_state: EventState, _canvas: CanvasHandler) {}
 
@@ -24,30 +27,67 @@ export class ElementUEdge extends UEdge implements ElementHandler {
 	}
 
 	remove(canvas: CanvasHandler) {
+		allocator.free(this.ptr);
 		canvas.removeElements(this);
 	}
 
-	fromNode: ElementGNode;
-	toNode: ElementGNode;
+	fromNodeRef: ShallowRef<Ptr<ElementGNode>>;
+	toNodeRef: ShallowRef<Ptr<ElementGNode>>;
+
+	get toNode() {
+		return this.toNodeRef.value.v;
+	}
+
+	get fromNode() {
+		return this.fromNodeRef.value.v;
+	}
 
 	toMoveEnd: Point = new Point(-1, -1);
-	toMoveNode: ElementGNode = new ElementGNode(-1, -1, "");
+	toMoveNode: ElementGNode | null = null;
+
+	ptr: ShallowReactive<Ptr<ElementUEdge>>;
 
 	getToNode(node: ElementGNode): ElementGNode {
 		return this.toNode === node ? this.fromNode : this.toNode;
 	}
+
+    toBytes(): Array<string> {
+		return [
+			...numberToBytes(Number(this.weight.value)),
+			...this.fromNode.ptr.toBytes(),
+			...this.toNode.ptr.toBytes()
+		]
+	}
+
+    toString(): string {
+		return `edge { weight: ${this.weight.value}, n1: ${this.fromNode.ptr}, n2: ${this.toNode.ptr} }`;
+	}
+
+    toDisplayableBlocks() {
+		return [
+			` edge { weight: ${this.weight.value}, n1: `,
+			{ ptr: this.fromNode.ptr.toString() },
+			` n2: `,
+			{ ptr: this.toNode.ptr.toString() },
+			` } `
+		];
+	}
+
+	static Size = 4 + 4;
 	
-	constructor(fromNode: ElementGNode, toNode: ElementGNode) {
+	constructor(fromNode: Ptr<ElementGNode>, toNode: Ptr<ElementGNode>) {
 		super();
 
-		this.fromNode = fromNode;
-		this.toNode = toNode;
+		this.fromNodeRef = shallowRef(fromNode);
+		this.toNodeRef = shallowRef(toNode);
 
-		this.start = { x: fromNode.x, y: fromNode.y };
-		this.end = { x: toNode.x, y: toNode.y };
+		this.start = { x: fromNode.v.x, y: fromNode.v.y };
+		this.end = { x: toNode.v.x, y: toNode.v.y };
 
-		this.fromNode.addUEdge(this);
-		this.toNode.addUEdge(this);
+		this.ptr = allocator.malloc(ElementUEdge.Size, this);
+
+		this.fromNode.addUEdge(this.ptr);
+		this.toNode.addUEdge(this.ptr);
 	}
 
 	doRectifyFor(node: ElementGNode, end: Point) {
@@ -114,8 +154,8 @@ export class ElementUEdge extends UEdge implements ElementHandler {
 
 	async delete(canvas: CanvasHandler) {
 		await this.deleteEdgeAnimation(canvas);
-		this.fromNode.edges.delete(this);
-		this.toNode.edges.delete(this);
+		this.fromNode.edges.v.delete(this.ptr);
+		this.toNode.edges.v.delete(this.ptr);
 		this.remove(canvas);
 	}
 
@@ -126,7 +166,7 @@ export class ElementUEdge extends UEdge implements ElementHandler {
 		this.toMoveEnd.x = x - canvas.offset.x;
 		this.toMoveEnd.y = y - canvas.offset.y;
 
-		const rStart = this.doRectifyFor(this.toMoveNode, this.toMoveEnd);
+		const rStart = this.doRectifyFor(this.toMoveNode as ElementGNode, this.toMoveEnd);
 
 		if(rStart) {
 			const e = this.toMoveEnd === this.start ? this.end : this.start;
@@ -148,16 +188,16 @@ export class ElementUEdge extends UEdge implements ElementHandler {
 						.except(this.fromNode, this.toNode)
 						.find<ElementGNode | null>(x, y, canvas);
 
-		if(el && !ElementGNode.hasUEdge(this.toMoveNode, el)) {
-			this.fromNode.edges.delete(this);
-			this.toNode.edges.delete(this);
-			this.fromNode = this.toMoveNode;
+		if(el && !ElementGNode.hasUEdge(this.toMoveNode as ElementGNode, el)) {
+			this.fromNode.edges.v.delete(this.ptr);
+			this.toNode.edges.v.delete(this.ptr);
+			this.fromNodeRef.value = (this.toMoveNode as ElementGNode).ptr;
 
-			this.fromNode = this.toMoveNode;
-			this.toNode = el;
+			this.fromNodeRef.value = (this.toMoveNode as ElementGNode).ptr;
+			this.toNodeRef.value = el.ptr;
 
-			this.fromNode.addUEdge(this);
-			this.toNode.addUEdge(this);
+			this.fromNode.addUEdge(this.ptr);
+			this.toNode.addUEdge(this.ptr);
 		}
 
 		this.start = { x: this.fromNode.x, y: this.fromNode.y };

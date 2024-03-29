@@ -6,7 +6,7 @@ import { useFocusedElement, unfocusElement } from '../../global';
 const focusedElement = useFocusedElement<ElementUEdge>();
 
 function setNodeValue(value: string) {
-	focusedElement.value.weight = Number(value);
+	focusedElement.value.weight.value = Number(value);
 	playground.canvas.redraw();
 }
 
@@ -28,7 +28,7 @@ async function deleteEdge() {
 				placeholder="value"
 				type="number"
 				spellcheck="false"
-				:value="focusedElement.weight"
+				:value="focusedElement.weight.value"
 				@input="setNodeValue(($event.target as any).value)"
 			/>
 		</div>

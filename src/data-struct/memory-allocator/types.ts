@@ -1,6 +1,6 @@
-import { ShallowRef, shallowRef } from "vue";
+import { ShallowReactive, ShallowRef, shallowReactive, shallowRef } from "vue";
 import { numberToBytes } from "../utils";
-import allocator, { AllocDisplay, Dealloc, Ptr } from "./allocator";
+import allocator, { AllocDisplay, Dealloc, DisplayableBlock, Ptr } from "./allocator";
 
 export class Chars implements AllocDisplay {
 	charsRef: ShallowRef<string>;
@@ -22,11 +22,15 @@ export class Chars implements AllocDisplay {
 	}
 
     toBytes(): Array<string> {
-		return this.chars.split("").map(v => v.charCodeAt(0).toString());
+		return this.chars.split("").map(v => v.charCodeAt(0).toString(16));
 	}
 
     toString() {
 		return `chars [${this.chars.split("").map(v => `'${v}'`).join(", ")}]`;
+	}
+
+    toDisplayableBlocks() {
+		return [` chars [${this.chars.split("").map(v => `'${v}'`).join(", ")}] `];
 	}
 }
 
@@ -72,6 +76,12 @@ export class Str implements AllocDisplay, Dealloc {
     toString() {
 		return `str { cap: ${this.charPtr.size}, len: ${this.charPtr.v.chars.length}, ptr: ${this.charPtr} }`;
 	}
+
+	toDisplayableBlocks() {
+ 		return [
+			` str { cap: ${this.charPtr.size}, len: ${this.charPtr.v.chars.length}, ptr: `, { ptr: this.charPtr.toString() }, ` } `
+		];
+	}
 }
 
 export class Arr<T extends AllocDisplay | number> implements AllocDisplay {
@@ -111,6 +121,10 @@ export class Arr<T extends AllocDisplay | number> implements AllocDisplay {
     toString(): string {
 		return `[${this.arr.map(a => a.toString()).join(", ")}]`;
 	}
+
+    toDisplayableBlocks() {
+		return [`[${this.arr.map(a => a.toString()).join(", ")}]`];
+	}
 }
 
 export class List<T extends AllocDisplay | number> implements AllocDisplay {
@@ -138,5 +152,108 @@ export class List<T extends AllocDisplay | number> implements AllocDisplay {
 
     toString(): string {
 		return `List { cap: ${this.arrPtr.v.cap}, length: ${this.arrPtr.v.arr.length}, ptr: ${this.arrPtr} }`;
+	}
+
+    toDisplayableBlocks() {
+		return [`List { cap: ${this.arrPtr.v.cap}, length: ${this.arrPtr.v.arr.length}, ptr: ${this.arrPtr} }`];
+	}
+}
+
+export class MapListMap<T extends AllocDisplay> implements AllocDisplay {
+	map: ShallowReactive<Map<T, null>>;
+	cap: number;
+
+	static new<T extends AllocDisplay>(map: Map<T, null>, dsize: number): Ptr<MapListMap<T>> {
+		const obj = new MapListMap<T>(map);
+		return allocator.malloc(map.size * dsize, obj);
+	}
+
+	constructor(map: Map<T, null>) {
+		this.map = shallowReactive(map);
+		this.cap = map.size;
+	}
+
+    toBytes(): Array<string> {
+		if(this.map.size === 0) {
+			return [];
+		}
+
+		const temp = [...this.map.keys()];
+
+		const arr: Array<string> = [];
+
+		for(let a of temp) {
+			arr.push(...(a as AllocDisplay).toBytes());
+		}
+		return arr;
+	}
+
+    toString(): string {
+		return `[${[...this.map.keys()].map(a => a.toString()).join(", ")}]`;
+	}
+
+    toDisplayableBlocks(): Array<DisplayableBlock> {
+		let b = [];
+		for(let a of this.map.keys()) {
+			b.push({ ptr: a.toString() } , ', ');
+		}
+
+		b.pop();
+
+		return [` arr: [`, ...b, `] `];
+	}
+}
+
+export class MapList<T extends AllocDisplay> implements AllocDisplay, Dealloc {
+	static Size = 4 + 4 + 4;
+
+	mapPtr: Ptr<MapListMap<T>>;
+
+	static new<T extends AllocDisplay>(map: Map<T, null>, dsize: number): Ptr<MapList<T>> {
+		const obj = new MapList<T>(map, dsize);
+		const mem = allocator.malloc(List.Size, obj);
+		return mem;
+	}
+
+	constructor(map: Map<T, null>, dsize: number) {
+		this.mapPtr = MapListMap.new(map, dsize);
+	}
+
+	list(): Array<T> {
+		return [...this.mapPtr.v.map.keys()];
+	}
+
+	first(): T | undefined {
+		return this.mapPtr.v.map.keys().next().value;
+	}
+
+    toBytes(): Array<string> {
+		return [
+			...numberToBytes(this.mapPtr.v.cap),
+			...numberToBytes(this.mapPtr.v.map.size),
+			...this.mapPtr.toBytes()
+		];
+	}
+
+	set(e: T) {
+		this.mapPtr.v.map.set(e, null);
+	}
+
+	delete(e: T) {
+		this.mapPtr.v.map.delete(e);
+	}
+
+	dealloc() {
+		allocator.free(this.mapPtr);
+	}
+
+    toString(): string {
+		return `List { cap: ${this.mapPtr.v.cap}, length: ${this.mapPtr.v.map.size}, ptr: ${this.mapPtr} }`;
+	}
+
+    toDisplayableBlocks() {
+		return [
+			` List { cap: ${this.mapPtr.v.cap}, length: ${this.mapPtr.v.map.size}, ptr: `, { ptr: this.mapPtr.toString() }, ` } `
+		];
 	}
 }

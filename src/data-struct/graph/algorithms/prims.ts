@@ -125,17 +125,17 @@ class Prims extends AlgorithmHandler {
 
 			visited.add(extractedVertex);
 
-			for(const edge of extractedVertex.edges.keys()) {
-				let prevEdgeColor = edge.bg;
+			for(const edge of extractedVertex.edges.v.list()) {
+				let prevEdgeColor = edge.v.bg;
 
-				edge.bg = Color.compare;
-				edge.draw(canvas.ctx);
+				edge.v.bg = Color.compare;
+				edge.v.draw(canvas.ctx);
 				yield null;
 
-				const destination = (edge.toNode === extractedVertex) ? edge.fromNode : edge.toNode;
+				const destination = (edge.v.toNode === extractedVertex) ? edge.v.fromNode : edge.v.toNode;
 
 				if(!visited.has(destination)) {
-					const newKey = edge.weight;
+					const newKey = edge.v.weight.value;
 
 					if(!key.has(destination)) key.set(destination, Infinity);
 
@@ -147,14 +147,14 @@ class Prims extends AlgorithmHandler {
 							prev.prevEdge.bg = "#ffffff";
 						}
 
-						mst.set(destination, new WeightValue(newKey, extractedVertex, edge as ElementUEdge))
+						mst.set(destination, new WeightValue(newKey, extractedVertex, edge.v as ElementUEdge))
 						prevEdgeColor = Color.span;
 						key.set(destination, newKey);
 					}
 				}
 
-				edge.bg = prevEdgeColor;
-				edge.draw(canvas.ctx);
+				edge.v.bg = prevEdgeColor;
+				edge.v.draw(canvas.ctx);
 			}
 
 			extractedVertex.resetStyle();
@@ -179,7 +179,7 @@ class Prims extends AlgorithmHandler {
 
 	*generatorFn(canvas: CanvasHandler) {
 		if(this.startNode) {
-			if(this.startNode.edges.keys().next().value.constructor.name === ElementDEdge.name) {
+			if(this.startNode.edges.v.first()?.v.constructor.name === ElementDEdge.name) {
 				return;
 			}
 

@@ -37,9 +37,9 @@ watch(kruskal.updateInVue, (newVal) => {
 		</div>
 		<div class="content scroll-bar" ref="table">
 			<div :class="['row', edgesClass[idx]]" v-for="(e, idx) of kruskal.edges.value">
-				<div class="node">{{e.fromNode.value}}</div>
+				<div class="node">{{e.fromNode.value.v.chars}}</div>
 				<div class="weight">{{e.weight}}</div>
-				<div class="node">{{e.toNode.value}}</div>
+				<div class="node">{{e.toNode.value.v.chars}}</div>
 			</div>
 		</div>
 	</div>

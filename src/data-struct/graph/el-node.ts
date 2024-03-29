@@ -6,13 +6,18 @@ import { GNode } from "./element-types/node";
 import { ElementHandler } from "../handler/element-handler";
 import { ElementUEdge } from "./el-u-edge";
 import { ElementDEdge } from "./el-d-edge";
+import allocator, { AllocDisplay, Dealloc, Ptr } from "../memory-allocator/allocator";
+import { MapList } from "../memory-allocator/types";
 
-export class ElementGNode extends GNode implements ElementHandler {
-	edges: Map<ElementUEdge | ElementDEdge, null> = new Map();
+export class ElementGNode extends GNode implements ElementHandler, AllocDisplay, Dealloc {
+	edges: Ptr<MapList<Ptr<ElementUEdge | ElementDEdge>>> = MapList.new(new Map, 4);
 
-	referedByDEdges: Set<ElementDEdge> = new Set();
+	referedByDEdges: Set<Ptr<ElementDEdge>> = new Set();
+
+	ptr: Ptr<ElementGNode>;
 
 	static COUNT = 0;
+	static Size = 8;
 
 	pointerEnter(_state: EventState, _canvas: CanvasHandler) {};
 	pointerUp(_state: EventState, _canvas: CanvasHandler): ElementHandler | null { return null };
@@ -20,12 +25,36 @@ export class ElementGNode extends GNode implements ElementHandler {
 
 	readonly id: number;
 
+    toBytes(): Array<string> {
+		return [...this.value.toBytes(), ...this.edges.toBytes()]
+	}
+
+    toString(): string {
+		return `gnode { val: ${this.value}, edges: ${this.edges} }`;
+	}
+
+    toDisplayableBlocks() {
+		return [
+			` gnode { val: `,
+			{ ptr: this.value.toString() },
+			`, edges: `,
+			{ ptr: this.edges.toString() },
+			` }`
+		];
+	}
+
+	dealloc() {
+		allocator.free(this.value);
+		allocator.free(this.edges);
+	}
+
 	constructor(x: number, y: number, value: string) {
 		super(value);
 		this.x = x;
 		this.y = y;
 		this.id = ElementGNode.COUNT;
 		ElementGNode.COUNT++;
+		this.ptr = allocator.malloc(ElementGNode.Size, this);
 	}
 
 	pointerDy: number = -1;
@@ -51,20 +80,20 @@ export class ElementGNode extends GNode implements ElementHandler {
 
 		this.moveTo(x, y);
 
-		this.edges.forEach((_, edge) => edge.rectify())
+		this.edges.v.list().forEach(edge => edge.v.rectify())
 
 		for(let e of this.referedByDEdges) {
-			e.rectify();
+			e.v.rectify();
 		}
 
 		canvas.redraw();
 	}
 
 	static hasUEdge(n1: ElementGNode, n2: ElementGNode): boolean {
-		for(let edge of n1.edges.keys() as IterableIterator<ElementUEdge>) {
+		for(let edge of n1.edges.v.list() as Array<Ptr<ElementUEdge>>) {
 			if(
-				(edge.fromNode === n1 && edge.toNode === n2) ||
-				(edge.toNode === n1 && edge.fromNode === n2)
+				(edge.v.fromNode === n1 && edge.v.toNode === n2) ||
+				(edge.v.toNode === n1 && edge.v.fromNode === n2)
 			) {
 				return true;
 			}
@@ -73,38 +102,39 @@ export class ElementGNode extends GNode implements ElementHandler {
 	}
 
 	static hasDEdge(from: ElementGNode, to: ElementGNode): boolean {
-		for(let edge of from.edges.keys() as IterableIterator<ElementDEdge>) {
-			if(edge.toNode === to) {
+		for(let edge of from.edges.v.list() as Array<Ptr<ElementDEdge>>) {
+			if(edge.v.toNode === to) {
 				return true;
 			}
 		}
 		return false;
 	}
 
-	addUEdge(e: ElementUEdge) {
-		this.edges.set(e, null);
+	addUEdge(e: Ptr<ElementUEdge>) {
+		this.edges.v.set(e);
 	}
 
-	addDEdge(e: ElementDEdge) {
-		this.edges.set(e, null);
+	addDEdge(e: Ptr<ElementDEdge>) {
+		this.edges.v.set(e);
 	}
 
 	remove(canvas: CanvasHandler) {
+		allocator.free(this.ptr);
 		canvas.removeElements(this);
 	}
 
 	async deleteNode(canvas: CanvasHandler) {
-		for(let edge of this.edges.keys()) {
-			await edge.delete(canvas);
-			canvas.removeElements(edge);
+		for(let edge of this.edges.v.list()) {
+			await edge.v.delete(canvas);
+			edge.v.remove(canvas);
 		}
 		
 		for(let edge of this.referedByDEdges) {
-			await edge.delete(canvas);
-			canvas.removeElements(edge);
+			await edge.v.delete(canvas);
+			edge.v.remove(canvas);
 		}
 
-		canvas.removeElements(this);
+		this.remove(canvas);
 	}
 
 	async scrollTo(canvas: CanvasHandler) {
@@ -138,8 +168,8 @@ export class ElementGNode extends GNode implements ElementHandler {
 	draw(ctx: CanvasRenderingContext2D) {
 		this.paint(ctx);
 
-		for(let edge of this.edges.keys()) {
-			edge.draw(ctx);
+		for(let edge of this.edges.v.list()) {
+			edge.v.draw(ctx);
 		}
 	}
 }

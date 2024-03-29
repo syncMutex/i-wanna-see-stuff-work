@@ -50,6 +50,16 @@ export class ElementLLNode extends LLNode implements ElementHandler, AllocDispla
 		return `lnode { val: ${this.value}, next: ${this.nextRef.value || 'NULL'} }`;
 	}
 
+    toDisplayableBlocks() {
+		return [
+			` lnode { val: `,
+			{ ptr: this.value.toString() },
+			`, next: `,
+			this.nextRef.value ? { ptr: this.nextRef.value.toString() } : 'NULL',
+			` } `
+		];
+	}
+
 	dealloc() {
 		allocator.free(this.value);
 	}

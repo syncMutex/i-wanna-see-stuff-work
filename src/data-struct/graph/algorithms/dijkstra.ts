@@ -44,10 +44,10 @@ class Dijkstra extends AlgorithmHandler {
 		for(let [node] of this.distanceTable.value) {
 			node.resetStyle();
 			node.draw(canvas.ctx);
-			node.edges.forEach((_, e) => {
-				if(e.bg !== "#ffffff") {
-					e.bg = "#ffffff";
-					e.draw(canvas.ctx);
+			node.edges.v.list().forEach((e) => {
+				if(e.v.bg !== "#ffffff") {
+					e.v.bg = "#ffffff";
+					e.v.draw(canvas.ctx);
 				}
 			});
 		}
@@ -103,25 +103,25 @@ class Dijkstra extends AlgorithmHandler {
 			cur.setStyle(Color.curNode).draw(canvas.ctx);
 			yield null;
 
-			for(const edge of cur.edges.keys()) {
-				edge.bg = Color.compare;
-				edge.draw(canvas.ctx);
+			for(const edge of cur.edges.v.list()) {
+				edge.v.bg = Color.compare;
+				edge.v.draw(canvas.ctx);
 				yield null;
 
-				const toNode = edge.getToNode(cur);
+				const toNode = edge.v.getToNode(cur);
 
 				if(!distanceTable.value.has(toNode)) {
-					distanceTable.value.set(toNode, new DistValue(Infinity, null, edge));
+					distanceTable.value.set(toNode, new DistValue(Infinity, null, edge.v));
 				}
 
-				const newDist = (distanceTable.value.get(cur)?.dist as number) + (edge.weight || 1);
+				const newDist = (distanceTable.value.get(cur)?.dist as number) + (edge.v.weight.value || 1);
 
 				if((distanceTable.value.get(toNode)?.dist as number) > newDist) {
-					distanceTable.value.set(toNode, new DistValue(newDist, cur, edge));
+					distanceTable.value.set(toNode, new DistValue(newDist, cur, edge.v));
 					minQueue.insert(newDist, toNode);
 				}
-				edge.bg = "#ffffff";
-				edge.draw(canvas.ctx);
+				edge.v.bg = "#ffffff";
+				edge.v.draw(canvas.ctx);
 			}
 
 			cur.setStyle(Color.visited, "#000000").draw(canvas.ctx);

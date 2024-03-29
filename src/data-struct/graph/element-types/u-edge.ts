@@ -1,3 +1,4 @@
+import { ref } from "vue";
 import { Line, Point } from "../../geometry";
 
 export class UEdge {
@@ -6,7 +7,7 @@ export class UEdge {
 
 	bg: string | CanvasGradient = "#FFFFFF";
 
-	weight = 0;
+	weight = ref(0);
 
 	static LineWidth = 3;
 
@@ -24,12 +25,12 @@ export class UEdge {
 		ctx.lineTo(tox, toy);
 		ctx.stroke();
 
-		if(this.weight !== 0) {
+		if(this.weight.value) {
 			ctx.save();
 
 			const angle = Math.atan((toy - fromy) / (tox - fromx));
 			const p = new Line(this.start, this.end).getPositionAlongTheLine(0.5);
-			const text = String(this.weight);
+			const text = String(this.weight.value);
 
 			ctx.translate(p.x, p.y);
 

@@ -80,10 +80,10 @@ export function createSampleUGraph(canvas: CanvasHandler) {
 			if(ElementGNode.hasUEdge(a, b)) {
 				continue;
 			}
-			const edge = new ElementUEdge(a, b);
+			const edge = new ElementUEdge(a.ptr, b.ptr);
 
 			// edge.weight = randInt(0, 500);
-			edge.weight = 0;
+			edge.weight.value = 0;
 			edge.rectify();
 			canvas.add(edge);
 		}
@@ -93,7 +93,7 @@ export function createSampleUGraph(canvas: CanvasHandler) {
 }
 
 export function createSampleDGraph(canvas: CanvasHandler) {
-	let y = 5;
+	let y = 15;
 
 	const nodes = [];
 
@@ -101,7 +101,7 @@ export function createSampleDGraph(canvas: CanvasHandler) {
 	let col = 5;
 
 	for(let i = 0; i < row; i++) {
-		let x = 5;
+		let x = 15;
 		for(let j = 0; j < col; j++) {
 			const enode = new ElementGNode(x * GAP, y * GAP, String(String(i) + j));
 			canvas.add(enode);
@@ -111,7 +111,7 @@ export function createSampleDGraph(canvas: CanvasHandler) {
 		y += 15;
 	}
 
-	for(let i = 0; i < nodes.length; i++) {
+	for(let i = 0; i < nodes.length - 1; i++) {
 		const a = nodes[i];
 		for(let j = 0; j < 1; j++) {
 			let r = i;
@@ -120,9 +120,9 @@ export function createSampleDGraph(canvas: CanvasHandler) {
 			if(ElementGNode.hasDEdge(a, b)) {
 				continue;
 			}
-			const edge = new ElementDEdge(a, b);
+			const edge = new ElementDEdge(a, b.ptr);
 
-			edge.weight = randInt(0, 500);
+			edge.weight.value = randInt(0, 500);
 			edge.rectify();
 			canvas.add(edge);
 		}
@@ -154,9 +154,9 @@ export function createSampleDfs(canvas: CanvasHandler) {
 		if(ElementGNode.hasDEdge(a, b)) {
 			return;
 		}
-		const edge = new ElementUEdge(a, b);
+		const edge = new ElementUEdge(a.ptr, b.ptr);
 
-		edge.weight = randInt(0, 500);
+		edge.weight.value = randInt(0, 500);
 		edge.rectify();
 		canvas.add(edge);
 	}
@@ -199,9 +199,9 @@ export function createSampleBfs(canvas: CanvasHandler) {
 		if(ElementGNode.hasDEdge(a, b)) {
 			return;
 		}
-		const edge = new ElementUEdge(a, b);
+		const edge = new ElementUEdge(a.ptr, b.ptr);
 
-		edge.weight = randInt(0, 500);
+		edge.weight.value = randInt(0, 500);
 		edge.rectify();
 		canvas.add(edge);
 	}
@@ -241,9 +241,9 @@ export function createSampleDijkstra(canvas: CanvasHandler) {
 		if(ElementGNode.hasDEdge(a, b)) {
 			return;
 		}
-		const edge = new ElementUEdge(a, b);
+		const edge = new ElementUEdge(a.ptr, b.ptr);
 
-		edge.weight = wt++;
+		edge.weight.value = wt++;
 		edge.rectify();
 		canvas.add(edge);
 	}
@@ -288,9 +288,9 @@ export function createSamplePrims(canvas: CanvasHandler) {
 		if(ElementGNode.hasDEdge(a, b)) {
 			return;
 		}
-		const edge = new ElementUEdge(a, b);
+		const edge = new ElementUEdge(a.ptr, b.ptr);
 
-		edge.weight = wt++;
+		edge.weight.value = wt++;
 		edge.rectify();
 		canvas.add(edge);
 	}
@@ -333,9 +333,9 @@ export function createSampleBellmanFord(canvas: CanvasHandler) {
 		if(ElementGNode.hasDEdge(a, b)) {
 			return;
 		}
-		const edge = new ElementDEdge(a, b);
+		const edge = new ElementDEdge(a, b.ptr);
 
-		edge.weight = wt;
+		edge.weight.value = wt;
 		edge.rectify();
 		canvas.add(edge);
 	}
@@ -402,8 +402,8 @@ export function createSampleAstar(canvas: CanvasHandler) {
 					continue;
 				}
 
-				const edge = new ElementUEdge(a, b);
-				edge.weight = 1;
+				const edge = new ElementUEdge(a.ptr, b.ptr);
+				edge.weight.value = 1;
 				edge.rectify();
 				canvas.add(edge);
 			}
@@ -416,6 +416,7 @@ export function createSampleAstar(canvas: CanvasHandler) {
 export function runSample(playground: Playground) {
 	// createSampleAdjMatrix(playground.canvas);
 	// createSampleAstar(playground.canvas);
-	createSampleLinkedList(playground.canvas);
+	// createSampleLinkedList(playground.canvas);
+	createSampleUGraph(playground.canvas);
 }
 

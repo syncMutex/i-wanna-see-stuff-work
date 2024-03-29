@@ -46,7 +46,7 @@ export class ToolDEdge extends ToolHandler {
 			return;
 		}
 
-		const firstEdge = gnode.edges.keys().next().value;
+		const firstEdge = gnode.edges.v.first()?.v;
 
 		if(firstEdge && firstEdge.constructor.name !== ElementDEdge.name) return;
 
@@ -90,7 +90,7 @@ export class ToolDEdge extends ToolHandler {
 			return;
 		}
 
-		const edge = new ElementDEdge(this.startNode, this.endNode);
+		const edge = new ElementDEdge(this.startNode, this.endNode.ptr);
 
 		this.reset(canvas);
 

@@ -45,10 +45,10 @@ class BellmanFord extends AlgorithmHandler {
 		for(let [node] of this.distanceTable.value) {
 			node.resetStyle();
 			node.draw(canvas.ctx);
-			node.edges.forEach((_, e) => {
-				if(e.bg !== "#ffffff") {
-					e.bg = "#ffffff";
-					e.draw(canvas.ctx);
+			node.edges.v.list().forEach((e) => {
+				if(e.v.bg !== "#ffffff") {
+					e.v.bg = "#ffffff";
+					e.v.draw(canvas.ctx);
 				}
 			});
 		}
@@ -67,11 +67,11 @@ class BellmanFord extends AlgorithmHandler {
 		queue.push(node);
 		
 		while(queue.length) {
-			let front = queue.shift() as any;
+			let front = queue.shift() as ElementGNode;
 
-			for(let n of front.edges.keys()) {
-				let temp = n.toNode;
-				edges.push(n);
+			for(let n of front.edges.v.list()) {
+				let temp = n.v.toNode;
+				edges.push(n.v as ElementDEdge);
 
 				if(!visited.value.has(temp)) {
 					visited.value.set(temp, new DistValue(Infinity, null, null));
@@ -107,7 +107,7 @@ class BellmanFord extends AlgorithmHandler {
 				const fromDist = (dist.value.get(fromNode) as DistValue).dist;
 				const toDist = (dist.value.get(toNode) as DistValue).dist;
 
-				const relaxed = fromDist + edge.weight;
+				const relaxed = fromDist + edge.weight.value;
 
 				if(fromDist !== Number.MAX_SAFE_INTEGER && relaxed < toDist) {
 					dist.value.set(toNode, new DistValue(relaxed, fromNode, edge));
@@ -126,7 +126,7 @@ class BellmanFord extends AlgorithmHandler {
 			const toNode = edge.toNode;
 			const fromDist = (dist.value.get(fromNode) as DistValue).dist;
 			const toDist = (dist.value.get(toNode) as DistValue).dist;
-			const relaxed = fromDist + edge.weight;
+			const relaxed = fromDist + edge.weight.value;
 
 			if(fromDist !== Number.MAX_SAFE_INTEGER && relaxed < toDist) {
 				let temp = dist.value.get(fromNode);
@@ -186,7 +186,7 @@ class BellmanFord extends AlgorithmHandler {
 			this.startNode.draw(canvas.ctx);
 			this.endNode.draw(canvas.ctx);
 
-			if(this.startNode.edges.keys().next().value.constructor.name === ElementUEdge.name) {
+			if(this.startNode.edges.v.first()?.v.constructor.name === ElementUEdge.name) {
 				return;
 			}
 

@@ -60,9 +60,9 @@ class Kruskal extends AlgorithmHandler {
 		while(queue.length) {
 			let front = queue.shift() as ElementGNode;
 
-			for(let n of front.edges.keys()) {
-				let temp = (n.toNode === front) ? n.fromNode : n.toNode;
-				edges.add(n as ElementUEdge);
+			for(let n of front.edges.v.list()) {
+				let temp = (n.v.toNode === front) ? n.v.fromNode : n.v.toNode;
+				edges.add(n.v as ElementUEdge);
 				if(!this.visited.has(temp)) {
 					this.visited.add(temp);
 					queue.push(temp);
@@ -74,7 +74,7 @@ class Kruskal extends AlgorithmHandler {
 	getEdgeList(startNode: ElementGNode) {
 		let edges: Set<ElementUEdge> = new Set();
 		this.bfs(startNode, edges);
-		return [...edges].sort((a, b) => a.weight - b.weight);
+		return [...edges].sort((a, b) => a.weight.value - b.weight.value);
 	}
 
 	find(node: ElementGNode): ElementGNode {
@@ -175,7 +175,7 @@ class Kruskal extends AlgorithmHandler {
 
 	*generatorFn(canvas: CanvasHandler) {
 		if(this.startNode) {
-			if(this.startNode.edges.keys().next().value.constructor.name === ElementDEdge.name) {
+			if(this.startNode.edges.v.first()?.v.constructor.name === ElementDEdge.name) {
 				return;
 			}
 

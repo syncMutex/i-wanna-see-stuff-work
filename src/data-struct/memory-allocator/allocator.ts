@@ -1,9 +1,12 @@
 import { ShallowReactive, shallowReactive } from "vue";
 import { numberToBytes, numberToHex } from "../utils";
 
+export type DisplayableBlock = string | { ptr: string };
+
 export interface AllocDisplay {
 	toBytes: () => Array<string>;
 	toString: () => string;
+	toDisplayableBlocks: () => Array<DisplayableBlock>
 }
 
 export interface Dealloc {
@@ -39,6 +42,10 @@ export class Null implements AllocDisplay {
     toString() {
 		return `NULL: ${Null.Hex}`;
 	}
+
+    toDisplayableBlocks() {
+		return [` NULL: ${Null.Hex} `];
+	}
 }
 
 export class Ptr<T extends AllocDisplay | Dealloc> extends AllocBlock implements AllocDisplay {
@@ -57,6 +64,10 @@ export class Ptr<T extends AllocDisplay | Dealloc> extends AllocBlock implements
 
     toString() {
 		return `0x${numberToHex(this.start)}`;
+	}
+
+    toDisplayableBlocks() {
+		return [`0x${numberToHex(this.start)}`];
 	}
 
 	end() {

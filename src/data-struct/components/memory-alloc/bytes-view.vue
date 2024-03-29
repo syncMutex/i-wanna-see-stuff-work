@@ -1,11 +1,15 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from "vue";
+import { ShallowRef, onBeforeUpdate, onMounted, ref, watch } from "vue";
 import allocator from "../../memory-allocator/allocator";
 import { numberToHex } from "../../utils";
 import { computed } from "@vue/reactivity";
+import { createDebouncer, scrollIntoViewAndWait } from "../utils";
+import { focusedElement } from "../../global";
+import { ElementHandler } from "../../handler/element-handler";
 
 const props = defineProps<{
-	byteAlign: "auto" | number
+	byteAlign: "auto" | number,
+	parentDiv: Element | null
 }>();
 
 const bytesContainer = ref<null | HTMLDivElement>(null);
@@ -26,14 +30,38 @@ const style = computed(() => {
 	const w = `${props.byteAlign * 3.5}ch`;
 	return { maxWidth: w, width: w, minWidth: w };
 })
+let pointerMap: { [_:string]: Element } = {};
 
-function createDebouncer(fn: Function, delay: number) {
-	let timeout: number;
-	return () => {
-		clearTimeout(timeout);
-		timeout = setTimeout(fn, delay);
+function refMapper(ptr: string, el: Element) {
+	pointerMap[ptr] = el;
+}
+
+onBeforeUpdate(() => {
+	pointerMap = {};
+})
+
+function handleWatcher(cur: ShallowRef<ElementHandler>, prev: ShallowRef<ElementHandler>) {
+	if(props.parentDiv === null) {
+		return;
+	}
+
+	const curPtr = (cur as any)?.ptr?.toString();
+	const curEl = pointerMap[curPtr];
+
+	const prevPtr = (prev as any)?.ptr?.toString();
+	const prevEl = pointerMap[prevPtr];
+
+	if(prevEl) {
+		prevEl.classList.remove("focus-highlight");
+	}
+
+	if(curEl) {
+		scrollIntoViewAndWait(props.parentDiv, curEl);
+		curEl.classList.add("focus-highlight");
 	}
 }
+
+watch(focusedElement, handleWatcher);
 
 const debouncedCalcBytesInc = createDebouncer(calcBytesInc, 100);
 
@@ -43,6 +71,7 @@ onMounted(() => {
 	window.addEventListener("resize", debouncedCalcBytesInc);
 
 	calcBytesInc();
+	handleWatcher(focusedElement.value as any, focusedElement.value as any);
 
 	return () => {
 		window.removeEventListener("resize", debouncedCalcBytesInc);
@@ -85,6 +114,7 @@ function calcBytesInc() {
 	<span
 		v-for="(block, idx) in allocator.allocated" :key="idx"
 		:class="['bytes', block.v.constructor.name, block.isFree ? 'freed' : '']"
+		:ref="((el: Element) => { refMapper(block.toString(), el) }) as any"
 	>
 		<span v-for="b in block.v.toBytes()">{{b + " "}}</span>
 	</span>
@@ -108,6 +138,22 @@ function calcBytesInc() {
 	color: var(--null);
 }
 
+.ElementGNode.bytes{
+	color: var(--gnode);
+}
+
+.MapList.bytes{
+	color: var(--list);
+}
+
+.MapListMap.bytes{
+	color: var(--list-map);
+}
+
+.ElementDEdge.bytes, .ElementUEdge.bytes{
+	color: var(--edge);
+}
+
 .bytes.freed{
 	color: rgb(80, 80, 80);
 }
@@ -123,21 +169,42 @@ function calcBytesInc() {
 	font-size: 1rem;
 }
 
-#bytes-label-container > span{
-	color: white;
-	font-family: monospace;
-	display: inline-block;
-	white-space: pre;
-	font-size: 1rem;
-}
-
 #bytes-label-container{
 	flex-basis: 2ch;
 	width: 20ch;
+	font-family: monospace;
+}
+
+#bytes-label-container > span{
+	display: inline-block;
+	color: white;
+	font-size: 1rem;
+	white-space: pre;
 }
 
 #bytes-container, #bytes-label-container{
 	height: max-content;
+}
+
+.bytes.focus-highlight{
+	animation-name: highlight-anim;
+	animation-duration: 1s;
+	animation-iteration-count: infinite;
+	animation-fill-mode: forwards;
+	animation-direction: alternate;
+}
+
+@keyframes highlight-anim {
+	0%{
+		background-color: white;
+		color: black;
+		box-shadow: 0 0 10px white;
+	}
+	100%{
+		background-color: yellow;
+		color: black;
+		box-shadow: 0 0 10px black;
+	}
 }
 
 </style>

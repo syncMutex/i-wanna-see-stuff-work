@@ -26,7 +26,7 @@ watch(Bfs.visited, () => {
 		<h2>Order</h2>
 
 		<div class="order scroll-bar" ref="orderContainer">
-			<div v-for="n of Bfs.visited.value.values()">{{n.value}}</div>
+			<div v-for="n of Bfs.visited.value.values()">{{n.value.v.chars}}</div>
 		</div>
 
 		<button v-if="algorithmState.isDone" class="btn btn-nobg" @click="done">done</button>
@@ -34,7 +34,7 @@ watch(Bfs.visited, () => {
 	<div class="queue-container" v-if="!algorithmState.isDone">
 		<h2>Queue</h2>
 		<div class="queue scroll-bar" ref="orderContainer">
-			<div v-for="n of Bfs.queue">{{n.value}}</div>
+			<div v-for="n of Bfs.queue">{{n.value.v.chars}}</div>
 		</div>
 	</div>
 </div>

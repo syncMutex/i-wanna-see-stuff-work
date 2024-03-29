@@ -21,7 +21,7 @@ function done() {
 		</div>
 		<div class="content scroll-bar">
 			<div class="row" v-for="n of astar.distanceTable.value">
-				<div>{{n[0].value}}</div>
+				<div>{{n[0].value.v.chars}}</div>
 				<div>{{n[1].f.toFixed(1)}}</div>
 				<div>{{n[1].g.toFixed(1)}}</div>
 			</div>

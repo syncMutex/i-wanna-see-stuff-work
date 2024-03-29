@@ -21,7 +21,7 @@ function done() {
 		</div>
 		<div class="content scroll-bar">
 			<div class="row" v-for="n of Dijkstra.distanceTable.value">
-				<div>{{n[0].value}}</div>
+				<div>{{n[0].value.v.chars}}</div>
 				<div>{{n[1].dist}}</div>
 			</div>
 		</div>

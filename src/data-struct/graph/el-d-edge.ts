@@ -6,25 +6,59 @@ import { DEdge } from "./element-types/d-edge.ts";
 import { GNode } from "./element-types/node";
 import { ElementHandler } from "../handler/element-handler";
 import { ElementGNode } from "./el-node";
+import allocator, { AllocDisplay, Ptr } from "../memory-allocator/allocator.ts";
+import { ShallowRef, shallowRef } from "vue";
+import { numberToBytes } from "../utils.ts";
 
-export class ElementDEdge extends DEdge implements ElementHandler {
+export class ElementDEdge extends DEdge implements ElementHandler, AllocDisplay {
 	fromNode: ElementGNode;
-	toNode: ElementGNode;
+	toNodePtr: ShallowRef<Ptr<ElementGNode>>;
+
+	get toNode() {
+		return this.toNodePtr.value.v;
+	}
 
 	pointerEnter(_state: EventState, _canvas: CanvasHandler) {};
 	pointerLeave(_state: EventState, _canvas: CanvasHandler) {};
 	pointerDown(_state: EventState, _canvas: CanvasHandler) {};
+
 	remove(canvas: CanvasHandler) {
+		allocator.free(this.ptr);
 		canvas.removeElements(this);
 	}
+
+    toBytes(): Array<string> {
+		return [
+			...numberToBytes(Number(this.weight.value)),
+			...this.toNode.ptr.toBytes(),
+		];
+	}
+
+    toString(): string {
+		return `edge { weight: ${this.weight.value}, to: ${this.toNode.ptr} }`;
+	}
+
+    toDisplayableBlocks() {
+		return [
+			` edge { weight: ${this.weight.value}, to: `,
+			{ ptr: this.toNode.ptr.toString() },
+			` } `
+		];
+	}
+
+	ptr: Ptr<ElementDEdge>;
+
+	static Size = 4 + 4;
 	
-	constructor(parent: ElementGNode, to: ElementGNode) {
+	constructor(parent: ElementGNode, to: Ptr<ElementGNode>) {
 		super();
 		this.fromNode = parent;
-		this.toNode = to;
+		this.toNodePtr = shallowRef(to);
 
-		this.fromNode.addDEdge(this);
-		this.toNode.referedByDEdges.add(this);
+		this.ptr = allocator.malloc(ElementDEdge.Size, this);
+
+		this.fromNode.addDEdge(this.ptr);
+		this.toNode.referedByDEdges.add(this.ptr);
 		this.head = { x: this.tail.x + GAP, y: this.tail.y };
 	}
 
@@ -85,8 +119,8 @@ export class ElementDEdge extends DEdge implements ElementHandler {
 
 	async delete(canvas: CanvasHandler) {
 		await this.animateArrowHeadTo(canvas, this.fromNode);
-		this.fromNode.edges.delete(this);
-		this.toNode.referedByDEdges.delete(this);
+		this.fromNode.edges.v.delete(this.ptr);
+		this.toNode.referedByDEdges.delete(this.ptr);
 		this.remove(canvas);
 	}
 
@@ -137,9 +171,9 @@ export class ElementDEdge extends DEdge implements ElementHandler {
 								.find<ElementGNode | null>(x, y, canvas);
 
 		if(el && !ElementGNode.hasDEdge(this.fromNode, el)) {
-			this.toNode.referedByDEdges.delete(this);
-			this.toNode = el;
-			el.referedByDEdges.add(this);
+			this.toNode.referedByDEdges.delete(this.ptr);
+			this.toNodePtr.value = el.ptr;
+			el.referedByDEdges.add(this.ptr);
 		}
 
 		this.rectify();

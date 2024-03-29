@@ -1,5 +1,7 @@
 import { GAP, circleFill, circleStroke } from "../../canvas";
 import { Line, Point } from "../../geometry";
+import { Ptr } from "../../memory-allocator/allocator";
+import { Str } from "../../memory-allocator/types";
 
 export class GNode {
 	static radius = GAP * 5 / 2 + (GAP / 2);
@@ -10,10 +12,10 @@ export class GNode {
 
 	x = -1;
 	y = -1;
-	value: string = "";
+	value: Ptr<Str>;
 
 	constructor(value: string) {
-		this.value = value;
+		this.value = Str.new(value);
 		this.bg = "#ff801f";
 	}
 
@@ -41,7 +43,7 @@ export class GNode {
 		ctx.textBaseline = "middle";
 		ctx.textAlign = "center";
 		ctx.font = "16px monospace";
-		let text = this.value;
+		let text = this.value.v.chars;
 		const tlen = text.length;
 		if(tlen > 5) {
 			text = text.slice(0, 5) + " ";

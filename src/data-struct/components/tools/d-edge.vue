@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { ElementUEdge } from '../../graph/el-u-edge';
 import { playground } from '../../handler/playground-handler';
 import { useFocusedElement, unfocusElement } from '../../global';
+import { ElementDEdge } from '../../graph/el-d-edge';
 
-const focusedElement = useFocusedElement<ElementUEdge>();
+const focusedElement = useFocusedElement<ElementDEdge>();
 
 function setNodeValue(value: string) {
-	focusedElement.value.weight = Number(value);
+	focusedElement.value.weight.value = Number(value);
 	playground.canvas.redraw();
 }
 
@@ -28,7 +28,7 @@ async function deleteEdge() {
 				placeholder="value"
 				type="number"
 				spellcheck="false"
-				:value="focusedElement.weight"
+				:value="focusedElement.weight.value"
 				@input="setNodeValue(($event.target as any).value)"
 			/>
 		</div>

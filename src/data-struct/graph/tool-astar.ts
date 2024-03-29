@@ -6,7 +6,8 @@ import { Playground } from "../handler/playground-handler";
 import { ElementGNode } from "./el-node";
 import { algorithmState, setShowToolBar } from "../components/refs";
 import { setInfoPopupText } from "../global";
-import astar, { Heuristics } from "./algorithms/astar";
+import astar from "./algorithms/astar";
+import { Heuristics } from "./algorithms/heuristics";
 
 export class ToolAstar extends ToolHandler {
 	startNode: ElementGNode;

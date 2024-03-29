@@ -49,10 +49,10 @@ class Astar extends AlgorithmHandler {
 		for(let [node] of this.distanceTable.value) {
 			node.resetStyle();
 			node.draw(canvas.ctx);
-			node.edges.forEach((_, e) => {
-				if(e.bg !== "#ffffff") {
-					e.bg = "#ffffff";
-					e.draw(canvas.ctx);
+			node.edges.v.list().forEach((e) => {
+				if(e.v.bg !== "#ffffff") {
+					e.v.bg = "#ffffff";
+					e.v.draw(canvas.ctx);
 				}
 			});
 		}
@@ -131,31 +131,31 @@ class Astar extends AlgorithmHandler {
 			cur.setStyle(Color.curNode).draw(canvas.ctx);
 			yield null;
 
-			for(const edge of cur.edges.keys()) {
-				edge.bg = Color.compare;
-				edge.draw(canvas.ctx);
+			for(const edge of cur.edges.v.list()) {
+				edge.v.bg = Color.compare;
+				edge.v.draw(canvas.ctx);
 				yield null;
 
-				const toNode = edge.getToNode(cur);
+				const toNode = edge.v.getToNode(cur);
 
 				if(!distanceTable.value.has(toNode)) {
-					distanceTable.value.set(toNode, new DistValue(null, edge, Infinity, Infinity));
+					distanceTable.value.set(toNode, new DistValue(null, edge.v, Infinity, Infinity));
 				}
 				const toNodeDistVal = distanceTable.value.get(toNode) as DistValue;
 
-				const tentativeG = curDistVal.g + edge.weight;
+				const tentativeG = curDistVal.g + edge.v.weight.value;
 
 				if(tentativeG < toNodeDistVal.g) {
 					const f = tentativeG + this.heuristics(toNode, endNode);
-					distanceTable.value.set(toNode, new DistValue(cur, edge, f, tentativeG))
+					distanceTable.value.set(toNode, new DistValue(cur, edge.v, f, tentativeG))
 					
 					if(!visited.has(toNode)) {
 						visited.add(toNode);
 						minQueue.insert(f, toNode);
 					}
 				}
-				edge.bg = "#ffffff";
-				edge.draw(canvas.ctx);
+				edge.v.bg = "#ffffff";
+				edge.v.draw(canvas.ctx);
 			}
 
 			cur.setStyle(Color.visited, "#000000").draw(canvas.ctx);

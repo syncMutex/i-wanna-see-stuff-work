@@ -6,6 +6,7 @@ import { ToolHandler } from "../handler/tool-handler";
 import { ElementGNode } from "./el-node";
 import { GNode } from "./element-types/node";
 import { Playground } from "../handler/playground-handler";
+import allocator from "../memory-allocator/allocator";
 
 export class ToolGNode extends ToolHandler {
 	constructor() {
@@ -57,9 +58,11 @@ export class ToolGNode extends ToolHandler {
 		canvas.toolCanvas.style.left = x + "px";
 	}
 
-	static node = new GNode("");
+	static node;
 
 	static {
+		this.node = new GNode("");
+		allocator.resetExceptNull();
 		ToolGNode.node.x = GNode.radius;
 		ToolGNode.node.y = GNode.radius;
 	}

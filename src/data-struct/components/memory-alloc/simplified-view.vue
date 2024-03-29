@@ -1,9 +1,62 @@
 <script setup lang="ts">
+import { ShallowRef, onBeforeUpdate, onMounted, watch } from 'vue';
 import allocator from '../../memory-allocator/allocator';
+import { scrollIntoViewAndWait } from '../utils';
+import { focusedElement } from '../../global';
+import { ElementHandler } from '../../handler/element-handler';
 
 const props = defineProps<{
-	showAddressOnHover: boolean
+	showAddressOnHover: boolean,
+	parentDiv: Element | null
 }>();
+
+let pointerMap: { [_:string]: Element } = {};
+
+async function derefPtr(ptr: string) {
+	if(props.parentDiv === null) {
+		return;
+	}
+
+	const el = pointerMap[ptr];
+	await scrollIntoViewAndWait(props.parentDiv, el);
+	el.classList.add("deref-highlight");
+	el.addEventListener("transitionend", () => el.classList.remove("deref-highlight"), { once: true });
+}
+
+function handleWatcher(cur: ShallowRef<ElementHandler>, prev: ShallowRef<ElementHandler>) {
+	if(props.parentDiv === null) {
+		return;
+	}
+
+	const curPtr = (cur as any)?.ptr?.toString();
+	const curEl = pointerMap[curPtr];
+
+	const prevPtr = (prev as any)?.ptr?.toString();
+	const prevEl = pointerMap[prevPtr];
+
+	if(prevEl) {
+		prevEl.classList.remove("focus-highlight");
+	}
+
+	if(curEl) {
+		scrollIntoViewAndWait(props.parentDiv, curEl);
+		curEl.classList.add("focus-highlight");
+	}
+}
+
+watch(focusedElement, handleWatcher);
+
+function refMapper(ptr: string, el: Element) {
+	pointerMap[ptr] = el;
+}
+
+onBeforeUpdate(() => {
+	pointerMap = {};
+})
+
+onMounted(() => {
+	handleWatcher(focusedElement.value as any, focusedElement.value as any);
+})
 
 </script>
 
@@ -12,9 +65,13 @@ const props = defineProps<{
 	<span 
 		v-for="(block, idx) in allocator.allocated" :key="idx"
 		:class="['simplified', block.v.constructor.name, block.isFree ? 'freed' : '']"
+		:ref="((el: Element) => { refMapper(block.toString(), el) }) as any"
 	>
 		<span class="address" v-if="props.showAddressOnHover">{{" " + block.toString() + " "}}</span>
-		<span class="content">{{" " + block.v + " "}}</span>
+		<template v-for="b in block.v.toDisplayableBlocks()">
+			<span v-if="typeof b === 'string'">{{b}}</span>
+			<span v-else style="cursor: pointer;" @click="derefPtr(b.ptr)">{{ b.ptr }}</span>
+		</template>
 	</span>
 </div>
 </template>
@@ -35,8 +92,28 @@ const props = defineProps<{
 	color: white;
 }
 
+.ElementGNode.simplified{
+	background-color: var(--gnode);
+	color: white;
+}
+
 .Null.simplified{
 	background-color: var(--null);
+	color: black;
+}
+
+.MapList.simplified{
+	background-color: var(--list);
+	color: white;
+}
+
+.MapListMap.simplified{
+	background-color: var(--list-map);
+	color: white;
+}
+
+.ElementDEdge.simplified, .ElementUEdge.simplified{
+	background-color: var(--edge);
 	color: black;
 }
 
@@ -59,6 +136,7 @@ const props = defineProps<{
 	border-radius: 5px;
 	font-size: 0.8rem;
 	line-height: 1.3em;
+	transition: all 1s;
 }
 
 .address{
@@ -84,5 +162,32 @@ const props = defineProps<{
 	background-color: rgb(80, 80, 80);
 	color: grey;
 	opacity: 0.4;
+}
+
+.simplified.deref-highlight{
+	background-color: white;
+	color: black;
+	box-shadow: 0 0 10px white;
+}
+
+.simplified.focus-highlight{
+	animation-name: highlight-anim;
+	animation-duration: 1s;
+	animation-iteration-count: infinite;
+	animation-fill-mode: forwards;
+	animation-direction: alternate;
+}
+
+@keyframes highlight-anim {
+	0%{
+		background-color: white;
+		color: black;
+		box-shadow: 0 0 10px white;
+	}
+	100%{
+		background-color: yellow;
+		color: black;
+		box-shadow: 0 0 10px black;
+	}
 }
 </style>

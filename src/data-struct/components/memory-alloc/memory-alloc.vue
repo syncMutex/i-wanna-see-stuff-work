@@ -10,9 +10,10 @@ enum Mode {
 }
 
 const byteAlign: any = { "auto": "auto", "4": 4, "8": 8, "16": 16, "32": 32, "64": 64 };
-const mode = ref(Mode.Bytes);
+const mode = ref(Mode.String);
 const curByteAlign = ref<"auto" | number>("auto");
-const showAddressOnHover = ref<boolean>(true);
+const showAddressOnHover = ref<boolean>(false);
+const allocContainerDiv = ref<Element | null>(null);
 
 </script>
 
@@ -36,9 +37,9 @@ const showAddressOnHover = ref<boolean>(true);
 		</div>
 	</div>
 
-	<div id="alloc-container" class="scroll-bar">
-		<BytesView v-if="mode === Mode.Bytes" :byteAlign="byteAlign[curByteAlign as any] as any" />
-		<SimplifiedView v-if="mode === Mode.String" :showAddressOnHover="showAddressOnHover" />
+	<div id="alloc-container" class="scroll-bar" ref="allocContainerDiv">
+		<BytesView v-if="mode === Mode.Bytes" :byteAlign="byteAlign[curByteAlign as any]" :parentDiv="allocContainerDiv" />
+		<SimplifiedView v-if="mode === Mode.String" :showAddressOnHover="showAddressOnHover" :parentDiv="allocContainerDiv" />
 	</div>
 </div>
 </template>
@@ -50,7 +51,11 @@ const showAddressOnHover = ref<boolean>(true);
 	--chars: #1a821a;
 	--str: #57c95e;
 	--lnode: #8400ff;
+	--gnode: #ff801f;
 	--null: #ffffff;
+	--edge: #0abcde;
+	--list: #ff00ff;
+	--list-map: #cf5d5d;
 }
 
 #memory-alloc{
