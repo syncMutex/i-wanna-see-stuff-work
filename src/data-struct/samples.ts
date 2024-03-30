@@ -356,10 +356,10 @@ export function createSampleBellmanFord(canvas: CanvasHandler) {
 
 export function createSampleAdjMatrix(canvas: CanvasHandler) {
 	const m = new ElementAdjMatrix(40 * GAP, 15 * GAP, ToolAdjMatrix.newAdjMatrix());
-	m.setColumns(20);
-	m.setRows(20);
-	m.setSrcXY(3, 10);
-	m.setDestXY(10, 10);
+	// m.setColumns(20);
+	// m.setRows(20);
+	// m.setSrcXY(3, 10);
+	// m.setDestXY(10, 10);
 	canvas.add(m);
 }
 
@@ -414,9 +414,9 @@ export function createSampleAstar(canvas: CanvasHandler) {
 }
 
 export function runSample(playground: Playground) {
-	// createSampleAdjMatrix(playground.canvas);
+	createSampleAdjMatrix(playground.canvas);
 	// createSampleAstar(playground.canvas);
 	// createSampleLinkedList(playground.canvas);
-	createSampleUGraph(playground.canvas);
+	// createSampleUGraph(playground.canvas);
 }
 

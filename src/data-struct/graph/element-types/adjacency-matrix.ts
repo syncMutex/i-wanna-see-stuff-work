@@ -1,5 +1,7 @@
 import { circleFill } from "../../canvas";
 import { Point } from "../../geometry";
+import allocator, { Ptr } from "../../memory-allocator/allocator";
+import { List } from "../../memory-allocator/types";
 
 export const CELL_SIZE: number = 20;
 
@@ -52,7 +54,7 @@ export class AdjMatrix {
 	x: number;
 	y: number;
 
-	mat: Array<Array<CellType>>;
+	mat: Ptr<List<Ptr<List<CellType>>>>;
 
 	borderColor = "#ffffff";
 
@@ -61,10 +63,14 @@ export class AdjMatrix {
 
 	eventType: EventType = EventType.None;
 
-	constructor(x: number, y: number, mat: Array<Array<number>>) {
+	constructor(x: number, y: number, arr: Array<Array<number>>) {
+		let mat = List.new(arr.map(row => {
+			return List.new(row, 4);
+		}), Ptr.Size);
+
 		this.mat = mat;
-		this.rows = mat.length;
-		this.columns = mat[0]?.length || 0;
+		this.rows = mat.v.length;
+		this.columns = mat.v.at(0)?.v.length || 0;
 
 		this.x = x;
 		this.y = y;
@@ -74,21 +80,29 @@ export class AdjMatrix {
 	}
 
 	setDestXY(x: number, y: number) {
-		this.mat[this.dest.y][this.dest.x] = CellType.Cell;
+		this.setCell(this.dest.y, this.dest.x, CellType.Cell);
 		this.dest.x = x;
 		this.dest.y = y;
-		this.mat[y][x] = CellType.Dest;
+		this.setCell(this.dest.y, this.dest.x, CellType.Dest);
 	}
 
 	setSrcXY(x: number, y: number) {
-		this.mat[this.src.y][this.src.x] = CellType.Cell;
+		this.setCell(this.src.y, this.src.x, CellType.Cell);
 		this.src.x = x;
 		this.src.y = y;
-		this.mat[y][x] = CellType.Src;
+		this.setCell(this.src.y, this.src.x, CellType.Src);
+	}
+
+	at(y: number, x: number) {
+		return this.mat.v.at(y)?.v.at(x);
+	}
+
+	setCell(row: number, col: number, val: CellType) {
+		this.mat.v.at(row)?.v.setAt(col, val);
 	}
 
 	renderCell(ctx: CanvasRenderingContext2D, x: number, y: number) {
-		ctx.fillStyle = CellColor[this.mat[y][x]];
+		ctx.fillStyle = CellColor[this.at(y, x) || 0];
 		ctx.fillRect(
 			this.gridLeft + x * CELL_SIZE,
 			this.gridTop + y * CELL_SIZE,
@@ -104,11 +118,11 @@ export class AdjMatrix {
 		for(let i = 0; i < this.rows; i++, y += CELL_SIZE) {
 			x = this.x + 1 + CELL_SIZE;
 			for(let j = 0; j < this.columns; j++, x += CELL_SIZE) {
-				const cell = this.mat[i][j];
+				const cell = this.at(i, j);
 				if(cell === CellType.Visited || cell === CellType.Path || cell === CellType.AdjNode) {
-					this.mat[i][j] = CellType.Cell;
+					this.setCell(i, j, CellType.Cell);
 				}
-				ctx.fillStyle = CellColor[this.mat[i][j]];
+				ctx.fillStyle = CellColor[this.at(i, j) || 0];
 				ctx.fillRect(x, y, CELL_SIZE - 2, CELL_SIZE - 2);
 			}
 		}
@@ -123,13 +137,13 @@ export class AdjMatrix {
 		for(let i = 0; i < this.rows; i++, y += CELL_SIZE) {
 			x = this.x + 1 + CELL_SIZE;
 			for(let j = 0; j < this.columns; j++, x += CELL_SIZE) {
-				const cell = this.mat[i][j];
+				const cell = this.at(i, j);
 
 				if(cell !== CellType.Src && cell !== CellType.Dest) {
-					this.mat[i][j] = CellType.Cell;
+					this.setCell(i, j, CellType.Cell);
 				}
 
-				ctx.fillStyle = CellColor[this.mat[i][j]];
+				ctx.fillStyle = CellColor[this.at(i, j) || 0];
 				ctx.fillRect(x, y, CELL_SIZE - 2, CELL_SIZE - 2);
 			}
 		}
@@ -138,58 +152,56 @@ export class AdjMatrix {
 	}
 
 	setRows(rows: number) {
-		const prev = this.rows;
-
-		if(rows > prev) {
+		if(rows > this.rows) {
 			this.rows = rows;
 
-			for(let i = this.mat.length; i < rows; ++i) {
-				this.mat[i] = new Array(this.columns).fill(0);
+			for(let i = this.mat.v.length; i < rows; ++i) {
+				const newRowPtr = List.new(new Array(this.columns).fill(0), 4);
+				this.mat.v.setAt(i, newRowPtr);
 			}
 		} else {
-			if(this.mat.length < 3) {
-				this.mat = this.mat.slice(0, 2);
-			} else {
-				this.mat = this.mat.slice(0, rows);
-				this.rows = rows;
+			this.rows = Math.max(2, rows);
+			for(let i = this.rows; i < this.mat.v.length; i++) {
+				const rowListPtr = this.mat.v.at(i);
+				allocator.free(rowListPtr as Ptr<List<CellType>>);
 			}
+
+			this.mat.v.list().length = rows;
 
 			const lastIdx = rows - 1;
 
 			if(this.src.y >= rows) {
 				this.src.y = lastIdx;
-				this.mat[lastIdx][this.src.x] = CellType.Src;
+				this.setCell(lastIdx, this.src.x, CellType.Src);
 			}
 			if(this.dest.y >= rows) {
 				this.dest.y = lastIdx;
-				this.mat[lastIdx][this.dest.x] = CellType.Dest;
+				this.setCell(lastIdx, this.dest.x, CellType.Dest);
 			}
 		}
 	}
 
 	setColumns(columns: number) {
-		const prev = this.columns;
-
-		if(columns > prev) {
+		if(columns > this.columns) {
+			for(let rowListPtr of this.mat.v.list()) {
+				rowListPtr.v.list().push(...new Array(columns - this.columns).fill(CellType.Cell));
+			}
 			this.columns = columns;
-			this.mat = this.mat.map(row => [...row, ...new Array(this.columns).fill(0)]);
 		} else {
-			if((this.mat[0]?.length || 0) < 3) {
-				this.mat = this.mat.map(row => row.slice(0, 2));
-			} else {
-				this.mat = this.mat.map(row => row.slice(0, columns));
-				this.columns = columns;
+			this.columns = Math.max(2, columns);
+			for(let rowListPtr of this.mat.v.list()) {
+				rowListPtr.v.list().length = this.columns;
 			}
 
 			const lastIdx = columns - 1;
 
 			if(this.src.x >= columns) {
 				this.src.x = lastIdx;
-				this.mat[this.src.y][lastIdx] = CellType.Src;
+				this.setCell(this.src.y, lastIdx, CellType.Src);
 			}
 			if(this.dest.x >= columns) {
 				this.dest.x = lastIdx;
-				this.mat[this.dest.y][lastIdx] = CellType.Dest;
+				this.setCell(this.dest.y, lastIdx, CellType.Dest);
 			}
 		}
 	}
@@ -227,7 +239,7 @@ export class AdjMatrix {
 		for(let i = 0; i < this.rows; i++, y += CELL_SIZE) {
 			x = this.x + 1 + CELL_SIZE;
 			for(let j = 0; j < this.columns; j++, x += CELL_SIZE) {
-				ctx.fillStyle = CellColor[this.mat[i][j]];
+				ctx.fillStyle = CellColor[this.at(i, j) || 0];
 				ctx.fillRect(x, y, CELL_SIZE - 2, CELL_SIZE - 2);
 			}
 		}
@@ -265,11 +277,11 @@ export class AdjMatrix {
 		const HCELL_SIZE = (CELL_SIZE - 2) / 2;
 
 		// src
-		this.mat[this.src.y][this.src.x] = CellType.Cell;
+		this.setCell(this.src.y, this.src.x, CellType.Cell);
 		this.renderCell(ctx, this.src.x, this.src.y);
 
-		this.mat[this.src.y][this.src.x] = CellType.Src;
-		ctx.fillStyle = CellColor[this.mat[this.src.y][this.src.x]];
+		this.setCell(this.src.y, this.src.x, CellType.Src);
+		ctx.fillStyle = CellColor[this.at(this.src.y, this.src.x) || 0];
 
 		let sx = this.gridLeft + (this.src.x * CELL_SIZE);
 		let sy = this.gridTop + (this.src.y * CELL_SIZE);
@@ -284,11 +296,11 @@ export class AdjMatrix {
 
 		// dest
 
-		this.mat[this.dest.y][this.dest.x] = CellType.Cell;
+		this.setCell(this.dest.y, this.dest.x, CellType.Cell);
 		this.renderCell(ctx, this.dest.x, this.dest.y);
 
-		this.mat[this.dest.y][this.dest.x] = CellType.Dest;
-		ctx.fillStyle = CellColor[this.mat[this.dest.y][this.dest.x]];
+		this.setCell(this.dest.y, this.dest.x, CellType.Dest);
+		ctx.fillStyle = CellColor[this.at(this.dest.y, this.dest.x) || 0];
 		circleFill(
 			ctx,
 			this.gridLeft + this.dest.x * CELL_SIZE + HCELL_SIZE,

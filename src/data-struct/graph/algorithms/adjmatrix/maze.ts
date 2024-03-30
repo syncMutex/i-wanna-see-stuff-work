@@ -109,7 +109,7 @@ export default class Maze extends AlgorithmHandler {
 	*maze(adjMatrix: AdjMatrix, canvas: CanvasHandler) {
 		for(let y = 0; y < adjMatrix.rows; y++) {
 			for(let x = 0; x < adjMatrix.columns; x++) {
-				adjMatrix.mat[y][x] = CellType.Wall;
+				adjMatrix.setCell(y, x, CellType.Wall);
 			}
 		}
 
@@ -130,11 +130,12 @@ export default class Maze extends AlgorithmHandler {
 
 		for(let p of path) {
 			let [y, x] = p.split("|").map(Number);
-			if(adjMatrix.mat[y][x] === CellType.Src || adjMatrix.mat[y][x] === CellType.Dest) {
+			const c = adjMatrix.at(y, x);
+			if(c === CellType.Src || c === CellType.Dest) {
 				continue;
 			}
 
-			adjMatrix.mat[y][x] = CellType.Cell;
+			adjMatrix.setCell(y, x, CellType.Cell);
 			adjMatrix.renderCell(canvas.ctx, x, y);
 			yield null;
 		}

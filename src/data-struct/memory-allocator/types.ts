@@ -85,7 +85,7 @@ export class Str implements AllocDisplay, Dealloc {
 }
 
 export class Arr<T extends AllocDisplay | number> implements AllocDisplay {
-	arr: Array<T>;
+	arr: ShallowReactive<Array<T>>;
 	cap: number;
 
 	static new<T extends AllocDisplay | number>(arr: Array<T>, dsize: number): Ptr<Arr<T>> {
@@ -94,7 +94,7 @@ export class Arr<T extends AllocDisplay | number> implements AllocDisplay {
 	}
 
 	constructor(arr: Array<T>) {
-		this.arr = arr;
+		this.arr = shallowReactive(arr);
 		this.cap = arr.length;
 	}
 
@@ -123,11 +123,18 @@ export class Arr<T extends AllocDisplay | number> implements AllocDisplay {
 	}
 
     toDisplayableBlocks() {
-		return [`[${this.arr.map(a => a.toString()).join(", ")}]`];
+		let b = [];
+		for(let a of this.arr) {
+			b.push({ ptr: a.toString() } , ', ');
+		}
+
+		b.pop();
+
+		return [` arr: [`, ...b, `] `];
 	}
 }
 
-export class List<T extends AllocDisplay | number> implements AllocDisplay {
+export class List<T extends AllocDisplay | number> implements AllocDisplay, Dealloc {
 	static Size = 4 + 4 + 4;
 
 	arrPtr: Ptr<Arr<T>>;
@@ -140,6 +147,30 @@ export class List<T extends AllocDisplay | number> implements AllocDisplay {
 
 	constructor(arr: Array<T>, dsize: number) {
 		this.arrPtr = Arr.new(arr, dsize);
+	}
+
+	dealloc() {
+		allocator.free(this.arrPtr);
+	}
+
+	list(): Array<T> {
+		return this.arrPtr.v.arr;
+	}
+
+	at(idx: number): T | undefined {
+		return this.arrPtr.v.arr[idx];
+	}
+
+	setAt(idx: number, val: T) {
+		this.arrPtr.v.arr[idx] = val;
+	}
+
+	set(val: Array<T>) {
+		this.arrPtr.v.arr = val;
+	}
+
+	get length(): number {
+		return this.arrPtr.v.arr.length;
 	}
 
     toBytes(): Array<string> {
@@ -155,7 +186,7 @@ export class List<T extends AllocDisplay | number> implements AllocDisplay {
 	}
 
     toDisplayableBlocks() {
-		return [`List { cap: ${this.arrPtr.v.cap}, length: ${this.arrPtr.v.arr.length}, ptr: ${this.arrPtr} }`];
+		return [` List { cap: ${this.arrPtr.v.cap}, length: ${this.arrPtr.v.arr.length}, ptr: `, { ptr: this.arrPtr.toString() }, ` } `];
 	}
 }
 

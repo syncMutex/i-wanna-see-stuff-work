@@ -5,6 +5,7 @@ import { ToolHandler } from "../handler/tool-handler";
 import { ElementAdjMatrix } from "./el-adjmatrix";
 import { AdjMatrix } from "./element-types/adjacency-matrix";
 import { Playground } from "../handler/playground-handler";
+import allocator from "../memory-allocator/allocator";
 
 export class ToolAdjMatrix extends ToolHandler {
 	constructor() {
@@ -66,7 +67,11 @@ export class ToolAdjMatrix extends ToolHandler {
 		canvas.toolCanvas.style.left = x + "px";
 	}
 
-	static mat = new AdjMatrix(GAP * 2, GAP * 2, this.newAdjMatrix());
+	static mat;
+	static {
+		this.mat = new AdjMatrix(GAP * 2, GAP * 2, this.newAdjMatrix());
+		allocator.resetExceptNull();
+	}
 
 	draw(ctx: CanvasRenderingContext2D) {
 		ToolAdjMatrix.mat.paint(ctx);

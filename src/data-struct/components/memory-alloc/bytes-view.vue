@@ -142,16 +142,20 @@ function calcBytesInc() {
 	color: var(--gnode);
 }
 
-.MapList.bytes{
+.MapList.bytes, .List.bytes{
 	color: var(--list);
 }
 
-.MapListMap.bytes{
+.MapListMap.bytes, .Arr.bytes{
 	color: var(--list-map);
 }
 
 .ElementDEdge.bytes, .ElementUEdge.bytes{
 	color: var(--edge);
+}
+
+.ElementAdjMatrix.bytes{
+	color: var(--adj-mat);
 }
 
 .bytes.freed{
@@ -160,7 +164,6 @@ function calcBytesInc() {
 
 .bytes {
 	color: white;
-	font-family: monospace;
 }
 
 .bytes > span {
@@ -172,7 +175,6 @@ function calcBytesInc() {
 #bytes-label-container{
 	flex-basis: 2ch;
 	width: 20ch;
-	font-family: monospace;
 }
 
 #bytes-label-container > span{
@@ -184,6 +186,7 @@ function calcBytesInc() {
 
 #bytes-container, #bytes-label-container{
 	height: max-content;
+	font-family: monospace;
 }
 
 .bytes.focus-highlight{

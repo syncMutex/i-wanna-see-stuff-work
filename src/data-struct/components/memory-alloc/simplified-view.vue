@@ -102,18 +102,23 @@ onMounted(() => {
 	color: black;
 }
 
-.MapList.simplified{
+.MapList.simplified, .List.simplified{
 	background-color: var(--list);
 	color: white;
 }
 
-.MapListMap.simplified{
+.MapListMap.simplified, .Arr.simplified{
 	background-color: var(--list-map);
 	color: white;
 }
 
 .ElementDEdge.simplified, .ElementUEdge.simplified{
 	background-color: var(--edge);
+	color: black;
+}
+
+.ElementAdjMatrix.simplified{
+	background-color: var(--adj-mat);
 	color: black;
 }
 

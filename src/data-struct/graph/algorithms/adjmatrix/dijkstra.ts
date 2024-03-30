@@ -33,7 +33,7 @@ export default class DijkstraAdjMatrix extends AlgorithmHandler {
 
 		while(temp?.prev && temp.prev) {
 			if(temp.prev.id !== src.id) {
-				adjMatrix.mat[temp.prev.y][temp.prev.x] = CellType.Path;
+				adjMatrix.setCell(temp.prev.y, temp.prev.x, CellType.Path);
 				adjMatrix.renderCell(canvas.ctx, temp.prev.x, temp.prev.y);
 				yield null;
 			}
@@ -79,7 +79,7 @@ export default class DijkstraAdjMatrix extends AlgorithmHandler {
 				if(
 					(adjNode.x < 0 || adjNode.x >= adjMatrix.columns) ||
 					(adjNode.y < 0 || adjNode.y >= adjMatrix.rows) ||
-					(adjMatrix.mat[adjNode.y][adjNode.x] === CellType.Wall)
+					(adjMatrix.at(adjNode.y, adjNode.x) === CellType.Wall)
 				) {
 					continue;
 				}
@@ -89,7 +89,7 @@ export default class DijkstraAdjMatrix extends AlgorithmHandler {
 					distanceTable[adjNodeId] = new DistValue(Infinity, null);
 
 					if(adjNode.id !== src.id && adjNode.id !== dest.id) {
-						adjMatrix.mat[adjNode.y][adjNode.x] = CellType.AdjNode;
+						adjMatrix.setCell(adjNode.y, adjNode.x, CellType.AdjNode);
 						adjMatrix.renderCell(canvas.ctx, adjNode.x, adjNode.y);
 						yield null;
 					}
@@ -111,7 +111,7 @@ export default class DijkstraAdjMatrix extends AlgorithmHandler {
 
 			visited.add(cur.id);
 			if(cur.id !== src.id && cur.id !== dest.id) {
-				adjMatrix.mat[cur.y][cur.x] = CellType.Visited;
+				adjMatrix.setCell(cur.y, cur.x, CellType.Visited);
 				adjMatrix.renderCell(canvas.ctx, cur.x, cur.y);
 				yield null;
 			}

@@ -4,28 +4,51 @@ import { EventState } from "../handler/event-handler";
 import { CanvasHandler } from "../handler/canvas-handler";
 import { AdjMatrix, CELL_SIZE, CellType, EventType } from "./element-types/adjacency-matrix";
 import { ElementHandler } from "../handler/element-handler";
+import allocator, { AllocDisplay, Dealloc, Ptr } from "../memory-allocator/allocator";
+import { numberToBytes } from "../utils";
 
-export class ElementAdjMatrix extends AdjMatrix implements ElementHandler {
+export class ElementAdjMatrix extends AdjMatrix implements ElementHandler, AllocDisplay, Dealloc {
 	pointerEnter(_state: EventState, _canvas: CanvasHandler) {};
 	pointerLeave(_state: EventState, _canvas: CanvasHandler) {};
 
 	static COUNT = 0;
+	static Size = 4 + 4 + 4;
 
 	readonly id: number;
+
+	ptr: Ptr<ElementAdjMatrix>;
 
 	constructor(x: number, y: number, value: Array<Array<number>>) {
 		super(x, y, value);
 		this.x = x;
 		this.y = y;
 		this.id = ElementAdjMatrix.COUNT;
+		this.ptr = allocator.malloc(ElementAdjMatrix.Size, this);
 		ElementAdjMatrix.COUNT++;
+	}
+
+    toBytes(): Array<string> {
+		return [
+			...numberToBytes(this.rows),
+			...numberToBytes(this.columns),
+			...this.mat.toBytes()
+		]
+	}
+
+    toString(): string {
+		return `mat { rows: ${this.rows}, columns: ${this.columns}, mat: ${this.mat} }`;
+	}
+
+    toDisplayableBlocks() {
+		return [` mat { rows: ${this.rows}, columns: ${this.columns}, mat: `, { ptr: this.mat.toString() }, ` } `];
+	}
+
+	dealloc() {
+		allocator.free(this.mat);
 	}
 
 	pointerDy: number = -1;
 	pointerDx: number = -1;
-
-	rectifyEdges() {
-	}
 
 	defaultArrowPointPos(): Point {
 		return new Point(this.left + GAP, (this.top + this.bottom) / 2);
@@ -62,7 +85,7 @@ export class ElementAdjMatrix extends AdjMatrix implements ElementHandler {
 
 			ElementAdjMatrix.addedWalls.add(id);
 
-			this.mat[gridY][gridX] = (this.mat[gridY][gridX] !== CellType.Cell) ? CellType.Cell : CellType.Wall;
+			this.setCell(gridY, gridX, (this.at(gridY, gridX) !== CellType.Cell) ? CellType.Cell : CellType.Wall);
 
 			this.renderCell(canvas.ctx, gridX, gridY);
 			break;
@@ -80,7 +103,7 @@ export class ElementAdjMatrix extends AdjMatrix implements ElementHandler {
 			}
 
 			if(
-				(this.mat[gridY][gridX] !== 0) ||
+				(this.at(gridY, gridX) !== 0) ||
 				(gridX === this.dest.x && gridY === this.dest.y)
 			) {
 				break;
@@ -108,7 +131,7 @@ export class ElementAdjMatrix extends AdjMatrix implements ElementHandler {
 			}
 
 			if(
-				(this.mat[gridY][gridX] !== 0) ||
+				(this.at(gridY, gridX) !== 0) ||
 				(gridX === this.src.x && gridY === this.src.y)
 			) {
 				break;
@@ -141,6 +164,7 @@ export class ElementAdjMatrix extends AdjMatrix implements ElementHandler {
 	}
 
 	remove(canvas: CanvasHandler) {
+		allocator.free(this.ptr);
 		canvas.removeElements(this);
 	}
 

@@ -56,6 +56,7 @@ const allocContainerDiv = ref<Element | null>(null);
 	--edge: #0abcde;
 	--list: #ff00ff;
 	--list-map: #cf5d5d;
+	--adj-mat: #fffb91;
 }
 
 #memory-alloc{

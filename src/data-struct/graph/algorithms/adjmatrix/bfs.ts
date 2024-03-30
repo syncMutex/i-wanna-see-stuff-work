@@ -30,7 +30,7 @@ export default class BfsAdjMatrix extends AlgorithmHandler {
 
 		while(temp) {
 			if(temp.id !== src.id) {
-				adjMatrix.mat[temp.y][temp.x] = CellType.Path;
+				adjMatrix.setCell(temp.y, temp.x, CellType.Path);
 				adjMatrix.renderCell(canvas.ctx, temp.x, temp.y);
 				yield null;
 			}
@@ -67,7 +67,7 @@ export default class BfsAdjMatrix extends AlgorithmHandler {
 			]; 
 
 			if(front.id !== src.id && front.id !== dest.id) {
-				adjMatrix.mat[front.y][front.x] = CellType.Visited;
+				adjMatrix.setCell(front.y, front.x, CellType.Visited);
 				adjMatrix.renderCell(canvas.ctx, front.x, front.y);
 				yield null;
 			}
@@ -76,14 +76,14 @@ export default class BfsAdjMatrix extends AlgorithmHandler {
 				if(
 					(n.x < 0 || n.x >= adjMatrix.columns) ||
 					(n.y < 0 || n.y >= adjMatrix.rows) ||
-					(adjMatrix.mat[n.y][n.x] === CellType.Wall)
+					(adjMatrix.at(n.y, n.x) === CellType.Wall)
 				) {
 					continue;
 				}
 
 				if(!visited.has(n.id)) {
 					if(n.id !== src.id && n.id !== dest.id) {
-						adjMatrix.mat[n.y][n.x] = CellType.AdjNode;
+						adjMatrix.setCell(n.y, n.x, CellType.AdjNode);
 						adjMatrix.renderCell(canvas.ctx, n.x, n.y);
 						yield null;
 					}

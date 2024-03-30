@@ -48,7 +48,7 @@ export default class AstarAdjMatrix extends AlgorithmHandler {
 
 		while(temp?.prev && temp.prev) {
 			if(temp.prev.id !== src.id) {
-				adjMatrix.mat[temp.prev.y][temp.prev.x] = CellType.Path;
+				adjMatrix.setCell(temp.prev.y, temp.prev.x, CellType.Path);
 				adjMatrix.renderCell(canvas.ctx, temp.prev.x, temp.prev.y);
 				yield null;
 			}
@@ -109,7 +109,7 @@ export default class AstarAdjMatrix extends AlgorithmHandler {
 				if(
 					(toNode.x < 0 || toNode.x >= adjMatrix.columns) ||
 					(toNode.y < 0 || toNode.y >= adjMatrix.rows) ||
-					(adjMatrix.mat[toNode.y][toNode.x] === CellType.Wall)
+					(adjMatrix.at(toNode.y, toNode.x) === CellType.Wall)
 				) {
 					continue;
 				}
@@ -132,7 +132,7 @@ export default class AstarAdjMatrix extends AlgorithmHandler {
 						visited.add(toNode.id);
 						minQueue.insert(f, toNode);
 						if(toNode.id !== src.id && toNode.id !== dest.id) {
-							adjMatrix.mat[toNode.y][toNode.x] = CellType.AdjNode;
+							adjMatrix.setCell(toNode.y, toNode.x, CellType.AdjNode);
 							adjMatrix.renderCell(canvas.ctx, toNode.x, toNode.y);
 							yield null;
 						}
@@ -143,7 +143,7 @@ export default class AstarAdjMatrix extends AlgorithmHandler {
 			visited.add(cur.id);
 
 			if(cur.id !== src.id && cur.id !== dest.id) {
-				adjMatrix.mat[cur.y][cur.x] = CellType.Visited;
+				adjMatrix.setCell(cur.y, cur.x, CellType.Visited);
 				adjMatrix.renderCell(canvas.ctx, cur.x, cur.y);
 				yield null;
 			}

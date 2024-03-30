@@ -34,13 +34,17 @@ function onChangeHeuristics(value: Heuristics) {
 
 function setRows() {
 	rows.value = Math.floor(rows.value);
-	focusedElement.value.setRows(rows.value);
+	if(focusedElement.value.setRows) {
+		focusedElement.value.setRows(rows.value);
+	}
 	playground.canvas.redraw();
 }
 
 function setColumns() {
 	columns.value = Math.floor(columns.value);
-	focusedElement.value.setColumns(columns.value);
+	if(focusedElement.value.setColumns) {
+		focusedElement.value.setColumns(columns.value);
+	}
 	playground.canvas.redraw();
 }
 

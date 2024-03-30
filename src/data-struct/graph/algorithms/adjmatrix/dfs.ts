@@ -30,7 +30,7 @@ export default class DfsAdjMatrixClass extends AlgorithmHandler {
 
 		while(temp) {
 			if(temp.id !== src.id) {
-				adjMatrix.mat[temp.y][temp.x] = CellType.Path;
+				adjMatrix.setCell(temp.y, temp.x, CellType.Path);
 				adjMatrix.renderCell(canvas.ctx, temp.x, temp.y);
 				yield null;
 			}
@@ -55,7 +55,7 @@ export default class DfsAdjMatrixClass extends AlgorithmHandler {
 		]; 
 
 		if(node.id !== src.id && node.id !== dest.id) {
-			adjMatrix.mat[node.y][node.x] = CellType.Visited;
+			adjMatrix.setCell(node.y, node.x, CellType.Visited);
 			adjMatrix.renderCell(canvas.ctx, node.x, node.y);
 			yield null;
 		}
@@ -64,7 +64,7 @@ export default class DfsAdjMatrixClass extends AlgorithmHandler {
 			if(
 				(n.x < 0 || n.x >= adjMatrix.columns) ||
 				(n.y < 0 || n.y >= adjMatrix.rows) ||
-				(adjMatrix.mat[n.y][n.x] === CellType.Wall)
+				(adjMatrix.at(n.y, n.x) === CellType.Wall)
 			) {
 				continue;
 			}
@@ -72,7 +72,7 @@ export default class DfsAdjMatrixClass extends AlgorithmHandler {
 			if(!visited.has(n.id)) {
 				pred[n.id] = node;
 				if(n.id !== src.id && n.id !== dest.id) {
-					adjMatrix.mat[n.y][n.x] = CellType.AdjNode;
+					adjMatrix.setCell(n.y, n.x, CellType.AdjNode);
 					adjMatrix.renderCell(canvas.ctx, n.x, n.y);
 					yield null;
 				}
