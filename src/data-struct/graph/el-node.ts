@@ -30,7 +30,7 @@ export class ElementGNode extends GNode implements ElementHandler, AllocDisplay,
 	}
 
     toString(): string {
-		return `gnode { val: ${this.value}, edges: ${this.edges} }`;
+		return ` gnode { val: ${this.value}, edges: ${this.edges} } `;
 	}
 
     toDisplayableBlocks() {

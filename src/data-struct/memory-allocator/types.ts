@@ -26,7 +26,7 @@ export class Chars implements AllocDisplay {
 	}
 
     toString() {
-		return `chars [${this.chars.split("").map(v => `'${v}'`).join(", ")}]`;
+		return ` chars [${this.chars.split("").map(v => `'${v}'`).join(", ")}] `;
 	}
 
     toDisplayableBlocks() {
@@ -74,7 +74,7 @@ export class Str implements AllocDisplay, Dealloc {
 	}
 
     toString() {
-		return `str { cap: ${this.charPtr.size}, len: ${this.charPtr.v.chars.length}, ptr: ${this.charPtr} }`;
+		return ` str { cap: ${this.charPtr.size}, len: ${this.charPtr.v.chars.length}, ptr: ${this.charPtr} } `;
 	}
 
 	toDisplayableBlocks() {
@@ -119,7 +119,7 @@ export class Arr<T extends AllocDisplay | number> implements AllocDisplay {
 	}
 
     toString(): string {
-		return `[${this.arr.map(a => a.toString()).join(", ")}]`;
+		return ` arr: [${this.arr.map(a => a.toString()).join(", ")}] `;
 	}
 
     toDisplayableBlocks() {
@@ -182,7 +182,7 @@ export class List<T extends AllocDisplay | number> implements AllocDisplay, Deal
 	}
 
     toString(): string {
-		return `List { cap: ${this.arrPtr.v.cap}, length: ${this.arrPtr.v.arr.length}, ptr: ${this.arrPtr} }`;
+		return ` List { cap: ${this.arrPtr.v.cap}, length: ${this.arrPtr.v.arr.length}, ptr: ${this.arrPtr} } `;
 	}
 
     toDisplayableBlocks() {
@@ -220,7 +220,7 @@ export class MapListMap<T extends AllocDisplay> implements AllocDisplay {
 	}
 
     toString(): string {
-		return `[${[...this.map.keys()].map(a => a.toString()).join(", ")}]`;
+		return ` arr: [${[...this.map.keys()].map(a => a.toString()).join(", ")}] `;
 	}
 
     toDisplayableBlocks(): Array<DisplayableBlock> {
@@ -279,7 +279,7 @@ export class MapList<T extends AllocDisplay> implements AllocDisplay, Dealloc {
 	}
 
     toString(): string {
-		return `List { cap: ${this.mapPtr.v.cap}, length: ${this.mapPtr.v.map.size}, ptr: ${this.mapPtr} }`;
+		return ` List { cap: ${this.mapPtr.v.cap}, length: ${this.mapPtr.v.map.size}, ptr: ${this.mapPtr} } `;
 	}
 
     toDisplayableBlocks() {

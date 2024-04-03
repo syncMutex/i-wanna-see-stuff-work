@@ -112,7 +112,7 @@ function calcBytesInc() {
 
 <div ref="bytesContainer" id="bytes-container" :style="style">
 	<span
-		v-for="(block, idx) in allocator.allocated" :key="idx"
+		v-for="(block, idx) in allocator.allocated.iter()" :key="idx"
 		:class="['bytes', block.v.constructor.name, block.isFree ? 'freed' : '']"
 		:ref="((el: Element) => { refMapper(block.toString(), el) }) as any"
 	>

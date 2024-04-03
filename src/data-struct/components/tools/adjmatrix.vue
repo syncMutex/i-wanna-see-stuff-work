@@ -134,6 +134,7 @@ function clearMatrix() {
 function deleteMatrix() {
 	const el = focusedElement.value;
 	unfocusElement();
+	el.remove(playground.canvas);
 	playground.canvas.removeElements(el);
 	playground.canvas.redraw();
 }

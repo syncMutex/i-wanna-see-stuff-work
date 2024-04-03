@@ -15,11 +15,11 @@ export function createSampleLinkedList(canvas: CanvasHandler) {
 
 	const nodes = [];
 
-	let row = 3;
-	let col = 3;
+	let row = 1;
+	let col = 2;
 
 	for(let i = 0; i < row; i++) {
-		let x = 10;
+		let x = 20;
 		for(let j = 0; j < col; j++) {
 			const enode = new ElementLLNode(x * GAP, y * GAP, String(String(i) + j));
 			canvas.add(enode, enode.arrow);
@@ -414,9 +414,9 @@ export function createSampleAstar(canvas: CanvasHandler) {
 }
 
 export function runSample(playground: Playground) {
-	createSampleAdjMatrix(playground.canvas);
+	// createSampleAdjMatrix(playground.canvas);
 	// createSampleAstar(playground.canvas);
-	// createSampleLinkedList(playground.canvas);
+	createSampleLinkedList(playground.canvas);
 	// createSampleUGraph(playground.canvas);
 }
 

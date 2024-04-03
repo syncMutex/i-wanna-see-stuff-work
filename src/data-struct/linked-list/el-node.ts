@@ -47,7 +47,7 @@ export class ElementLLNode extends LLNode implements ElementHandler, AllocDispla
 	}
 
     toString(): string {
-		return `lnode { val: ${this.value}, next: ${this.nextRef.value || 'NULL'} }`;
+		return ` lnode { val: ${this.value}, next: ${this.nextRef.value || 'NULL'} } `;
 	}
 
     toDisplayableBlocks() {

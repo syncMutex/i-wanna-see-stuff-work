@@ -35,7 +35,7 @@ export class ElementDEdge extends DEdge implements ElementHandler, AllocDisplay 
 	}
 
     toString(): string {
-		return `edge { weight: ${this.weight.value}, to: ${this.toNode.ptr} }`;
+		return ` edge { weight: ${this.weight.value}, to: ${this.toNode.ptr} } `;
 	}
 
     toDisplayableBlocks() {

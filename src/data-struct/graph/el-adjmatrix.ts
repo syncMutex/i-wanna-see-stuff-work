@@ -36,7 +36,7 @@ export class ElementAdjMatrix extends AdjMatrix implements ElementHandler, Alloc
 	}
 
     toString(): string {
-		return `mat { rows: ${this.rows}, columns: ${this.columns}, mat: ${this.mat} }`;
+		return ` mat { rows: ${this.rows}, columns: ${this.columns}, mat: ${this.mat} } `;
 	}
 
     toDisplayableBlocks() {
@@ -44,6 +44,9 @@ export class ElementAdjMatrix extends AdjMatrix implements ElementHandler, Alloc
 	}
 
 	dealloc() {
+		for(let m of this.mat.v.list()) {
+			allocator.free(m);
+		}
 		allocator.free(this.mat);
 	}
 

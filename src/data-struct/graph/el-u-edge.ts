@@ -60,7 +60,7 @@ export class ElementUEdge extends UEdge implements ElementHandler, AllocDisplay 
 	}
 
     toString(): string {
-		return `edge { weight: ${this.weight.value}, n1: ${this.fromNode.ptr}, n2: ${this.toNode.ptr} }`;
+		return ` edge { weight: ${this.weight.value}, n1: ${this.fromNode.ptr}, n2: ${this.toNode.ptr} } `;
 	}
 
     toDisplayableBlocks() {

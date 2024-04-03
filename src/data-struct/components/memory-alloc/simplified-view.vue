@@ -63,7 +63,7 @@ onMounted(() => {
 <template>
 <div class="simplified-container text-wrap">
 	<span 
-		v-for="(block, idx) in allocator.allocated" :key="idx"
+		v-for="(block, idx) in allocator.allocated.iter()" :key="idx"
 		:class="['simplified', block.v.constructor.name, block.isFree ? 'freed' : '']"
 		:ref="((el: Element) => { refMapper(block.toString(), el) }) as any"
 	>
