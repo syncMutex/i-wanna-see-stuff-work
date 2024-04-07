@@ -22,7 +22,7 @@ export class ElementLLNode extends LLNode implements ElementHandler, AllocDispla
 	pointerUp(_state: EventState, _canvas: CanvasHandler): ElementHandler | null { return null };
 	pointerLeave(_state: EventState, _canvas: CanvasHandler) {};
 
-	static Size = 16;
+	static Size = Ptr.Size + Ptr.Size;
 
 	constructor(x: number, y: number, value: string) {
 		super(value);

@@ -17,7 +17,7 @@ export class ElementGNode extends GNode implements ElementHandler, AllocDisplay,
 	ptr: Ptr<ElementGNode>;
 
 	static COUNT = 0;
-	static Size = 8;
+	static Size = Ptr.Size + Ptr.Size;
 
 	pointerEnter(_state: EventState, _canvas: CanvasHandler) {};
 	pointerUp(_state: EventState, _canvas: CanvasHandler): ElementHandler | null { return null };

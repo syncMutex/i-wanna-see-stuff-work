@@ -42,7 +42,7 @@ export class ToolLLNode extends ToolHandler {
 
 		const { x: vx, y: vy } = canvas.toVirtualPosition(x, y);
 
-		const node = new ElementLLNode(vx, vy, String(randInt(1, 500)));
+		const node = new ElementLLNode(vx, vy, String(randInt(11, 99)));
 		canvas.add(node, node.arrow);
 	}
 

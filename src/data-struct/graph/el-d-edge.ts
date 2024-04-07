@@ -48,7 +48,7 @@ export class ElementDEdge extends DEdge implements ElementHandler, AllocDisplay 
 
 	ptr: Ptr<ElementDEdge>;
 
-	static Size = 4 + 4;
+	static Size = 4 + Ptr.Size;
 	
 	constructor(parent: ElementGNode, to: Ptr<ElementGNode>) {
 		super();

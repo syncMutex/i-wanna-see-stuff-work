@@ -16,6 +16,7 @@ export interface Dealloc {
 export class Null implements AllocDisplay {
 	static Bytes = ["00", "00", "00", "00"];
 	static Hex = "0x00000000";
+	static Size = 8;
 
     toBytes(): Array<string> {
 		return Null.Bytes;
@@ -31,19 +32,18 @@ export class Null implements AllocDisplay {
 }
 
 export class Ptr<T extends AllocDisplay | Dealloc> implements AllocDisplay {
-	static Size = 4;
+	static Size = 8;
 
 	size: number;
 	start: number;
-	isFree: boolean;
-	next: ShallowReactive<Ptr<any>> | null = null;
+	next: Ptr<T> | null = null;
+	isFree: boolean = false;
 	
 	v: T;
 
 	constructor(size: number, start: number, value: T) {
 		this.size = size;
 		this.start = start;
-		this.isFree = false;
 		this.v = value;
 	}
 
@@ -64,7 +64,9 @@ export class Ptr<T extends AllocDisplay | Dealloc> implements AllocDisplay {
 	}
 }
 
-export class FreedBlock<T extends AllocDisplay> implements AllocDisplay {
+type PtrType = Ptr<AllocDisplay>;
+
+export class FreePtrVal<T extends AllocDisplay> implements AllocDisplay {
 	bytes: Array<string>;
 	stringRepr: string;
 
@@ -86,13 +88,25 @@ export class FreedBlock<T extends AllocDisplay> implements AllocDisplay {
 	}
 }
 
-type Block = Ptr<AllocDisplay>;
+class Head<T extends AllocDisplay> extends Ptr<T> {
+}
 
-class BlockList {
-	head = new Ptr(0, 0, new Null);
+class AllocList {
+	head: PtrType;
+	tail: PtrType;
+
+	constructor() {
+		this.head = new Head(0, 0, new Null);
+		this.tail = this.head;
+		this.head.next = this.tail;
+		delete this.head.size;
+		delete this.head.v;
+		delete this.head.start;
+		delete this.head.isFree;
+	}
 
 	*iter() {
-		let temp: null | Block = this.head.next;
+		let temp: null | PtrType = this.head.next;
 
 		while(temp !== null) {
 			yield temp;
@@ -100,25 +114,26 @@ class BlockList {
 		}
 	}
 
-	getPrevOf(ptr: Block) {
-		let prev: ShallowReactive<Block> = this.head;
+	getPrevOf(ptr: PtrType): PtrType {
+		let prev: ShallowReactive<PtrType> = this.head;
 
 		while(prev.next !== ptr) {
-			prev = prev.next as ShallowReactive<Ptr<any>>;
+			prev = prev.next as ShallowReactive<PtrType>;
 		}
 
 		return prev;
 	}
 
-	insertEnd(ptr: Block) {
-		let temp: null | Block = this.head;
-
-		while(temp.next !== null) {
-			temp = temp.next;
+	insertEnd(ptr: PtrType) {
+		if(this.head === this.tail) {
+			this.tail = ptr;
+			this.head.next = this.tail;
+			return;
 		}
 
-		ptr.start = temp.start + temp.size;
-		temp.next = ptr;
+		ptr.start = this.tail.start + this.tail.size;
+		this.tail.next = ptr;
+		this.tail = ptr;
 	}
 
 	isEmpty(): boolean {
@@ -126,13 +141,114 @@ class BlockList {
 	}
 }
 
+class FreeBlock {
+	ptr: PtrType;
+	next: FreeBlock | null = null;
+
+	constructor(ptr: PtrType) {
+		this.ptr = ptr;
+	}
+}
+
+class HeadBlock extends FreeBlock {};
+
+/*
+	+--------+  +--------+  +--------+
+	| node-1 |->| node-2 |->| node-3 |
+	+--------+  +--------+  +--------+
+
+	on FreeList.add(node-2)
+
+	i am storing the prevPtr in FreeBlock
+
+	+-------------------+
+	| FreeBlock: node-1 |
+	+-------------------+
+*/
+
+class FreeList {
+	head: FreeBlock;
+
+	constructor(headPtr: PtrType) {
+		this.head = new HeadBlock(headPtr);
+	}
+
+	prevOfSize(size: number): FreeBlock | null {
+		let temp: null | FreeBlock = this.head;
+
+		while(temp.next !== null) {
+			if(temp.next.ptr.size >= size) {
+				return temp;
+			}
+			temp = temp.next;
+		}
+		
+		return null;
+	}
+
+	deleteBlockViaPrev(prevBlock: FreeBlock) {
+		if(prevBlock.next) {
+			prevBlock.next = prevBlock.next.next;
+		}
+	}
+
+	add(ptr: PtrType, prevPtr: PtrType) {
+		const newBlock = new FreeBlock(ptr);
+		newBlock.next = this.head.next;
+		this.head.next = newBlock;
+	}
+}
+
 class Allocator {
-	allocated: ShallowReactive<BlockList> = shallowReactive(new BlockList);
-	freed: Array<Block> = [];
+	allocated: ShallowReactive<AllocList>;
+	freed: FreeList;
+
+	constructor() {
+		this.allocated = shallowReactive(new AllocList);
+		this.freed = new FreeList(this.allocated.head);
+		this.malloc<Null>(Null.Size, new Null);
+	}
+
+	private insertAfterBlock(prevBlock: FreeBlock, newPtr: PtrType) {
+		const block = prevBlock.next as FreeBlock;
+		const prev = this.allocated.getPrevOf(block.ptr);
+		const prevSize = block.ptr.size;
+		block.ptr.size -= newPtr.size;
+
+		if(block.ptr.size === 0) {
+			this.freed.deleteBlockViaPrev(prevBlock);
+			newPtr.next = block.ptr.next;
+			newPtr.start = block.ptr.start;
+			prev.next = newPtr;
+			if(newPtr.next === null) {
+				this.allocated.tail = newPtr;
+			}
+		} else {
+			const percent = 1 - (block.ptr.size / prevSize);
+			let str = block.ptr.v.toString();
+			let bytes = block.ptr.v.toBytes();
+			str = str.slice(Math.floor(percent * str.length));
+			(block.ptr.v as FreePtrVal<AllocDisplay>).stringRepr = str;
+			(block.ptr.v as FreePtrVal<AllocDisplay>).bytes = bytes.slice(prevSize - block.ptr.size);
+
+			newPtr.next = block.ptr;
+			newPtr.start = block.ptr.start;
+			block.ptr.start = newPtr.end();
+			prev.next = newPtr;
+		}
+	}
 
 	public malloc<T extends AllocDisplay>(size: number, value: T): ShallowReactive<Ptr<T>> {
 		const ptr = shallowReactive(new Ptr(size, 0, value));
-		this.allocated.insertEnd(ptr);
+		const freeBlockPrev = this.freed.prevOfSize(ptr.size);
+
+		if(freeBlockPrev === null) {
+			this.allocated.insertEnd(ptr);
+			return ptr;
+		}
+
+		this.insertAfterBlock(freeBlockPrev, ptr);
+
 		return ptr;
 	}
 
@@ -142,8 +258,20 @@ class Allocator {
 	}
 
 	public free<T extends AllocDisplay | Dealloc>(ptr: Ptr<T>) {
+		if(ptr.isFree) {
+			throw Error("the pointer is already freed");
+		}
+
 		const ptrValue = ptr.v;
+		const freePtrVal = new FreePtrVal(ptr.v as AllocDisplay);
+		const prevPtr = this.allocated.getPrevOf(ptr as PtrType);
+
 		ptr.isFree = true;
+
+		// guranteed to be atleast head
+		(prevPtr.next as any).v = freePtrVal;
+
+		this.freed.add(ptr as PtrType, prevPtr);
 
 		if((ptrValue as Dealloc).dealloc !== undefined) {
 			(ptrValue as Dealloc).dealloc();
@@ -152,12 +280,13 @@ class Allocator {
 
 	public resetExceptNull() {
 		if(this.allocated.head.next) {
-			this.allocated.head.next.next = null;
+			this.allocated = shallowReactive(new AllocList);
+			this.freed = new FreeList(this.allocated.head);
+			this.malloc<Null>(Null.Size, new Null);
 		}
 	}
 }
 
 const allocator = new Allocator;
-export const NULL = allocator.malloc<Null>(4, new Null);
 
 export default allocator;

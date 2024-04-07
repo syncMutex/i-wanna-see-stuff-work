@@ -12,7 +12,7 @@ export class ElementAdjMatrix extends AdjMatrix implements ElementHandler, Alloc
 	pointerLeave(_state: EventState, _canvas: CanvasHandler) {};
 
 	static COUNT = 0;
-	static Size = 4 + 4 + 4;
+	static Size = 4 + 4 + Ptr.Size;
 
 	readonly id: number;
 

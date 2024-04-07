@@ -73,7 +73,7 @@ export class ElementUEdge extends UEdge implements ElementHandler, AllocDisplay 
 		];
 	}
 
-	static Size = 4 + 4;
+	static Size = 4 + Ptr.Size + Ptr.Size;
 	
 	constructor(fromNode: Ptr<ElementGNode>, toNode: Ptr<ElementGNode>) {
 		super();
