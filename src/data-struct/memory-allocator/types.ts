@@ -22,15 +22,29 @@ export class Chars implements AllocDisplay {
 	}
 
     toBytes(): Array<string> {
-		return this.chars.split("").map(v => v.charCodeAt(0).toString(16));
+		const bytes = this.chars.split("").map(v => v.charCodeAt(0).toString(16));
+		for(let i = 0, rem = this.cap - bytes.length; i < rem; i++) {
+			bytes.push("00");
+		}
+
+		return bytes;
 	}
 
     toString() {
-		return ` chars [${this.chars.split("").map(v => `'${v}'`).join(", ")}] `;
+		const s = this.chars.split("").map(v => `'${v}'`);
+		for(let i = 0, rem = this.cap - s.length; i < rem; i++) {
+			s.push("'\\0'");
+		}
+		return ` chars [${s.join(",")}] `;
 	}
 
     toDisplayableBlocks() {
-		return [` chars [${this.chars.split("").map(v => `'${v}'`).join(", ")}] `];
+		const s = this.chars.split("").map(v => `'${v}'`);
+		for(let i = 0, rem = this.cap - s.length; i < rem; i++) {
+			s.push("'\\0'");
+		}
+
+		return [` chars [${s.join(",")}] `];
 	}
 }
 
@@ -50,11 +64,12 @@ export class Str implements AllocDisplay, Dealloc {
 	}
 
 	setStr(value: string) {
-		let charPtr = this.charPtr.v;
-		charPtr.charsRef.value = value;
-		if(value.length > charPtr.cap) {
-			// TODO
+		let charPtrVal = this.charPtr.v;
+		if(value.length > charPtrVal.cap) {
+			this.charPtr = allocator.realloc(this.charPtr, value.length, charPtrVal);
+			this.charPtr.v.cap = value.length;
 		}
+		charPtrVal.charsRef.value = value;
 	}
 
 	get chars(): string {
@@ -115,17 +130,49 @@ export class Arr<T extends AllocDisplay | number> implements AllocDisplay {
 				arr.push(...(a as AllocDisplay).toBytes());
 			}
 		}
+
+		for(let i = 0, rem = this.cap - this.arr.length; i < rem; i++) {
+			arr.push("00");
+		}
+
 		return arr;
 	}
 
     toString(): string {
-		return ` arr: [${this.arr.map(a => a.toString()).join(", ")}] `;
+		let arr = [];
+		for(let a of this.arr) {
+			arr.push(a.toString());
+		}
+
+		const type = typeof this.arr[0];
+		if(type === "number") {
+			for(let i = 0, rem = this.cap - this.arr.length; i < rem; i++) {
+				arr.push('0');
+			}
+		} else {
+			for(let i = 0, rem = this.cap - this.arr.length; i < rem; i++) {
+				arr.push('0x00000000');
+			}
+		}
+
+		return ` arr: [${arr.join(",")}] `;
 	}
 
     toDisplayableBlocks() {
 		let b = [];
 		for(let a of this.arr) {
-			b.push({ ptr: a.toString() } , ', ');
+			b.push({ ptr: a.toString() } , ',');
+		}
+
+		const type = typeof this.arr[0];
+		if(type === "number") {
+			for(let i = 0, rem = this.cap - this.arr.length; i < rem; i++) {
+				b.push('0', ',');
+			}
+		} else {
+			for(let i = 0, rem = this.cap - this.arr.length; i < rem; i++) {
+				b.push('0x00000000', ',');
+			}
 		}
 
 		b.pop();
@@ -138,6 +185,7 @@ export class List<T extends AllocDisplay | number> implements AllocDisplay, Deal
 	static Size = 4 + 4 + Ptr.Size;
 
 	arrPtr: Ptr<Arr<T>>;
+	dsize: number;
 
 	static new<T extends AllocDisplay | number>(arr: Array<T>, dsize: number): Ptr<List<T>> {
 		const obj = new List<T>(arr, dsize);
@@ -147,6 +195,7 @@ export class List<T extends AllocDisplay | number> implements AllocDisplay, Deal
 
 	constructor(arr: Array<T>, dsize: number) {
 		this.arrPtr = Arr.new(arr, dsize);
+		this.dsize = dsize;
 	}
 
 	dealloc() {
@@ -157,16 +206,38 @@ export class List<T extends AllocDisplay | number> implements AllocDisplay, Deal
 		return this.arrPtr.v.arr;
 	}
 
+	setLength(length: number) {
+		this.checkCapacity(length);
+		this.arrPtr.v.arr.length = length;
+	}
+
+	push(...values: Array<T>) {
+		this.checkCapacity(this.length + values.length);
+		this.arrPtr.v.arr.push(...values);
+	}
+
 	at(idx: number): T | undefined {
 		return this.arrPtr.v.arr[idx];
 	}
 
 	setAt(idx: number, val: T) {
+		if(idx >= this.length) {
+			this.checkCapacity(idx + 1);
+		}
 		this.arrPtr.v.arr[idx] = val;
 	}
 
-	set(val: Array<T>) {
-		this.arrPtr.v.arr = val;
+	checkCapacity(newLength: number) {
+		const arrPtrVal = this.arrPtr.v;
+		if(newLength > arrPtrVal.cap) {
+			this.arrPtr = allocator.realloc(this.arrPtr, newLength * this.dsize, arrPtrVal);
+			this.arrPtr.v.cap = newLength;
+		}
+	}
+
+	set(newArr: Array<T>) {
+		this.checkCapacity(newArr.length);
+		this.arrPtr.v.arr = newArr;
 	}
 
 	get length(): number {
@@ -216,17 +287,31 @@ export class MapListMap<T extends AllocDisplay> implements AllocDisplay {
 		for(let a of temp) {
 			arr.push(...(a as AllocDisplay).toBytes());
 		}
+
+		for(let i = 0, rem = this.cap - this.map.size; i < rem; i++) {
+			arr.push("00", "00", "00", "00");
+		}
+
 		return arr;
 	}
 
     toString(): string {
-		return ` arr: [${[...this.map.keys()].map(a => a.toString()).join(", ")}] `;
+		const arr = [...this.map.keys()].map(a => a.toString());
+		for(let i = 0, rem = this.cap - this.map.size; i < rem; i++) {
+			arr.push("0x00000000");
+		}
+
+		return ` arr: [${arr.join(",")}] `;
 	}
 
     toDisplayableBlocks(): Array<DisplayableBlock> {
 		let b = [];
 		for(let a of this.map.keys()) {
 			b.push({ ptr: a.toString() } , ', ');
+		}
+
+		for(let i = 0, rem = this.cap - this.map.size; i < rem; i++) {
+			b.push({ ptr: "0x00000000" } , ', ');
 		}
 
 		b.pop();
@@ -239,15 +324,17 @@ export class MapList<T extends AllocDisplay> implements AllocDisplay, Dealloc {
 	static Size = 4 + 4 + Ptr.Size;
 
 	mapPtr: Ptr<MapListMap<T>>;
+	dsize: number;
 
 	static new<T extends AllocDisplay>(map: Map<T, null>, dsize: number): Ptr<MapList<T>> {
 		const obj = new MapList<T>(map, dsize);
-		const mem = allocator.malloc(List.Size, obj);
+		const mem = allocator.malloc(MapList.Size, obj);
 		return mem;
 	}
 
 	constructor(map: Map<T, null>, dsize: number) {
 		this.mapPtr = MapListMap.new(map, dsize);
+		this.dsize = dsize;
 	}
 
 	list(): Array<T> {
@@ -267,7 +354,14 @@ export class MapList<T extends AllocDisplay> implements AllocDisplay, Dealloc {
 	}
 
 	set(e: T) {
-		this.mapPtr.v.map.set(e, null);
+		const mapPtrV = this.mapPtr.v;
+		if(!mapPtrV.map.has(e)) {
+			if(mapPtrV.map.size + 1 > mapPtrV.cap) {
+				this.mapPtr = allocator.realloc(this.mapPtr, (mapPtrV.map.size + 1) * this.dsize, mapPtrV);
+				mapPtrV.cap = mapPtrV.map.size + 1;
+			}
+		}
+		mapPtrV.map.set(e, null);
 	}
 
 	delete(e: T) {

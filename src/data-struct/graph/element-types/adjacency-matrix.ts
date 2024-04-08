@@ -166,7 +166,7 @@ export class AdjMatrix {
 				allocator.free(rowListPtr as Ptr<List<CellType>>);
 			}
 
-			this.mat.v.list().length = rows;
+			this.mat.v.setLength(rows);
 
 			const lastIdx = rows - 1;
 
@@ -184,13 +184,13 @@ export class AdjMatrix {
 	setColumns(columns: number) {
 		if(columns > this.columns) {
 			for(let rowListPtr of this.mat.v.list()) {
-				rowListPtr.v.list().push(...new Array(columns - this.columns).fill(CellType.Cell));
+				rowListPtr.v.push(...new Array(columns - this.columns).fill(CellType.Cell));
 			}
 			this.columns = columns;
 		} else {
 			this.columns = Math.max(2, columns);
 			for(let rowListPtr of this.mat.v.list()) {
-				rowListPtr.v.list().length = this.columns;
+				rowListPtr.v.setLength(this.columns);
 			}
 
 			const lastIdx = columns - 1;

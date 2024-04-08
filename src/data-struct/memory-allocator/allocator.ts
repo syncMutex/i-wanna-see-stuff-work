@@ -31,6 +31,30 @@ export class Null implements AllocDisplay {
 	}
 }
 
+export class Garbage implements AllocDisplay {
+	maxLen: number;
+
+	constructor(maxLen: number) {
+		this.maxLen = maxLen;
+	}
+
+    toBytes(): Array<string> {
+		return new Array(this.maxLen).fill("00");
+	}
+
+    toString() {
+		let s = "<empty block>";
+		const rem = this.maxLen - s.length;
+		return s.slice(0, Math.min(this.maxLen, s.length)) + " ".repeat(Math.max(rem, 0));
+	}
+
+    toDisplayableBlocks() {
+		let s = "<empty block>";
+		const rem = this.maxLen - s.length;
+		return [s.slice(0, Math.min(this.maxLen, s.length)) + " ".repeat(Math.max(rem, 0))];
+	}
+}
+
 export class Ptr<T extends AllocDisplay | Dealloc> implements AllocDisplay {
 	static Size = 8;
 
@@ -99,10 +123,6 @@ class AllocList {
 		this.head = new Head(0, 0, new Null);
 		this.tail = this.head;
 		this.head.next = this.tail;
-		delete this.head.size;
-		delete this.head.v;
-		delete this.head.start;
-		delete this.head.isFree;
 	}
 
 	*iter() {
@@ -152,20 +172,6 @@ class FreeBlock {
 
 class HeadBlock extends FreeBlock {};
 
-/*
-	+--------+  +--------+  +--------+
-	| node-1 |->| node-2 |->| node-3 |
-	+--------+  +--------+  +--------+
-
-	on FreeList.add(node-2)
-
-	i am storing the prevPtr in FreeBlock
-
-	+-------------------+
-	| FreeBlock: node-1 |
-	+-------------------+
-*/
-
 class FreeList {
 	head: FreeBlock;
 
@@ -186,12 +192,46 @@ class FreeList {
 		return null;
 	}
 
+	prevOfPtr(ptr: PtrType): FreeBlock | null {
+		let temp: null | FreeBlock = this.head;
+
+		while(temp.next !== null) {
+			if(temp.next.ptr === ptr) {
+				return temp;
+			}
+			temp = temp.next;
+		}
+
+		return null;
+	}
+
+	isNextPtrCanBeUsed(ptr: PtrType, newSize: number): boolean {
+		return ptr.next !== null && ptr.next.isFree && (newSize - ptr.size) <= ptr.next.size;
+	}
+
+	cutPtrContent(ptr: PtrType, prevSize: number) {
+		const percent = 1 - (ptr.size / prevSize);
+		let str = ptr.v.toString();
+		let bytes = ptr.v.toBytes();
+		(ptr.v as FreePtrVal<AllocDisplay>).stringRepr = str.slice(Math.floor(percent * str.length));
+		(ptr.v as FreePtrVal<AllocDisplay>).bytes = bytes.slice(prevSize - ptr.size);
+	}
+
 	deleteBlockViaPrev(prevBlock: FreeBlock) {
 		if(prevBlock.next) {
 			prevBlock.next = prevBlock.next.next;
 		}
 	}
 
+	deleteBlockViaPtr(ptr: PtrType) {
+		const prevBlock = this.prevOfPtr(ptr);
+
+		if(prevBlock && prevBlock.next) {
+			prevBlock.next = prevBlock.next.next;
+		}
+	}
+
+	// can-todo: store prevPtr to not lookup prevPtr everytime while searching ptr prev
 	add(ptr: PtrType, prevPtr: PtrType) {
 		const newBlock = new FreeBlock(ptr);
 		newBlock.next = this.head.next;
@@ -224,12 +264,7 @@ class Allocator {
 				this.allocated.tail = newPtr;
 			}
 		} else {
-			const percent = 1 - (block.ptr.size / prevSize);
-			let str = block.ptr.v.toString();
-			let bytes = block.ptr.v.toBytes();
-			str = str.slice(Math.floor(percent * str.length));
-			(block.ptr.v as FreePtrVal<AllocDisplay>).stringRepr = str;
-			(block.ptr.v as FreePtrVal<AllocDisplay>).bytes = bytes.slice(prevSize - block.ptr.size);
+			this.freed.cutPtrContent(block.ptr, prevSize);
 
 			newPtr.next = block.ptr;
 			newPtr.start = block.ptr.start;
@@ -252,17 +287,83 @@ class Allocator {
 		return ptr;
 	}
 
-	public realloc<T extends AllocDisplay>(ptr: Ptr<T>, newSize: number, newVal: T): Ptr<T> {
-		ptr;
-		return new Ptr(0, newSize, newVal);
+	private reallocGrow(ptr: PtrType, newSize: number, newVal: AllocDisplay): PtrType {
+		const sizeDiff = newSize - ptr.size;
+		
+		if(ptr.next === null) {
+			ptr.size = newSize;
+			return ptr;
+		}
+
+		if(this.freed.isNextPtrCanBeUsed(ptr, newSize)) {
+			const prevNextSize = ptr.next.size;
+			ptr.next.start += sizeDiff;
+			ptr.next.size -= sizeDiff;
+			ptr.size = newSize;
+			ptr.v = newVal;
+
+			if(ptr.next.size === 0) {
+				this.freed.deleteBlockViaPtr(ptr.next);
+				ptr.next = ptr.next.next;
+				if(ptr.next === null) {
+					this.allocated.tail = ptr;
+				}
+			} else {
+				this.freed.cutPtrContent(ptr.next, prevNextSize);
+			}
+		} else {
+			const ptrValue = ptr.v;
+			this.freeWithoutDealloc(ptr);
+			return this.malloc(newSize, ptrValue);
+		}
+
+		return ptr;
 	}
 
-	public free<T extends AllocDisplay | Dealloc>(ptr: Ptr<T>) {
+	private reallocShrink(ptr: PtrType, newSize: number, newVal: AllocDisplay): PtrType {
+		if(newSize <= 0) {
+			return ptr;
+		}
+
+		const sizeDiff = ptr.size - newSize;
+		const freePtrStart = ptr.end() - sizeDiff;
+
+		ptr.size = newSize;
+		ptr.v = newVal;
+
+		if(ptr.next?.isFree) {
+			const freePtrVal: AllocDisplay = new FreePtrVal(new Garbage(ptr.next.size + sizeDiff));
+			ptr.next.size += sizeDiff;
+			ptr.next.start = freePtrStart;
+			ptr.next.v = freePtrVal;
+		} else {
+			const freePtrVal: AllocDisplay = new FreePtrVal(new Garbage(sizeDiff));
+			let freePtr = new Ptr(sizeDiff, freePtrStart, freePtrVal);
+
+			freePtr.isFree = true;
+			freePtr.next = ptr.next;
+			ptr.next = freePtr;
+
+			this.freed.add(freePtr as PtrType, ptr);
+		}
+
+		return ptr;
+	}
+
+	public realloc<T extends AllocDisplay>(ptr: Ptr<T>, newSize: number, newVal: T): Ptr<T> {
+		if(newSize > ptr.size) {
+			return this.reallocGrow(ptr, newSize, newVal) as Ptr<T>;
+		} else if(newSize < ptr.size) {
+			return this.reallocShrink(ptr, newSize, newVal) as Ptr<T>;
+		}
+		return ptr;
+	}
+
+	public freeWithoutDealloc<T extends AllocDisplay | Dealloc>(ptr: Ptr<T>) {
 		if(ptr.isFree) {
 			throw Error("the pointer is already freed");
 		}
 
-		const ptrValue = ptr.v;
 		const freePtrVal = new FreePtrVal(ptr.v as AllocDisplay);
 		const prevPtr = this.allocated.getPrevOf(ptr as PtrType);
 
@@ -272,7 +373,11 @@ class Allocator {
 		(prevPtr.next as any).v = freePtrVal;
 
 		this.freed.add(ptr as PtrType, prevPtr);
+	}
 
+	public free<T extends AllocDisplay | Dealloc>(ptr: Ptr<T>) {
+		const ptrValue = ptr.v;
+		this.freeWithoutDealloc(ptr);
 		if((ptrValue as Dealloc).dealloc !== undefined) {
 			(ptrValue as Dealloc).dealloc();
 		}
