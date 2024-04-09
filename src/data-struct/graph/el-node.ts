@@ -126,12 +126,10 @@ export class ElementGNode extends GNode implements ElementHandler, AllocDisplay,
 	async deleteNode(canvas: CanvasHandler) {
 		for(let edge of this.edges.v.list()) {
 			await edge.v.delete(canvas);
-			edge.v.remove(canvas);
 		}
 		
 		for(let edge of this.referedByDEdges) {
 			await edge.v.delete(canvas);
-			edge.v.remove(canvas);
 		}
 
 		this.remove(canvas);

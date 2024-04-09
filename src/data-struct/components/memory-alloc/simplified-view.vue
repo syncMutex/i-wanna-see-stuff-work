@@ -64,7 +64,7 @@ onMounted(() => {
 <div class="simplified-container text-wrap">
 	<span 
 		v-for="(block, idx) in allocator.allocated.iter()" :key="idx"
-		:class="['simplified', block.v.constructor.name, block.isFree ? 'freed' : '']"
+		:class="['simplified', block.v.constructor.name, block.freeBlock ? 'freed' : '']"
 		:ref="((el: Element) => { refMapper(block.toString(), el) }) as any"
 	>
 		<span class="address" v-if="props.showAddressOnHover">{{" " + block.toString() + " "}}</span>
