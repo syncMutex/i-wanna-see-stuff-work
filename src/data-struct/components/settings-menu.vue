@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { showToolBar, isMenuOpen, setIsMenuOpen } from "./refs";
+import { showToolBar, isMenuOpen, setIsMenuOpen, setIsMemAllocShow, isMemAllocShow } from "./refs";
 import { playground } from "../handler/playground-handler";
 import { setDelay, DELAY } from "../global";
 import Range from "../../common-components/range.vue";
@@ -30,12 +30,14 @@ function setDisplayGrid() {
 		</div>
 	</section>
 </div>
+<div id="mem-alloc-btn" v-if="!isMemAllocShow" @click="setIsMemAllocShow(true)">
+</div>
 </template>
 
 <style scoped>
 @import "./css/common.css";
 
-#menu-btn{
+#menu-btn, #mem-alloc-btn{
 	position: absolute;
 	min-width: 2.5rem;
 	min-height: 2.5rem;
@@ -44,6 +46,10 @@ function setDisplayGrid() {
 	z-index: 10;
 	top: 0.5rem;
 	left: 0.5rem;
+}
+
+#menu-btn{
+	z-index: 15;
 }
 
 #menu-section{
@@ -58,7 +64,7 @@ function setDisplayGrid() {
 	border-radius: 4px;
 }
 
-.icon{
+.icon, .mem-alloc-icon{
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -87,6 +93,15 @@ function setDisplayGrid() {
 
 .icon::after{
 	bottom: 26%;
+}
+
+#mem-alloc-btn{
+	min-width: 2.5rem;
+	min-height: 2.5rem;
+	width: 2.5rem;
+	height: 2.5rem;
+	background-color: #333333;
+	top: 3.5rem;
 }
 
 </style>

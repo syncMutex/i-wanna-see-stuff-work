@@ -7,14 +7,14 @@ export class Chars implements AllocDisplay {
 	cap: number;
 
 	static new(value: string): Ptr<Chars> {
-		const newChars = new Chars(value);
-		const mem = allocator.malloc<Chars>(value.length, newChars);
+		const obj = new Chars(value);
+		const mem = allocator.malloc<Chars>(obj.cap, obj);
 		return mem;
 	}
 
 	constructor(value: string) {
 		this.charsRef = shallowRef(value);
-		this.cap = value.length;
+		this.cap = Math.max(1, value.length);
 	}
 
 	get chars(): string {
@@ -105,12 +105,12 @@ export class Arr<T extends AllocDisplay | number> implements AllocDisplay {
 
 	static new<T extends AllocDisplay | number>(arr: Array<T>, dsize: number): Ptr<Arr<T>> {
 		const obj = new Arr<T>(arr);
-		return allocator.malloc(arr.length * dsize, obj);
+		return allocator.malloc(obj.cap * dsize, obj);
 	}
 
 	constructor(arr: Array<T>) {
 		this.arr = shallowReactive(arr);
-		this.cap = arr.length;
+		this.cap = Math.max(1, arr.length);
 	}
 
     toBytes(): Array<string> {
@@ -267,12 +267,12 @@ export class MapListMap<T extends AllocDisplay> implements AllocDisplay {
 
 	static new<T extends AllocDisplay>(map: Map<T, null>, dsize: number): Ptr<MapListMap<T>> {
 		const obj = new MapListMap<T>(map);
-		return allocator.malloc(map.size * dsize, obj);
+		return allocator.malloc(obj.cap * dsize, obj);
 	}
 
 	constructor(map: Map<T, null>) {
 		this.map = shallowReactive(map);
-		this.cap = map.size;
+		this.cap = Math.max(1, map.size);
 	}
 
     toBytes(): Array<string> {

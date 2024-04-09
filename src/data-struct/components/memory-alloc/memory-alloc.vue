@@ -3,27 +3,36 @@ import { ref } from "vue";
 import Select from "../../../common-components/select.vue";
 import BytesView from "./bytes-view.vue";
 import SimplifiedView from "./simplified-view.vue";
+import { setIsMemAllocShow } from "../refs";
 
 enum Mode {
 	Bytes = "Bytes",
-	String = "Simplified"
+	Simplified = "Simplified"
 }
 
 const byteAlign: any = { "auto": "auto", "4": 4, "8": 8, "16": 16, "32": 32, "64": 64 };
-const mode = ref(Mode.String);
+const mode = ref(Mode.Simplified);
 const curByteAlign = ref<"auto" | number>("auto");
 const showAddressOnHover = ref<boolean>(false);
 const allocContainerDiv = ref<Element | null>(null);
+const addressType = ref<"hex" | "decimal">("hex");
+const isBottomLayout = ref<boolean>(true);
 
 </script>
 
 <template>
-<div id="memory-alloc" class="floating-panel">
+<div id="memory-alloc" :class="['floating-panel', isBottomLayout ? 'bottom' : 'left']">
+	<div id="pane-btns">
+		<div style="background-color: #d94141;" @click="setIsMemAllocShow(false)">x</div>
+		<div class="left-icon" v-if="isBottomLayout" @click="isBottomLayout = false"></div>
+		<div class="bottom-icon" v-else @click="isBottomLayout = true"></div>
+	</div>
+
 	<div id="top-bar" class="scroll-bar">
 		<div class="mode-container">
 			<div :style="{ color: Mode.Bytes === mode ? 'white' : '#444444' }">{{ Mode.Bytes }}</div>
-			<div :class="['switch', mode]" @click="() => mode = mode === Mode.String ? Mode.Bytes : Mode.String"></div>
-			<div :style="{ color: Mode.String === mode ? 'white' : '#444444' }">{{ Mode.String }}</div>
+			<div :class="['switch', mode]" @click="() => mode = mode === Mode.Simplified ? Mode.Bytes : Mode.Simplified"></div>
+			<div :style="{ color: Mode.Simplified === mode ? 'white' : '#444444' }">{{ Mode.Simplified }}</div>
 		</div>
 
 		<div class="custom-select-container" v-if="mode === Mode.Bytes">
@@ -31,15 +40,27 @@ const allocContainerDiv = ref<Element | null>(null);
 			<Select :options="byteAlign as any" :onChange="(value) => curByteAlign = value as any" :value="curByteAlign as string" />
 		</div>
 
-		<div class="hover-address" v-if="mode === Mode.String">
-			<input type="checkbox" v-model="showAddressOnHover" />
-			<label>Show address on hover</label>
-		</div>
+		<template v-if="mode === Mode.Simplified">
+			<div class="hover-address">
+				<input type="checkbox" v-model="showAddressOnHover" />
+				<label>Show address on hover</label>
+			</div>
+
+			<div class="custom-select-container" v-if="showAddressOnHover">
+				<pre>Address Type: </pre>
+				<Select :options="{ hex: 'hex', 'decimal': 'decimal' }" :onChange="(value) => addressType = value as any" :value="addressType" />
+			</div>
+		</template>
 	</div>
 
 	<div id="alloc-container" class="scroll-bar" ref="allocContainerDiv">
 		<BytesView v-if="mode === Mode.Bytes" :byteAlign="byteAlign[curByteAlign as any]" :parentDiv="allocContainerDiv" />
-		<SimplifiedView v-if="mode === Mode.String" :showAddressOnHover="showAddressOnHover" :parentDiv="allocContainerDiv" />
+		<SimplifiedView
+			v-if="mode === Mode.Simplified"
+			:showAddressOnHover="showAddressOnHover"
+			:addressType="addressType"
+			:parentDiv="allocContainerDiv"
+		/>
 	</div>
 </div>
 </template>
@@ -61,14 +82,101 @@ const allocContainerDiv = ref<Element | null>(null);
 
 #memory-alloc{
 	position: absolute;
-	width: 90%;
-	height: 40%;
-	bottom: 1%;
 	z-index: 100;
-	overflow: hidden;
 	display: flex;
 	flex-direction: column;
+	padding: 2px;
 }
+
+.left{
+	width: 40%;
+	height: 90%;
+	right: 0.1%;
+	bottom: 1%;
+}
+
+.bottom {
+	width: 98%;
+	height: 40%;
+	bottom: 1%;
+}
+
+#pane-btns {
+	display: flex;
+	flex-direction: row-reverse;
+	align-items: center;
+	position: absolute;
+	right: 10px;
+	background-color: rgb(50, 50, 50);
+	border-radius: 4px;
+	height: 1rem;
+	min-width: 2rem;
+	width: max-content;
+	transform: translateY(-50%);
+	overflow: hidden;
+}
+
+#pane-btns > *{
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 2rem;
+	height: 100%;
+	font-weight: bold;
+	font-size: 0.8rem;
+	cursor: pointer;
+}
+
+#pane-btns .left-icon{
+	display: flex;
+	flex-direction: row;
+	position: relative;
+	right: 0;
+	padding: 0.15rem 0.5rem;
+}
+
+.left-icon::before{
+	content: "";
+	display: block;
+	width: 60%;
+	height: 100%;
+	border: 2px solid rgb(180, 180, 180);
+}
+
+.left-icon::after{
+	content: "";
+	display: block;
+	width: 30%;
+	height: 100%;
+	border: 2px solid rgb(180, 180, 180);
+	border-left: 0;
+}
+
+#pane-btns .bottom-icon{
+	display: flex;
+	flex-direction: column;
+	position: relative;
+	right: 0;
+	padding: 0.1rem 0.5rem;
+}
+
+.bottom-icon::before{
+	content: "";
+	display: block;
+	width: 100%;
+	height: 60%;
+	border: 2px solid rgb(180, 180, 180);
+}
+
+.bottom-icon::after{
+	content: "";
+	display: block;
+	width: 100%;
+	height: 30%;
+	border: 2px solid rgb(180, 180, 180);
+	border-top: 0;
+}
+
 
 #top-bar{
 	background-color: rgb(15, 15, 15);
@@ -77,9 +185,11 @@ const allocContainerDiv = ref<Element | null>(null);
 	display: flex;
 	flex-direction: row;
 	align-items: center;
-	padding: 0.25rem;
 	overflow-x: auto;
 	overflow-y: hidden;
+	padding: 0.3rem 0;
+	font-size: 0.75rem;
+	border-radius: 5px 5px 0 0;
 }
 
 #top-bar::-webkit-scrollbar{
@@ -87,9 +197,14 @@ const allocContainerDiv = ref<Element | null>(null);
 }
 
 #top-bar > * {
-	margin-right: 1rem;
 	min-height: 100%;
+	padding: 0 0.5rem;
 	height: 100%;
+	border-right: 2px solid #333333;
+}
+
+#top-bar > *:last-child{
+	border-right: 0;
 }
 
 #alloc-container{
@@ -105,7 +220,6 @@ const allocContainerDiv = ref<Element | null>(null);
 	flex-direction: row;
 	align-items: center;
 	justify-content: space-around;
-	font-size: 0.8rem;
 	font-family: monospace;
 	padding: 0.3rem;
 	color: white;

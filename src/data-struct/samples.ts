@@ -15,13 +15,13 @@ export function createSampleLinkedList(canvas: CanvasHandler) {
 
 	const nodes = [];
 
-	let row = 1;
+	let row = 5;
 	let col = 0;
 
 	for(let i = 0; i < row; i++) {
 		let x = 20;
 		for(let j = 0; j < col; j++) {
-			const enode = new ElementLLNode(x * GAP, y * GAP, 'node-' + String(String(i) + j));
+			const enode = new ElementLLNode(x * GAP, y * GAP, 'n-' + String(String(i) + j));
 			canvas.add(enode, enode.arrow);
 			x += 12;
 			nodes.push(enode);

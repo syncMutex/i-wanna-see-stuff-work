@@ -7,7 +7,8 @@ import { ElementHandler } from '../../handler/element-handler';
 
 const props = defineProps<{
 	showAddressOnHover: boolean,
-	parentDiv: Element | null
+	parentDiv: Element | null,
+	addressType: "hex" | "decimal"
 }>();
 
 let pointerMap: { [_:string]: Element } = {};
@@ -67,7 +68,7 @@ onMounted(() => {
 		:class="['simplified', block.v.constructor.name, block.freeBlock ? 'freed' : '']"
 		:ref="((el: Element) => { refMapper(block.toString(), el) }) as any"
 	>
-		<span class="address" v-if="props.showAddressOnHover">{{" " + block.toString() + " "}}</span>
+		<span class="address" v-if="props.showAddressOnHover">{{" " + ((props.addressType === "hex") ? block.toString() : block.start) + " "}}</span>
 		<template v-for="b in block.v.toDisplayableBlocks()">
 			<span v-if="typeof b === 'string'">{{b}}</span>
 			<span v-else style="cursor: pointer;" @click="derefPtr(b.ptr)">{{ b.ptr }}</span>
@@ -141,7 +142,6 @@ onMounted(() => {
 	border-radius: 5px;
 	font-size: 0.8rem;
 	line-height: 1.3em;
-	transition: all 1s;
 }
 
 .address{
@@ -152,6 +152,11 @@ onMounted(() => {
 	pointer-events: none;
 	border-radius: 5px;
 	transition: all 0.2s;
+	z-index: 200;
+}
+
+.simplified:hover{
+	z-index: 200;
 }
 
 .simplified:hover .address{
@@ -160,19 +165,18 @@ onMounted(() => {
 	background-color: white;
 	color: black;
 	transform: scale(1.1);
-	z-index: 100;
 }
 
 .simplified.freed{
-	background-color: rgb(80, 80, 80);
-	color: grey;
-	opacity: 0.4;
+	background-color: rgba(80, 80, 80, 0.4);
+	color: rgba(150, 150, 150, 0.4);
 }
 
 .simplified.deref-highlight{
 	background-color: white;
 	color: black;
 	box-shadow: 0 0 10px white;
+	transition: all 1s;
 }
 
 .simplified.focus-highlight{
