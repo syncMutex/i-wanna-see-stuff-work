@@ -15,7 +15,8 @@ export class ToolLLNode extends ToolHandler {
 	}
 
 	pointerEnter(_state: EventState, canvas: CanvasHandler) {
-		setCanvasSize(canvas.toolCanvas, LLNode.width, LLNode.height);
+		setCanvasSize(canvas.toolCanvas, LLNode.width * 4, LLNode.height * 4);
+		canvas.toolCtx.scale(canvas.DPR, canvas.DPR);
 		this.draw(canvas.toolCtx);
 	}
 

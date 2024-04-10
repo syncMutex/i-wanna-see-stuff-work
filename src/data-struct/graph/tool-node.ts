@@ -15,6 +15,7 @@ export class ToolGNode extends ToolHandler {
 
 	pointerEnter(_state: EventState, canvas: CanvasHandler) {
 		setCanvasSize(canvas.toolCanvas, GNode.radius * 2, GNode.radius * 2);
+		canvas.toolCtx.scale(canvas.DPR, canvas.DPR);
 		this.draw(canvas.toolCtx);
 	}
 

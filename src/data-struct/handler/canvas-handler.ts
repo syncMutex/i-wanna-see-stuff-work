@@ -1,4 +1,4 @@
-import { GAP } from "../canvas";
+import { GAP, getDevicePixelRatio, setCanvasSize } from "../canvas";
 import { Point } from "../geometry";
 import { ElementHandler, panHandler } from "./element-handler";
 
@@ -67,6 +67,8 @@ export class CanvasHandler {
 		toolCanvas: HTMLCanvasElement,
 		lineCanvas: HTMLCanvasElement
 	) {
+		this.DPR = getDevicePixelRatio();
+
 		this.playgroundCanvas = pgndCanvas;
 		this.ctx = pgndCanvas.getContext('2d') as CanvasRenderingContext2D;
 
@@ -76,7 +78,7 @@ export class CanvasHandler {
 		this.lineCanvas = lineCanvas;
 		this.lineCtx = lineCanvas.getContext('2d') as CanvasRenderingContext2D;
 
-		this.DPR = Math.ceil(window.devicePixelRatio);
+		this.lineCtx.scale(this.DPR, this.DPR);
 	}
 
 	setIsDisplayGrid(v: boolean) {
@@ -90,11 +92,15 @@ export class CanvasHandler {
 	}
 
 	setSize(w: number, h: number) {
-		this.width = w;
-		this.height = h;
+		this.width = w * this.DPR;
+		this.height = h * this.DPR;
 
-		this.halfWidth = Math.floor(w / 2);
-		this.halfHeight = Math.floor(h / 2);
+		this.halfWidth = Math.floor(this.width / 2);
+		this.halfHeight = Math.floor(this.height / 2);
+
+		setCanvasSize(this.playgroundCanvas, w, h);
+		setCanvasSize(this.lineCanvas, w, h);
+		this.lineCtx.scale(this.DPR, this.DPR);
 	}
 
 	add(...element: Array<ElementHandler>) {
@@ -149,8 +155,7 @@ export class CanvasHandler {
 		if(!this.isDisplayGrid) {
 			return;
 		}
-		const ctx = this.lineCanvas.getContext("2d");
-		if(ctx === null) return;
+		const ctx = this.lineCtx;
 
 		ctx.clearRect(0, 0, this.width, this.height);
 

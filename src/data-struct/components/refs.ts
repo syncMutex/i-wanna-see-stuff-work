@@ -3,7 +3,7 @@ import { AlgorithmHandler } from "../algorithm-handler";
 
 const _isMenuOpen = ref<boolean>(false);
 const _showToolBar = ref<boolean>(true);
-const _isMemAllocShow = ref<boolean>(true);
+const _isMemAllocShow = ref<boolean>(false);
 
 class AlgorithmState {
 	alg: null | AlgorithmHandler = null;

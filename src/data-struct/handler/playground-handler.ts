@@ -1,7 +1,6 @@
 import { ElementHandler } from "./element-handler";
 import { ToolHandler } from "./tool-handler";
 import { CanvasHandler } from "./canvas-handler";
-import { setCanvasSize } from "../canvas";
 import { ToolList } from "../global";
 
 export class Playground {
@@ -11,18 +10,11 @@ export class Playground {
 
 	resizeCanvas(width: number, height: number) {
 		this.canvas.setSize(width, height);
-
-		setCanvasSize(this.canvas.playgroundCanvas, width, height);
-		setCanvasSize(this.canvas.lineCanvas, width, height);
 		this.canvas.redraw();
 		this.canvas.updateLineCanvas();
 	}
 
-	init(
-		pgndCanvas: HTMLCanvasElement,
-		toolCanvas: HTMLCanvasElement,
-		lineCanvas: HTMLCanvasElement
-	) {
+	init(pgndCanvas: HTMLCanvasElement, toolCanvas: HTMLCanvasElement, lineCanvas: HTMLCanvasElement) {
 		this.canvas.init(pgndCanvas, toolCanvas, lineCanvas);
 		// window.show = () => console.log(this.canvas.elements);
 	}

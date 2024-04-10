@@ -1,13 +1,16 @@
 export const GAP = 10;
 
+export function getDevicePixelRatio(): number {
+	return window.devicePixelRatio || 1;
+}
+
 export function setCanvasSize(canvas: HTMLCanvasElement, width: number, height: number) {
-	let ratio = Math.ceil(window.devicePixelRatio);
+	let ratio = getDevicePixelRatio();
 	if(canvas === null) return;
+ 	canvas.style.width = `${width}px`;
+ 	canvas.style.height = `${height}px`;
 	canvas.width = width * ratio;
 	canvas.height = height * ratio;
-	canvas.style.width = `${width}px`;
-	canvas.style.height = `${height}px`;
-	canvas.getContext('2d')?.setTransform(ratio, 0, 0, ratio, 0, 0);
 }
 
 export interface CanvasSize {

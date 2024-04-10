@@ -14,6 +14,7 @@ export class ToolAdjMatrix extends ToolHandler {
 
 	pointerEnter(_state: EventState, canvas: CanvasHandler) {
 		setCanvasSize(canvas.toolCanvas, ToolAdjMatrix.mat.width + GAP * 2 + 2, ToolAdjMatrix.mat.height + GAP * 2 + 2);
+		canvas.toolCtx.scale(canvas.DPR, canvas.DPR);
 		this.draw(canvas.toolCtx);
 	}
 
