@@ -18,13 +18,19 @@ class Finder {
 
 	find<T>(x: number, y: number, canvas: CanvasHandler): T | null {
 		for(let i = canvas.elements.length - 1; i >= 0; i--) {
-			const e = canvas.elements[i].isIntersect(x, y, canvas.offset, canvas);
+			const e = canvas.elements[i].isIntersect(x, y, canvas);
 			if(e && !this.exceptList.includes(e) && this.typeList.includes(e.constructor.name)) {
 				return e as T;
  			}
 		}
 		return null;
 	}
+}
+
+export interface Transform {
+	x: number,
+	y: number,
+	scale: number,
 }
 
 export class CanvasHandler {
@@ -48,8 +54,9 @@ export class CanvasHandler {
 	halfWidth = 0;
 	halfHeight = 0;
 
-	offset = { x: 0, y: 0 };
-	DPR = 1;
+	transform: Transform;
+	DPR: number;
+	scalexDPR: number;
 
 	constructor() {
 		this.playgroundCanvas = document.createElement("canvas");
@@ -60,6 +67,10 @@ export class CanvasHandler {
 
 		this.lineCanvas = document.createElement("canvas");
 		this.lineCtx = this.playgroundCanvas.getContext('2d') as CanvasRenderingContext2D;
+
+		this.transform = { x: 0, y: 0, scale: 1 };
+		this.DPR = getDevicePixelRatio();
+		this.scalexDPR = this.transform.scale * this.DPR;
 	}
 
 	init(
@@ -67,8 +78,6 @@ export class CanvasHandler {
 		toolCanvas: HTMLCanvasElement,
 		lineCanvas: HTMLCanvasElement
 	) {
-		this.DPR = getDevicePixelRatio();
-
 		this.playgroundCanvas = pgndCanvas;
 		this.ctx = pgndCanvas.getContext('2d') as CanvasRenderingContext2D;
 
@@ -79,6 +88,12 @@ export class CanvasHandler {
 		this.lineCtx = lineCanvas.getContext('2d') as CanvasRenderingContext2D;
 
 		this.lineCtx.scale(this.DPR, this.DPR);
+	}
+
+	setZoom(v: number) {
+		this.transform.scale = v;
+		this.scalexDPR = this.transform.scale * this.DPR;
+		this.redraw();
 	}
 
 	setIsDisplayGrid(v: boolean) {
@@ -123,7 +138,7 @@ export class CanvasHandler {
 
 	findIntersection(x: number, y: number): ElementHandler {
 		for(let i = this.elements.length - 1; i >= 0; i--) {
-			const e = this.elements[i].isIntersect(x, y, this.offset, this);
+			const e = this.elements[i].isIntersect(x, y, this);
 			if(e) {
 				return e;
 			}
@@ -133,7 +148,7 @@ export class CanvasHandler {
 	
 	findIntersectionExcept(x: number, y: number, except: Array<ElementHandler>): ElementHandler | null {
 		for(let i = this.elements.length - 1; i >= 0; i--) {
-			const e = this.elements[i].isIntersect(x, y, this.offset, this);
+			const e = this.elements[i].isIntersect(x, y, this);
 			if(e && !except.includes(e)) {
 				return e;
 			}
@@ -143,7 +158,7 @@ export class CanvasHandler {
 
 	findIntersectionOfType(x: number, y: number, ofTypes: Array<string>): ElementHandler | null {
 		for(let i = this.elements.length - 1; i >= 0; i--) {
-			const e = this.elements[i].isIntersect(x, y, this.offset, this);
+			const e = this.elements[i].isIntersect(x, y, this);
 			if(e && ofTypes.includes(e.constructor.name)) {
 				return e;
 			}
@@ -161,14 +176,14 @@ export class CanvasHandler {
 
 		ctx.strokeStyle = "#505050";
 
-		for(let x = this.offset.x % GAP; x < this.width; x += GAP) {
+		for(let x = this.transform.x % GAP; x < this.width; x += GAP) {
 			ctx.beginPath();
 			ctx.moveTo(x, 0);
 			ctx.lineTo(x, this.height);
 			ctx.stroke();
 		}
 
-		for(let y = this.offset.y % GAP; y < this.height; y += GAP) {
+		for(let y = this.transform.y % GAP; y < this.height; y += GAP) {
 			ctx.beginPath();
 			ctx.moveTo(0, y);
 			ctx.lineTo(this.width, y);
@@ -177,8 +192,8 @@ export class CanvasHandler {
 	}
 
 	panTo(x: number, y: number) {
-		this.offset.x = x;
-		this.offset.y = y;
+		this.transform.x = x;
+		this.transform.y = y;
 		this.updateLineCanvas();
 		this.redraw();
 	}
@@ -190,18 +205,18 @@ export class CanvasHandler {
 				return resolve();
 			}
 
-			const dx = (x - this.offset.x >= 0) ? 1 : -1;
-			const dy = (y - this.offset.y >= 0) ? 1 : -1;
+			const dx = (x - this.transform.x >= 0) ? 1 : -1;
+			const dy = (y - this.transform.y >= 0) ? 1 : -1;
 			const magx = dx * step;
 			const magy = dy * step;
 			const destx = step * Math.floor(x / step);
 			const desty = step * Math.floor(y / step);
 
 			const scroll = () => {
-				const dx = Math.abs(this.offset.x - destx) > step;
-				const dy = Math.abs(this.offset.y - desty) > step;
-				if(dx) this.offset.x += magx;
-				if(dy) this.offset.y += magy;
+				const dx = Math.abs(this.transform.x - destx) > step;
+				const dy = Math.abs(this.transform.y - desty) > step;
+				if(dx) this.transform.x += magx;
+				if(dy) this.transform.y += magy;
 				if(!dx && !dy) {
 					this.panTo(x, y);
 					return resolve();
@@ -215,16 +230,16 @@ export class CanvasHandler {
 	}
 
 	toVirtualPosition(x: number, y: number) {
-		return new Point(x - this.offset.x, y - this.offset.y);
+		return new Point(x - this.transform.x, y - this.transform.y);
 	}
 
 	setTransform(ctx: CanvasRenderingContext2D) {
 		ctx.setTransform(
-			this.DPR,
+			this.scalexDPR,
 			0, 0,
-			this.DPR,
-			this.offset.x * this.DPR,
-			this.offset.y * this.DPR
+			this.scalexDPR,
+			this.transform.x * this.DPR,
+			this.transform.y * this.DPR
 		);
 	}
 
@@ -235,10 +250,10 @@ export class CanvasHandler {
 	clear() {
 		this.resetTransform(this.ctx);
 
-		this.ctx.clearRect(0, 0, this.playgroundCanvas.width, this.playgroundCanvas.height);
+		this.ctx.clearRect(0, 0, this.width, this.height);
 
-		// line(this.ctx, this.offset.x, 0, this.offset.x, this.playgroundCanvas.height, this.DPR, "#FF0000");
-		// line(this.ctx, 0, this.offset.y, this.playgroundCanvas.width, this.offset.y, this.DPR, "#FF0000");
+		// line(this.ctx, this.transform.x, 0, this.transform.x, this.height, this.DPR, "#FF0000");
+		// line(this.ctx, 0, this.transform.y, this.width, this.transform.y, this.DPR, "#FF0000");
 
 		this.setTransform(this.ctx);
 	}

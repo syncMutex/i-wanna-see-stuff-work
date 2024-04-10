@@ -37,8 +37,8 @@ export class ToolGNode extends ToolHandler {
 		x = Math.floor(x / GAP) * GAP;
 		y = Math.floor(y / GAP) * GAP;
 
-		x += canvas.offset.x % GAP;
-		y += canvas.offset.y % GAP;
+		x += canvas.transform.x % GAP;
+		y += canvas.transform.y % GAP;
 
 		const { x: vx, y: vy } = canvas.toVirtualPosition(x, y);
 
@@ -52,8 +52,8 @@ export class ToolGNode extends ToolHandler {
 		x = Math.floor(x / GAP) * GAP - GNode.radius;
 		y = Math.floor(y / GAP) * GAP - GNode.radius;
 
-		x += canvas.offset.x % GAP;
-		y += canvas.offset.y % GAP;
+		x += canvas.transform.x % GAP;
+		y += canvas.transform.y % GAP;
 
 		canvas.toolCanvas.style.top = y + "px";
 		canvas.toolCanvas.style.left = x + "px";

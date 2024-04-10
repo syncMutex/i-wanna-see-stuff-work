@@ -139,7 +139,7 @@ export class ToolDEdge extends ToolHandler {
 		}
 
 		const { x, y } = state.pointerMove;
-		this.edge.head = { x: x - canvas.offset.x, y: y - canvas.offset.y };
+		this.edge.head = { x: x - canvas.transform.x, y: y - canvas.transform.y };
 		canvas.redraw();
 		this.rectifyStart();
 		this.edge.paint(canvas.ctx);

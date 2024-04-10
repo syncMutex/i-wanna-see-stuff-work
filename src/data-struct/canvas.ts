@@ -6,16 +6,10 @@ export function getDevicePixelRatio(): number {
 
 export function setCanvasSize(canvas: HTMLCanvasElement, width: number, height: number) {
 	let ratio = getDevicePixelRatio();
-	if(canvas === null) return;
  	canvas.style.width = `${width}px`;
  	canvas.style.height = `${height}px`;
 	canvas.width = width * ratio;
 	canvas.height = height * ratio;
-}
-
-export interface CanvasSize {
-	width: number,
-	height: number
 }
 
 export function line(

@@ -38,8 +38,8 @@ export class ToolLLNode extends ToolHandler {
 		x = Math.floor(x / GAP) * GAP - LLNode.halfWidth;
 		y = Math.floor(y / GAP) * GAP - LLNode.halfHeight;
 
-		x += canvas.offset.x % GAP;
-		y += canvas.offset.y % GAP;
+		x += canvas.transform.x % GAP;
+		y += canvas.transform.y % GAP;
 
 		const { x: vx, y: vy } = canvas.toVirtualPosition(x, y);
 
@@ -53,8 +53,8 @@ export class ToolLLNode extends ToolHandler {
 		x = Math.floor(x / GAP) * GAP - LLNode.halfWidth;
 		y = Math.floor(y / GAP) * GAP - LLNode.halfHeight;
 
-		x += canvas.offset.x % GAP;
-		y += canvas.offset.y % GAP;
+		x += canvas.transform.x % GAP;
+		y += canvas.transform.y % GAP;
 
 		canvas.toolCanvas.style.top = y + "px";
 		canvas.toolCanvas.style.left = x + "px";

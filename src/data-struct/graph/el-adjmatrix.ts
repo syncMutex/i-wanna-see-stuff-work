@@ -64,8 +64,8 @@ export class ElementAdjMatrix extends AdjMatrix implements ElementHandler, Alloc
 	static addedWalls = new Set<string>();
 
 	checkEvent(x: number, y: number, canvas: CanvasHandler) {
-		const relMouseX = x - this.gridLeft - canvas.offset.x;
-		const relMouseY = y - this.gridTop - canvas.offset.y;
+		const relMouseX = x - this.gridLeft - canvas.transform.x;
+		const relMouseY = y - this.gridTop - canvas.transform.y;
 
 		let gridX = Math.floor(relMouseX / CELL_SIZE);
 		let gridY = Math.floor(relMouseY / CELL_SIZE);
@@ -172,8 +172,8 @@ export class ElementAdjMatrix extends AdjMatrix implements ElementHandler, Alloc
 	}
 
 	async scrollTo(canvas: CanvasHandler) {
-		const x = this.x + canvas.offset.x;
-		const y = this.y + canvas.offset.y;
+		const x = this.x + canvas.transform.x;
+		const y = this.y + canvas.transform.y;
 		if(!(x > 0 && x < canvas.width && y > 0 && y < canvas.height)) {
 			await canvas.scrollTo(canvas.halfWidth - this.x, canvas.halfHeight - this.y, 30);
 		}
@@ -194,8 +194,8 @@ export class ElementAdjMatrix extends AdjMatrix implements ElementHandler, Alloc
 		return null;
 	}
 
-	isIntersect(x: number, y: number, _: Point, canvas: CanvasHandler): null | ElementHandler {
-		if(this.intersects(x, y, canvas.offset)) return this;
+	isIntersect(x: number, y: number, canvas: CanvasHandler): null | ElementHandler {
+		if(this.intersects(x, y, canvas.transform)) return this;
 		return null;
 	}
 

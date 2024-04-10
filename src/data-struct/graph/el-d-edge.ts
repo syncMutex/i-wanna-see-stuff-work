@@ -58,7 +58,7 @@ export class ElementDEdge extends DEdge implements ElementHandler, AllocDisplay 
 		this.ptr = allocator.malloc(ElementDEdge.Size, this);
 
 		this.fromNode.addDEdge(this.ptr);
-		this.toNode.referedByDEdges.add(this.ptr);
+		this.toNode.referedByDEdges.add(this);
 		this.head = { x: this.tail.x + GAP, y: this.tail.y };
 	}
 
@@ -120,7 +120,7 @@ export class ElementDEdge extends DEdge implements ElementHandler, AllocDisplay 
 	async delete(canvas: CanvasHandler) {
 		await this.animateArrowHeadTo(canvas, this.fromNode);
 		this.fromNode.edges.v.delete(this.ptr);
-		this.toNode.referedByDEdges.delete(this.ptr);
+		this.toNode.referedByDEdges.delete(this);
 		this.remove(canvas);
 	}
 
@@ -147,8 +147,8 @@ export class ElementDEdge extends DEdge implements ElementHandler, AllocDisplay 
 		if(state.pointerDown.x === -1) return; 
 		let { x, y } = state.pointerMove;
 
-		this.head.x = x - canvas.offset.x;
-		this.head.y = y - canvas.offset.y;
+		this.head.x = x - canvas.transform.x;
+		this.head.y = y - canvas.transform.y;
 
 		const rStart = this.doRectifyFor(this.fromNode, this.head);
 
@@ -170,10 +170,13 @@ export class ElementDEdge extends DEdge implements ElementHandler, AllocDisplay 
 								.except(this.fromNode, this.toNode)
 								.find<ElementGNode | null>(x, y, canvas);
 
-		if(el && !ElementGNode.hasDEdge(this.fromNode, el)) {
-			this.toNode.referedByDEdges.delete(this.ptr);
+		const firstEdge = el?.edges.v.first()?.v;
+		const isNotPartOfUEdge = !((firstEdge && firstEdge.constructor.name !== ElementDEdge.name))
+
+		if(el && !ElementGNode.hasDEdge(this.fromNode, el) && isNotPartOfUEdge) {
+			this.toNode.referedByDEdges.delete(this);
 			this.toNodePtr.value = el.ptr;
-			el.referedByDEdges.add(this.ptr);
+			el.referedByDEdges.add(this);
 		}
 
 		this.rectify();
@@ -182,8 +185,8 @@ export class ElementDEdge extends DEdge implements ElementHandler, AllocDisplay 
 		return null;
 	}
 
-	isIntersect(x: number, y: number, offset: Point, canvas: CanvasHandler): null | ElementHandler {
-		return this.intersects(x, y, offset, canvas.ctx) ? this as any : null;
+	isIntersect(x: number, y: number, canvas: CanvasHandler): null | ElementHandler {
+		return this.intersects(x, y, canvas.transform, canvas.ctx) ? this as any : null;
 	}
 
 	focus() {

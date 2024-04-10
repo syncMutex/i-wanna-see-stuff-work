@@ -1,5 +1,4 @@
 import { EventState } from "./event-handler";
-import { Point } from "../geometry";
 import { CanvasHandler } from "./canvas-handler";
 
 export interface ElementHandler {
@@ -8,7 +7,7 @@ export interface ElementHandler {
 	pointerLeave: (_state: EventState, _canvas: CanvasHandler) => void;
 	pointerDown: (_state: EventState, _canvas: CanvasHandler) => void;
 	pointerUp: (_state: EventState, _canvas: CanvasHandler) => null | ElementHandler;
-	isIntersect: (_x: number, _y: number, offset: Point, canvas: CanvasHandler) => null | ElementHandler;
+	isIntersect: (_x: number, _y: number, _canvas: CanvasHandler) => null | ElementHandler;
 	remove: (_canvas: CanvasHandler) => void;
 	draw: (_ctx: CanvasRenderingContext2D) => void;
 	focus: () => void;
@@ -31,11 +30,11 @@ export class ElementPan implements ElementHandler {
 	}
 
 	pointerDown(_state: EventState, canvas: CanvasHandler) {
-		this.tempOff = { ...canvas.offset };
+		this.tempOff = { x: canvas.transform.x, y: canvas.transform.y };
 	}
 
 	pointerUp(_state: EventState, _canvas: CanvasHandler): null | ElementHandler { return this }
-	isIntersect(_x: number, _y: number, _offset: Point, _canvas: CanvasHandler): null | ElementHandler { return this }
+	isIntersect(_x: number, _y: number, _canvas: CanvasHandler): null | ElementHandler { return this }
 	remove(_canvas: CanvasHandler) {}
 	draw(_ctx: CanvasRenderingContext2D) {}
 	focus() {}

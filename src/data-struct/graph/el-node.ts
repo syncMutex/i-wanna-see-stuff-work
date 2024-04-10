@@ -12,7 +12,7 @@ import { MapList } from "../memory-allocator/types";
 export class ElementGNode extends GNode implements ElementHandler, AllocDisplay, Dealloc {
 	edges: Ptr<MapList<Ptr<ElementUEdge | ElementDEdge>>> = MapList.new(new Map, 4);
 
-	referedByDEdges: Set<Ptr<ElementDEdge>> = new Set();
+	referedByDEdges: Set<ElementDEdge> = new Set();
 
 	ptr: Ptr<ElementGNode>;
 
@@ -83,7 +83,7 @@ export class ElementGNode extends GNode implements ElementHandler, AllocDisplay,
 		this.edges.v.list().forEach(edge => edge.v.rectify())
 
 		for(let e of this.referedByDEdges) {
-			e.v.rectify();
+			e.rectify();
 		}
 
 		canvas.redraw();
@@ -129,15 +129,15 @@ export class ElementGNode extends GNode implements ElementHandler, AllocDisplay,
 		}
 		
 		for(let edge of this.referedByDEdges) {
-			await edge.v.delete(canvas);
+			await edge.delete(canvas);
 		}
 
 		this.remove(canvas);
 	}
 
 	async scrollTo(canvas: CanvasHandler) {
-		const x = this.x + canvas.offset.x;
-		const y = this.y + canvas.offset.y;
+		const x = this.x + canvas.transform.x;
+		const y = this.y + canvas.transform.y;
 		if(!(x > 0 && x < canvas.width && y > 0 && y < canvas.height)) {
 			await canvas.scrollTo(canvas.halfWidth - this.x, canvas.halfHeight - this.y, 30);
 		}
@@ -150,8 +150,8 @@ export class ElementGNode extends GNode implements ElementHandler, AllocDisplay,
 		this.pointerDy = Math.floor((statey - nodey) / GAP) * GAP;
 	}
 
-	isIntersect(x: number, y: number, _: Point, canvas: CanvasHandler): null | ElementHandler {
-		if(this.intersects(x, y, canvas.offset)) return this;
+	isIntersect(x: number, y: number, canvas: CanvasHandler): null | ElementHandler {
+		if(this.intersects(x, y, canvas.transform)) return this;
 		return null;
 	}
 

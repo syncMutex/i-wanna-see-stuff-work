@@ -1,5 +1,5 @@
 import { circleFill } from "../../canvas";
-import { Point } from "../../geometry";
+import { Transform } from "../../handler/canvas-handler";
 import allocator, { Ptr } from "../../memory-allocator/allocator";
 import { List } from "../../memory-allocator/types";
 
@@ -338,9 +338,9 @@ export class AdjMatrix {
 
 	get gridRight() { return this.x + CELL_SIZE + 1 + this.columns * CELL_SIZE; }
 
-	intersects(x: number, y: number, offset: Point): boolean {
-		const left = this.x + offset.x;
-		const top = this.y + offset.y;
+	intersects(x: number, y: number, transform: Transform): boolean {
+		const left = this.x + transform.x;
+		const top = this.y + transform.y;
 		const right = left + this.width;
 		const bottom = top + this.height;
 
@@ -350,8 +350,8 @@ export class AdjMatrix {
 			return false;
 		}
 
-		const relMouseX = x - this.gridLeft - offset.x;
-		const relMouseY = y - this.gridTop - offset.y;
+		const relMouseX = x - this.gridLeft - transform.x;
+		const relMouseY = y - this.gridTop - transform.y;
 
 		const isIntersectGrid = (
 			(relMouseX >= 0 && relMouseX <= this.columns * (CELL_SIZE)) &&

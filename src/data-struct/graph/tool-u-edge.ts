@@ -48,7 +48,7 @@ export class ToolUEdge extends ToolHandler {
 
 		const firstEdge = gnode.edges.v.first()?.v;
 
-		if(firstEdge && firstEdge.constructor.name !== ElementUEdge.name) return;
+		if((firstEdge && firstEdge.constructor.name !== ElementUEdge.name) || gnode.referedByDEdges.size !== 0) return;
 
 		if(this.startNode !== null) {
 			this.endNode = gnode;
@@ -139,7 +139,7 @@ export class ToolUEdge extends ToolHandler {
 		}
 
 		const { x, y } = state.pointerMove;
-		this.edge.end = { x: x - canvas.offset.x, y: y - canvas.offset.y };
+		this.edge.end = { x: x - canvas.transform.x, y: y - canvas.transform.y };
 		canvas.redraw();
 		this.rectifyStart();
 		this.edge.paint(canvas.playgroundCanvas.getContext('2d') as any);

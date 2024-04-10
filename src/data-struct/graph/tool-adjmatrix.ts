@@ -36,8 +36,8 @@ export class ToolAdjMatrix extends ToolHandler {
 		x = Math.floor(x / GAP) * GAP - (ToolAdjMatrix.mat.width / 2);
 		y = Math.floor(y / GAP) * GAP - (ToolAdjMatrix.mat.height / 2);
 
-		x += canvas.offset.x % GAP;
-		y += canvas.offset.y % GAP;
+		x += canvas.transform.x % GAP;
+		y += canvas.transform.y % GAP;
 
 		const { x: vx, y: vy } = canvas.toVirtualPosition(x, y);
 
@@ -61,8 +61,8 @@ export class ToolAdjMatrix extends ToolHandler {
 		x = Math.floor(x / GAP) * GAP - (ToolAdjMatrix.mat.width / 2);
 		y = Math.floor(y / GAP) * GAP - (ToolAdjMatrix.mat.height / 2);
 
-		x += canvas.offset.x % GAP;
-		y += canvas.offset.y % GAP;
+		x += canvas.transform.x % GAP;
+		y += canvas.transform.y % GAP;
 
 		canvas.toolCanvas.style.top = y + "px";
 		canvas.toolCanvas.style.left = x + "px";

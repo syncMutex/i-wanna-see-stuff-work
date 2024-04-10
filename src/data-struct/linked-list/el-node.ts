@@ -128,8 +128,8 @@ export class ElementLLNode extends LLNode implements ElementHandler, AllocDispla
 	}
 
 	async scrollTo(canvas: CanvasHandler) {
-		const x = this.x + canvas.offset.x;
-		const y = this.y + canvas.offset.y;
+		const x = this.x + canvas.transform.x;
+		const y = this.y + canvas.transform.y;
 		if(!(x > 0 && x < canvas.width && y > 0 && y < canvas.height)) {
 			await canvas.scrollTo(canvas.halfWidth - this.x, canvas.halfHeight - this.y, 30);
 		}
@@ -220,8 +220,8 @@ export class ElementLLNode extends LLNode implements ElementHandler, AllocDispla
 			const next = node.next;
 			const arrow = node.arrow;
 
-			const x = node.x + canvas.offset.x;
-			const y = node.y + canvas.offset.y;
+			const x = node.x + canvas.transform.x;
+			const y = node.y + canvas.transform.y;
 			if(!(x > 0 && x < canvas.width && y > 0 && y < canvas.height)) {
 				await canvas.scrollTo(canvas.halfWidth - node.x, canvas.halfHeight - node.y, 30);
 			}
@@ -314,8 +314,8 @@ export class ElementLLNode extends LLNode implements ElementHandler, AllocDispla
 			node = node.next;
 
 			if(node) {
-				const x = node.x + canvas.offset.x;
-				const y = node.y + canvas.offset.y;
+				const x = node.x + canvas.transform.x;
+				const y = node.y + canvas.transform.y;
 				if(!(x > 0 && x < canvas.width && y > 0 && y < canvas.height)) {
 					await Promise.all([
 						this.grad(arrow, canvas, ctx),
@@ -354,8 +354,8 @@ export class ElementLLNode extends LLNode implements ElementHandler, AllocDispla
 	unfocus() {
 	}
 
-	isIntersect(x: number, y: number, offset: Point): null | ElementHandler {
-		if(this.intersects(x, y, offset)) return this;
+	isIntersect(x: number, y: number, canvas: CanvasHandler): null | ElementHandler {
+		if(this.intersects(x, y, canvas.transform)) return this;
 		return null;
 	}
 

@@ -1,5 +1,6 @@
 import { ref } from "vue";
 import { Line, Point } from "../../geometry";
+import { Transform } from "../../handler/canvas-handler";
 
 export class UEdge {
 	start = new Point(-1, -1);
@@ -51,11 +52,11 @@ export class UEdge {
 		// circleFill(ctx, this.end.x, this.end.y, 4);
 	}
 
-	intersects(x: number, y: number, offset: Point, ctx: CanvasRenderingContext2D): boolean {
+	intersects(x: number, y: number, transform: Transform, ctx: CanvasRenderingContext2D): boolean {
 		ctx.save();
 		ctx.lineWidth = 10;
 		ctx.resetTransform();
-		ctx.translate(offset.x, offset.y);
+		ctx.translate(transform.x, transform.y);
 
 		const path = new Path2D();
 

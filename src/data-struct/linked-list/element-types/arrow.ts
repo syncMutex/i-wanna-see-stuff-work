@@ -1,5 +1,6 @@
 import { circleFill } from "../../canvas";
-import { Line, Point } from "../../geometry";
+import { Line } from "../../geometry";
+import { Transform } from "../../handler/canvas-handler";
 
 export class Arrow {
 	head = { x: -1, y: -1 };
@@ -40,11 +41,11 @@ export class Arrow {
 		ctx.fill();
 	}
 
-	intersects(x: number, y: number, offset: Point): boolean {
+	intersects(x: number, y: number, transform: Transform): boolean {
 		const p = new Line(this.tail, this.head).getPositionAlongTheLine(0.98);
 		const mag = 10;
-		const _x = p.x + offset.x;
-		const _y = p.y + offset.y;
+		const _x = p.x + transform.x;
+		const _y = p.y + transform.y;
 		const lowx = _x - mag;
 		const lowy = _y - mag;
 		const highx = _x + mag;

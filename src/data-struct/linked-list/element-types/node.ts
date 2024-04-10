@@ -1,5 +1,6 @@
 import { GAP, line } from "../../canvas";
 import { Point } from "../../geometry";
+import { Transform } from "../../handler/canvas-handler";
 import { Ptr } from "../../memory-allocator/allocator";
 import { Str } from "../../memory-allocator/types";
 
@@ -87,11 +88,11 @@ export class LLNode {
 		return this.x + LLNode.width;
 	}
 
-	intersects(x: number, y: number, offset: Point): boolean {
-		const lowx = this.x + offset.x;
-		const lowy = this.y + offset.y;
-		const highx = lowx + LLNode.width;
-		const highy = lowy + LLNode.height;
+	intersects(x: number, y: number, transform: Transform): boolean {
+		const lowx = (this.x * transform.scale) + transform.x;
+		const lowy = (this.y * transform.scale) + transform.y;
+		const highx = lowx + (LLNode.width * transform.scale);
+		const highy = lowy + (LLNode.height * transform.scale);
 		return x >= lowx && x <= highx && y >= lowy && y <= highy;
 	}
 }

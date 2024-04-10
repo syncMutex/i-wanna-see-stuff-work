@@ -59,8 +59,8 @@ export class ElementArrow extends Arrow implements ElementHandler {
 	pointerMove(state: EventState, canvas: CanvasHandler): void {
 		let { x, y } = state.pointerMove;
 
-		this.head.x = x - canvas.offset.x;
-		this.head.y = y - canvas.offset.y;
+		this.head.x = x - canvas.transform.x;
+		this.head.y = y - canvas.transform.y;
 
 		const el = canvas.finder
 							.except(this.parentLLNode)
@@ -129,8 +129,8 @@ export class ElementArrow extends Arrow implements ElementHandler {
 		return null;
 	}
 
-	isIntersect(x: number, y: number, offset: Point): null | ElementHandler {
-		return this.intersects(x, y, offset) ? this as any : null;
+	isIntersect(x: number, y: number, canvas: CanvasHandler): null | ElementHandler {
+		return this.intersects(x, y, canvas.transform) ? this as any : null;
 	}
 
 	focus() {

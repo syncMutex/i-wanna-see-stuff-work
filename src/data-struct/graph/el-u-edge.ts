@@ -163,8 +163,8 @@ export class ElementUEdge extends UEdge implements ElementHandler, AllocDisplay 
 		if(state.pointerDown.x === -1) return; 
 		let { x, y } = state.pointerMove;
 
-		this.toMoveEnd.x = x - canvas.offset.x;
-		this.toMoveEnd.y = y - canvas.offset.y;
+		this.toMoveEnd.x = x - canvas.transform.x;
+		this.toMoveEnd.y = y - canvas.transform.y;
 
 		const rStart = this.doRectifyFor(this.toMoveNode as ElementGNode, this.toMoveEnd);
 
@@ -188,7 +188,10 @@ export class ElementUEdge extends UEdge implements ElementHandler, AllocDisplay 
 						.except(this.fromNode, this.toNode)
 						.find<ElementGNode | null>(x, y, canvas);
 
-		if(el && !ElementGNode.hasUEdge(this.toMoveNode as ElementGNode, el)) {
+		const firstEdge = el?.edges.v.first()?.v;
+		const isNotPartOfDEdge = !((firstEdge && firstEdge.constructor.name !== ElementUEdge.name) || el?.referedByDEdges.size !== 0)
+
+		if(el && !ElementGNode.hasUEdge(this.toMoveNode as ElementGNode, el) && isNotPartOfDEdge) {
 			this.fromNode.edges.v.delete(this.ptr);
 			this.toNode.edges.v.delete(this.ptr);
 			this.fromNodeRef.value = (this.toMoveNode as ElementGNode).ptr;
@@ -209,8 +212,8 @@ export class ElementUEdge extends UEdge implements ElementHandler, AllocDisplay 
 		return null;
 	}
 
-	isIntersect(x: number, y: number, offset: Point, canvas: CanvasHandler): null | ElementHandler {
-		return this.intersects(x, y, offset, canvas.ctx) ? this as any : null;
+	isIntersect(x: number, y: number, canvas: CanvasHandler): null | ElementHandler {
+		return this.intersects(x, y, canvas.transform, canvas.ctx) ? this as any : null;
 	}
 
 	focus() {
