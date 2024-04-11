@@ -92,7 +92,7 @@ function run() {
 
 <template>
 <div class="tool-node">
-	<h1>Node</h1>
+	<h1>Graph Node</h1>
 	<div class="sub-sections-container">
 		<div>
 			<input

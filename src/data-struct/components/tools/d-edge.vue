@@ -21,7 +21,7 @@ async function deleteEdge() {
 
 <template>
 <div class="tool-edge">
-	<h1>UEdge</h1>
+	<h1>D-Edge</h1>
 	<div class="sub-sections-container">
 		<div>
 			<input

@@ -1,10 +1,15 @@
-import { Ref, shallowRef, reactive, readonly } from "vue";
+import { Ref, shallowRef, reactive, readonly, Component } from "vue";
 import { ElementHandler, panHandler } from "./handler/element-handler";
 import { ToolLLNode } from "./linked-list/tool-node";
 import { ToolGNode } from "./graph/tool-node.ts";
 import { ToolUEdge } from "./graph/tool-u-edge.ts";
 import { ToolDEdge } from "./graph/tool-d-edge.ts";
 import { ToolAdjMatrix } from "./graph/tool-adjmatrix.ts";
+import IconLLNode from "./assets/vue-icon-wrappers/ll-node.vue";
+import IconDEdge from "./assets/vue-icon-wrappers/d-edge.vue";
+import IconUEdge from "./assets/vue-icon-wrappers/u-edge.vue";
+import IconGNode from "./assets/vue-icon-wrappers/g-node.vue";
+import IconMatrix from "./assets/vue-icon-wrappers/matrix.vue";
 
 export const focusedElement = shallowRef<ElementHandler>(panHandler);
 export let DELAY = 200;
@@ -57,14 +62,15 @@ export const disablePointerEvents = shallowRef(false);
 
 export interface ToolType {
 	name: string,
-	toolClass: any
+	toolClass: any,
+	icon: Component
 }
 
 export const ToolList: ToolType[] = [
-	{ name: "LLNode", toolClass: ToolLLNode },
-	{ name: "Graph Node", toolClass: ToolGNode },
-	{ name: "UEdge", toolClass: ToolUEdge },
-	{ name: "DEdge", toolClass: ToolDEdge },
-	{ name: "AdjMatrix", toolClass: ToolAdjMatrix },
+	{ name: "LLNode", toolClass: ToolLLNode, icon: IconLLNode },
+	{ name: "Graph Node", toolClass: ToolGNode, icon: IconGNode },
+	{ name: "UEdge", toolClass: ToolUEdge, icon: IconUEdge },
+	{ name: "DEdge", toolClass: ToolDEdge, icon: IconDEdge },
+	{ name: "AdjMatrix", toolClass: ToolAdjMatrix, icon: IconMatrix },
 ];
 

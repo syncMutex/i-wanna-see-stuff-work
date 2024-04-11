@@ -143,7 +143,7 @@ function deleteMatrix() {
 
 <template>
 <div class="tool-matrix-graph">
-	<h1>Matrix Graph</h1>
+	<h1>Matrix</h1>
 	<div class="sub-sections-container">
 		<div class="dims">
 			<input

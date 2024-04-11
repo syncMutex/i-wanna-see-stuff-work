@@ -21,14 +21,12 @@ function selectTool(idx: number) {
 <section
 	v-if="showToolBar"
 	id="tool-bar-section"
-	:class="['floating-panel', disablePointerEvents ? 'pointer-events-none' : '']"
+	:class="['floating-panel', 'scroll-bar', disablePointerEvents ? 'pointer-events-none' : '']"
 >
 	<div class="tools-list">
-		<div
-			v-for="(tool, idx) in ToolList"
-			:class="['node', idx === curToolIdx ? 'selected' : '']"
-			@click="selectTool(idx)"
-		>{{tool.name}}</div>
+		<div v-for="(tool, idx) in ToolList" @click="selectTool(idx)" :class="[idx === curToolIdx ? 'selected' : '']">
+			<component :is="tool.icon" :class="[idx === curToolIdx ? 'selected' : '']"></component>
+		</div>
 	</div>
 </section>
 </template>
@@ -51,6 +49,10 @@ function selectTool(idx: number) {
 	overflow-y: hidden;
 }
 
+.scroll-bar::-webkit-scrollbar{
+	height: 5px;
+}
+
 .tools-list{
 	display: flex;
 	width: 100%;
@@ -59,15 +61,23 @@ function selectTool(idx: number) {
 
 .tools-list div{
 	height: 100%;
-	background: white;
 	color: black;
-	margin-right: 1rem;
 	cursor: pointer;
-	min-width: max-content;
+	min-width: 3rem;
+	padding: 0.2rem;
+	border-radius: 4px;
+}
+
+.tools-list div > *{
+	width: 100%;
+	height: 100%;
+	--stroke-clr: #444444;
+	pointer-events: none;
 }
 
 .tools-list div.selected{
-	background-color: red;
+	background-color: rgba(50, 50, 50);
+	background-color: #eeeeee;
 }
 
 </style>

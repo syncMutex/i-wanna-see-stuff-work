@@ -21,10 +21,10 @@ const isBottomLayout = ref<boolean>(true);
 </script>
 
 <template>
-<div id="memory-alloc" :class="['floating-panel', isBottomLayout ? 'bottom' : 'left']">
+<div id="memory-alloc" :class="['floating-panel', isBottomLayout ? 'bottom' : 'right']">
 	<div id="pane-btns">
-		<div style="background-color: #d94141;" @click="setIsMemAllocShow(false)">x</div>
-		<div class="left-icon" v-if="isBottomLayout" @click="isBottomLayout = false"></div>
+		<div style="" class="close-btn" @click="setIsMemAllocShow(false)">x</div>
+		<div class="right-icon" v-if="isBottomLayout" @click="isBottomLayout = false"></div>
 		<div class="bottom-icon" v-else @click="isBottomLayout = true"></div>
 	</div>
 
@@ -88,7 +88,7 @@ const isBottomLayout = ref<boolean>(true);
 	padding: 2px;
 }
 
-.left{
+.right{
 	width: 40%;
 	height: 90%;
 	right: 0.1%;
@@ -101,33 +101,7 @@ const isBottomLayout = ref<boolean>(true);
 	bottom: 1%;
 }
 
-#pane-btns {
-	display: flex;
-	flex-direction: row-reverse;
-	align-items: center;
-	position: absolute;
-	right: 10px;
-	background-color: rgb(50, 50, 50);
-	border-radius: 4px;
-	height: 1rem;
-	min-width: 2rem;
-	width: max-content;
-	transform: translateY(-50%);
-	overflow: hidden;
-}
-
-#pane-btns > *{
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 2rem;
-	height: 100%;
-	font-weight: bold;
-	font-size: 0.8rem;
-	cursor: pointer;
-}
-
-#pane-btns .left-icon{
+#pane-btns .right-icon{
 	display: flex;
 	flex-direction: row;
 	position: relative;
@@ -135,7 +109,11 @@ const isBottomLayout = ref<boolean>(true);
 	padding: 0.15rem 0.5rem;
 }
 
-.left-icon::before{
+#pane-btns .right-icon:hover::before, .right-icon:hover::after, #pane-btns .bottom-icon:hover::before, .bottom-icon:hover::after{
+	border-color: #6596e0;
+}
+
+.right-icon::before{
 	content: "";
 	display: block;
 	width: 60%;
@@ -143,7 +121,7 @@ const isBottomLayout = ref<boolean>(true);
 	border: 2px solid rgb(180, 180, 180);
 }
 
-.left-icon::after{
+.right-icon::after{
 	content: "";
 	display: block;
 	width: 30%;
