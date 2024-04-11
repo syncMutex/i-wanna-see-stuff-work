@@ -6,6 +6,7 @@ import Range from "../../common-components/range.vue";
 import ToolIcon from "../assets/icons/spawner.svg";
 import RamIcon from "../assets/icons/ram.svg";
 import { componentMap } from "./tool-component-map";
+import { sampleDGraph, sampleLinkedList, sampleUEdgeMatrix, sampleUGraph } from "./samples";
 
 function setDisplayGrid() {
 	playground.canvas.setIsDisplayGrid(!playground.canvas.isDisplayGrid);
@@ -19,7 +20,7 @@ function setDisplayGrid() {
 		<div :class="['icon', isMenuOpen ? 'active' : '']">
 			<div></div>
 		</div>
-		<section id="menu-section" class="floating-panel" v-if="isMenuOpen">
+		<section id="menu-section" class="floating-panel sub-sections-container" v-if="isMenuOpen">
 			<div>
 				<button class="btn btn-nobg" @click="setDisplayGrid">
 					Toggle-grid
@@ -31,6 +32,22 @@ function setDisplayGrid() {
 				<Range :min="10" :dir="'rtl'" :max="1000" :step="1" :value="DELAY" class="speed"
 					@input="(e: any) => setDelay(Number(e.target.value))"
 				/>
+			</div>
+
+			<div class="examples">
+				<div>Examples: </div>
+				<button class="btn btn-nobg clr-purple" @click="sampleLinkedList(playground.canvas)">
+					Linked List
+				</button>
+				<button class="btn btn-nobg clr-orange" @click="sampleUGraph(playground.canvas)">
+					Undirected Graph
+				</button>
+				<button class="btn btn-nobg clr-orange" @click="sampleDGraph(playground.canvas)">
+					Directed Graph
+				</button>
+				<button class="btn btn-nobg clr-orange" @click="sampleUEdgeMatrix(playground.canvas)">
+					UEdge Matrix
+				</button>
 			</div>
 		</section>
 	</div>
@@ -78,10 +95,11 @@ function setDisplayGrid() {
 	height: 20rem;
 	cursor: default;
 	font-size: 0.9rem;
+	overflow: hidden;
 }
 
 #menu-section div {
-	margin-bottom: 1rem;
+	margin-bottom: 0.5rem;
 }
 
 .speed{
@@ -144,6 +162,13 @@ function setDisplayGrid() {
 
 #mem-alloc-btn, #selected-item-btn{
 	padding: 0.2rem;
+}
+
+.examples button{
+	margin-bottom: 0.5rem;
+	width: 100%;
+	height: 1.5rem;
+	font-size: 0.8rem;
 }
 
 </style>

@@ -29,6 +29,7 @@ const props = defineProps<{
 	font-weight: 600;
 	display: block;
 	cursor: pointer;
+	font-family: Arial, Helvetica, sans-serif;
 }
 
 .custom-select > option {

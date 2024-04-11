@@ -22,7 +22,7 @@
 	--clr: white;
 	display: inline-block;
 	min-width: 5rem;
-	min-height: 2rem;
+	height: 2rem;
 	padding: 0 0.5rem;
 	outline: none;
 	border: none;
@@ -30,6 +30,7 @@
 	cursor: pointer;
 	transition: all 0.2s;
 	font-weight: 600;
+	font-family: Arial, Helvetica, sans-serif;
 }
 
 .scroll-bar::-webkit-scrollbar{
@@ -49,6 +50,14 @@
 
 .clr-yellow{
 	--clr: rgb(255, 255, 41);
+}
+
+.clr-purple{
+	--clr: rgb(132, 0, 255);
+}
+
+.clr-orange{
+	--clr: rgb(255, 140, 0);
 }
 
 .clr-blue{
@@ -119,6 +128,7 @@ input[type="text"]:focus{
 	width: max-content;
 	transform: translateY(-50%);
 	overflow: hidden;
+	z-index: 20;
 }
 
 #pane-btns > *{

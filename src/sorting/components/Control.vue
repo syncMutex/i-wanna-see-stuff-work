@@ -249,6 +249,7 @@ onUnmounted(() => {
 	background-color: transparent;
 	transition: all 0.2s;
 	font-weight: 600;
+	font-family: Arial, Helvetica, sans-serif;
 }
 
 .control-btns > button:hover {

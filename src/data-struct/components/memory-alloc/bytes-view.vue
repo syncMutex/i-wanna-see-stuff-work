@@ -27,7 +27,7 @@ const style = computed(() => {
 	if(props.byteAlign === "auto") {
 		return {};
 	}
-	const w = `${props.byteAlign * 3.5}ch`;
+	const w = `${props.byteAlign * 3.7}ch`;
 	return { maxWidth: w, width: w, minWidth: w };
 })
 let pointerMap: { [_:string]: Element } = {};
