@@ -56,7 +56,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-	<div id="control">
+	<div id="control" class="scroll-bar">
 		<div class="control-partition">
 			<span>element count</span>
 			<div class="element-count">

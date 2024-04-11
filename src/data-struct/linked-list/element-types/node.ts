@@ -1,5 +1,4 @@
 import { GAP, line } from "../../canvas";
-import { Point } from "../../geometry";
 import { Transform } from "../../handler/canvas-handler";
 import { Ptr } from "../../memory-allocator/allocator";
 import { Str } from "../../memory-allocator/types";

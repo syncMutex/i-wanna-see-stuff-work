@@ -3,7 +3,6 @@ import { showToolBar, isMenuOpen, setIsMenuOpen, setIsMemAllocShow, isMemAllocSh
 import { playground } from "../handler/playground-handler";
 import { setDelay, DELAY, focusedElement } from "../global";
 import Range from "../../common-components/range.vue";
-import { ElementPan } from "../handler/element-handler";
 import ToolIcon from "../assets/icons/spawner.svg";
 import RamIcon from "../assets/icons/ram.svg";
 import { componentMap } from "./tool-component-map";
