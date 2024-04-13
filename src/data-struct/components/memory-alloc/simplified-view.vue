@@ -48,7 +48,9 @@ function handleWatcher(cur: ShallowRef<ElementHandler>, prev: ShallowRef<Element
 watch(focusedElement, handleWatcher);
 
 function refMapper(ptr: string, el: Element) {
-	pointerMap[ptr] = el;
+	if(el) {
+		pointerMap[ptr] = el;
+	}
 }
 
 onBeforeUpdate(() => {
@@ -64,7 +66,7 @@ onMounted(() => {
 <template>
 <div class="simplified-container text-wrap">
 	<span 
-		v-for="(block, idx) in allocator.allocated.iter()" :key="idx"
+		v-for="(block) in allocator.allocated.iter()"
 		:class="['simplified', block.v.constructor.name, block.freeBlock ? 'freed' : '']"
 		:ref="((el: Element) => { refMapper(block.toString(), el) }) as any"
 	>

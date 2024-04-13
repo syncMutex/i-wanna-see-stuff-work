@@ -124,21 +124,16 @@ export class FreePtrVal<T extends AllocDisplay> implements AllocDisplay {
 
 type FreePtrType = Ptr<FreePtrVal<AllocDisplay>>;
 
-class Head<T extends AllocDisplay> extends Ptr<T> {
-}
-
 class AllocList {
-	head: PtrType;
-	tail: PtrType;
-
-	constructor() {
-		this.head = new Head(0, 0, new Null);
-		this.tail = this.head;
-		this.head.next = this.tail;
-	}
+	head: PtrType | null = null;
+	tail: PtrType | null = null;
 
 	*iter() {
-		let temp: null | PtrType = this.head.next;
+		let temp: null | PtrType = this.head;
+		if(temp && this.head === this.tail) {
+			yield temp
+			return;
+		}
 
 		while(temp !== null) {
 			yield temp;
@@ -146,20 +141,27 @@ class AllocList {
 		}
 	}
 
-	getPrevOf(ptr: PtrType): PtrType {
-		let prev: ShallowReactive<PtrType> = this.head;
+	getPrevOf(ptr: PtrType): PtrType | null {
+		let prev: ShallowReactive<PtrType> | null = this.head;
 
-		while(prev.next !== ptr) {
-			prev = prev.next as ShallowReactive<PtrType>;
+		while(prev && (prev.next !== ptr)) {
+			prev = prev.next;
 		}
 
 		return prev;
 	}
 
 	insertEnd(ptr: PtrType) {
+		if(this.head === null || this.tail === null) {
+			this.head = ptr;
+			this.tail = this.head;
+			return;
+		}
+
 		if(this.head === this.tail) {
+			this.head.next = ptr;
+			ptr.start = this.tail.start + this.tail.size;
 			this.tail = ptr;
-			this.head.next = this.tail;
 			return;
 		}
 
@@ -168,8 +170,40 @@ class AllocList {
 		this.tail = ptr;
 	}
 
+	deleteNextOf(ptr: PtrType) {
+		if(ptr.next) {
+			ptr.next = ptr.next.next;
+			if(ptr.next === null) {
+				this.tail = ptr;
+			}
+		}
+	}
+
+	insertAfter(prevPtr: PtrType | null, toInsertPtr: PtrType) {
+		if(prevPtr === null) {
+			toInsertPtr.start = 0;
+			if(this.head) {
+				toInsertPtr.next = this.head.next;
+			}
+			this.head = toInsertPtr;
+			this.tail = toInsertPtr;
+		} else {
+			toInsertPtr.start = prevPtr.end();
+			toInsertPtr.next = prevPtr.next;
+			prevPtr.next = toInsertPtr;
+			if(toInsertPtr.next === null) {
+				this.tail = toInsertPtr;
+			}
+		}
+	}
+
+	insertBefore(ptr: PtrType, toInsertPtr: PtrType) {
+		const prevPtr = this.getPrevOf(ptr);
+		this.insertAfter(prevPtr, toInsertPtr);
+	}
+
 	isEmpty(): boolean {
-		return this.head.next === null;
+		return this.head === null;
 	}
 }
 
@@ -182,32 +216,34 @@ class FreeBlock {
 	}
 }
 
-class HeadBlock extends FreeBlock {};
-
 class FreeList {
-	head: FreeBlock;
-
-	constructor(headPtr: PtrType) {
-		this.head = new HeadBlock(headPtr as Ptr<FreePtrVal<AllocDisplay>>);
-	}
+	head: FreeBlock | null = null;
 
 	prevOfSize(size: number): FreeBlock | null {
-		let temp: null | FreeBlock = this.head;
+		if(this.head === null) {
+			return null;
+		}
 
-		while(temp.next !== null) {
+		if(this.head.ptr.size >= size) {
+			return this.head;
+		}
+
+		let temp = this.head;
+
+		while(temp && temp.next) {
 			if(temp.next.ptr.size >= size) {
 				return temp;
 			}
 			temp = temp.next;
 		}
-		
+
 		return null;
 	}
 
 	prevOfPtr(ptr: PtrType): FreeBlock | null {
-		let temp: null | FreeBlock = this.head;
+		let temp = this.head;
 
-		while(temp.next !== null) {
+		while(temp && temp.next) {
 			if(temp.next.ptr === ptr) {
 				return temp;
 			}
@@ -215,10 +251,6 @@ class FreeList {
 		}
 
 		return null;
-	}
-
-	isNextPtrCanBeUsed(ptr: PtrType, newSize: number): boolean {
-		return ptr.next !== null && ptr.next.freeBlock !== null && (newSize - ptr.size) <= ptr.next.size;
 	}
 
 	cutPtrContent(ptr: PtrType, prevSize: number) {
@@ -232,6 +264,8 @@ class FreeList {
 	deleteNextOf(prevBlock: FreeBlock) {
 		if(prevBlock.next) {
 			prevBlock.next = prevBlock.next.next;
+		} else {
+			this.head = null;
 		}
 	}
 
@@ -243,43 +277,13 @@ class FreeList {
 		}
 	}
 
-	// can-todo: store prevPtr to not lookup prevPtr everytime while searching ptr prev
-	add(ptr: FreePtrType, prevPtr: PtrType): PtrType | null {
-		if(prevPtr.freeBlock === null && (ptr.next === null || ptr.next?.freeBlock === null)) {
-			const newBlock = new FreeBlock(ptr);
-			newBlock.next = this.head.next;
-			this.head.next = newBlock;
-			ptr.freeBlock = newBlock;
-			return null;
+	insertStart(block: FreeBlock) {
+		if(this.head === null) {
+			this.head = block;
+		} else {
+			block.next = this.head.next;
+			this.head.next = block;
 		}
-		
-		if(prevPtr.freeBlock !== null) {
-			prevPtr.freeBlock.ptr.v.mergeEnd(ptr.v);
-			prevPtr.size += ptr.size;
-			prevPtr.next = ptr.next;
-			
-			if(ptr.next !== null && ptr.next.freeBlock !== null) {
-				prevPtr.freeBlock.ptr.v.mergeEnd(ptr.next.v);
-				prevPtr.size += ptr.next.size;
-				prevPtr.next = ptr.next.next;
-				
-				if(prevPtr.freeBlock.next === ptr.next.freeBlock) {
-					this.deleteNextOf(prevPtr.freeBlock);
-				} else {
-					this.deleteByPtr(ptr.next);
-				}
-				return prevPtr;
-			}
-		}
-
-		if(ptr.next !== null && ptr.next.freeBlock !== null) {
-			ptr.next.start = ptr.start;
-			ptr.next.size += ptr.size;
-			ptr.next.freeBlock.ptr.v.mergeStart(ptr.v);
-			prevPtr.next = ptr.next;
-		}
-
-		return null;
 	}
 }
 
@@ -289,31 +293,81 @@ class Allocator {
 
 	constructor() {
 		this.allocated = shallowReactive(new AllocList);
-		this.freed = new FreeList(this.allocated.head);
+		this.freed = new FreeList;
 		this.malloc<Null>(Null.Size, new Null);
 	}
 
 	private insertAfterBlock(prevBlock: FreeBlock, newPtr: PtrType) {
-		const block = prevBlock.next as FreeBlock;
-		const prev = this.allocated.getPrevOf(block.ptr);
-		const prevSize = block.ptr.size;
-		block.ptr.size -= newPtr.size;
+		const freePtr = prevBlock.next?.ptr || prevBlock.ptr;
+		const freePtrOldSize = freePtr.size;
+		freePtr.size = freePtrOldSize - newPtr.size;
 
-		if(block.ptr.size === 0) {
+		this.allocated.insertBefore(freePtr, newPtr);
+
+		if(freePtr.size === 0) {
 			this.freed.deleteNextOf(prevBlock);
-			newPtr.next = block.ptr.next;
-			newPtr.start = block.ptr.start;
-			prev.next = newPtr;
-			if(newPtr.next === null) {
-				this.allocated.tail = newPtr;
-			}
+			this.allocated.deleteNextOf(newPtr);
 		} else {
-			this.freed.cutPtrContent(block.ptr, prevSize);
+			this.freed.cutPtrContent(freePtr, freePtrOldSize);
+			freePtr.start = newPtr.end();
+		}
+	}
 
-			newPtr.next = block.ptr;
-			newPtr.start = block.ptr.start;
-			block.ptr.start = newPtr.end();
-			prev.next = newPtr;
+	private freeInternal(ptr: FreePtrType, prevPtr: PtrType | null) {
+		let freeBlock = new FreeBlock(ptr);
+		if(prevPtr === null && ptr.next === null) {
+			this.freed.insertStart(freeBlock);
+			return;
+		}
+
+		// if freeing head
+		if(prevPtr === null) {
+			if(ptr.next === null || ptr.next.freeBlock === null) {
+				ptr.freeBlock = freeBlock;
+				this.freed.insertStart(freeBlock);
+			} else if(ptr.next.freeBlock !== null) {
+				ptr.next.v.mergeStart(ptr.v);
+				ptr.next.start = ptr.start;
+				ptr.next.size += ptr.size;
+				this.allocated.head = null;
+			}
+			return;
+		}
+
+		if(prevPtr.freeBlock !== null) {
+			prevPtr.freeBlock.ptr.v.mergeEnd(ptr.v);
+			prevPtr.size += ptr.size;
+			prevPtr.next = ptr.next;
+
+			if(prevPtr.next === null) {
+				this.allocated.tail = prevPtr;
+				return;
+			}
+
+			if(prevPtr.next.freeBlock !== null) {
+				ptr = prevPtr.next.freeBlock.ptr;
+
+				this.freed.deleteByPtr(ptr);
+
+				prevPtr.freeBlock.ptr.v.mergeEnd(ptr.v);
+				prevPtr.size += ptr.size;
+				prevPtr.next = ptr.next;
+
+				if(prevPtr.next === null) {
+					this.allocated.tail = prevPtr;
+				}
+			}
+			return;
+		}
+
+		if(ptr.next === null || ptr.next.freeBlock === null) {
+			ptr.freeBlock = freeBlock;
+			this.freed.insertStart(freeBlock);
+		} else if(ptr.next.freeBlock !== null) {
+			ptr.next.v.mergeStart(ptr.v);
+			ptr.next.start = ptr.start;
+			ptr.next.size += ptr.size;
+			prevPtr.next = ptr.next;
 		}
 	}
 
@@ -332,26 +386,26 @@ class Allocator {
 	}
 
 	private reallocGrow(ptr: PtrType, newSize: number, newVal: AllocDisplay): PtrType {
-		const sizeDiff = newSize - ptr.size;
-		
+		const neededSize = newSize - ptr.size;
+
 		if(ptr.next === null) {
 			ptr.size = newSize;
 			return ptr;
 		}
 
-		if(this.freed.isNextPtrCanBeUsed(ptr, newSize)) {
-			const prevNextSize = ptr.next.size;
-			ptr.next.start += sizeDiff;
-			ptr.next.size -= sizeDiff;
+		if(ptr.next.freeBlock !== null && neededSize <= ptr.next.size) {
+			const next = ptr.next;
+			const prevNextSize = next.size;
+
+			next.start += neededSize;
+			next.size -= neededSize;
+
 			ptr.size = newSize;
 			ptr.v = newVal;
 
-			if(ptr.next.size === 0) {
-				this.freed.deleteByPtr(ptr.next);
-				ptr.next = ptr.next.next;
-				if(ptr.next === null) {
-					this.allocated.tail = ptr;
-				}
+			if(next.size === 0) {
+				this.freed.deleteByPtr(next);
+				this.allocated.deleteNextOf(ptr);
 			} else {
 				this.freed.cutPtrContent(ptr.next, prevNextSize);
 			}
@@ -364,6 +418,7 @@ class Allocator {
 		return ptr;
 	}
 
+	// technically not used anywhere yet
 	private reallocShrink(ptr: PtrType, newSize: number, newVal: AllocDisplay): PtrType {
 		if(newSize <= 0) {
 			return ptr;
@@ -387,10 +442,7 @@ class Allocator {
 			freePtr.next = ptr.next;
 			ptr.next = freePtr;
 
-			const tail = this.freed.add(freePtr as Ptr<FreePtrVal<AllocDisplay>>, ptr);
-			if(tail !== null) {
-				this.allocated.tail = tail;
-			}
+			this.freeInternal(freePtr as Ptr<FreePtrVal<AllocDisplay>>, ptr);
 		}
 
 		return ptr;
@@ -413,13 +465,9 @@ class Allocator {
 		const freePtrVal = new FreePtrVal(ptr.v as AllocDisplay);
 		const prevPtr = this.allocated.getPrevOf(ptr as PtrType);
 
-		// guranteed to be atleast head
-		(prevPtr.next as PtrType).v = freePtrVal;
+		ptr.v = freePtrVal as any;
 
-		const tail = this.freed.add(ptr as Ptr<any>, prevPtr);
-		if(tail !== null) {
-			this.allocated.tail = tail;
-		}
+		this.freeInternal(ptr as Ptr<any>, prevPtr);
 	}
 
 	public free<T extends AllocDisplay | Dealloc>(ptr: Ptr<T>) {
@@ -431,11 +479,9 @@ class Allocator {
 	}
 
 	public resetExceptNull() {
-		if(this.allocated.head.next) {
-			this.allocated = shallowReactive(new AllocList);
-			this.freed = new FreeList(this.allocated.head);
-			this.malloc<Null>(Null.Size, new Null);
-		}
+		this.allocated = shallowReactive(new AllocList);
+		this.freed = new FreeList;
+		this.malloc<Null>(Null.Size, new Null);
 	}
 }
 
