@@ -3,6 +3,7 @@ import { CanvasHandler } from "../../handler/canvas-handler.ts";
 import { ElementGNode } from "../el-node.ts";
 import { ElementUEdge } from "../el-u-edge.ts";
 import { ElementDEdge } from "../el-d-edge.ts";
+import { setErrorPopupText } from "../../global.ts";
 
 enum Color {
 	span = "#00ff00",
@@ -180,6 +181,7 @@ class Prims extends AlgorithmHandler {
 	*generatorFn(canvas: CanvasHandler) {
 		if(this.startNode) {
 			if(this.startNode.edges.v.first()?.v.constructor.name === ElementDEdge.name) {
+				setErrorPopupText("Can't perform Prims on directed edge");
 				return;
 			}
 

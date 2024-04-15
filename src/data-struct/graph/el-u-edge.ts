@@ -34,12 +34,13 @@ export class ElementUEdge extends UEdge implements ElementHandler, AllocDisplay 
 	fromNodeRef: ShallowRef<Ptr<ElementGNode>>;
 	toNodeRef: ShallowRef<Ptr<ElementGNode>>;
 
+	// Somewhere the vue auto proxy merge thingie is happening i don't know where
 	get toNode() {
-		return this.toNodeRef.value.v;
+		return (this.toNodeRef.value || this.toNodeRef).v;
 	}
 
 	get fromNode() {
-		return this.fromNodeRef.value.v;
+		return (this.fromNodeRef.value || this.fromNodeRef).v;
 	}
 
 	toMoveEnd: Point = new Point(-1, -1);
@@ -48,7 +49,8 @@ export class ElementUEdge extends UEdge implements ElementHandler, AllocDisplay 
 	ptr: ShallowReactive<Ptr<ElementUEdge>>;
 
 	getToNode(node: ElementGNode): ElementGNode {
-		return this.toNode === node ? this.fromNode : this.toNode;
+		const toNode = this.toNode;
+		return toNode === node ? this.fromNode : toNode;
 	}
 
     toBytes(): Array<string> {

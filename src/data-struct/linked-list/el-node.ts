@@ -330,10 +330,10 @@ export class ElementLLNode extends LLNode implements ElementHandler, AllocDispla
 
 		if(node === null) {
 			canvas.redraw();
-			setErrorPopupText("element not found");
+			setErrorPopupText("Element not found");
 		} else if(node.value.v.chars !== value) {
 			canvas.redraw();
-			setErrorPopupText("cycle detected. Aborting.");
+			setErrorPopupText("Cycle detected. Aborting.");
 		} else {
 			node.bg = "#00FF00";
 			node.draw(canvas.ctx);

@@ -98,6 +98,10 @@ h2{
 	border-right: 2px solid rgb(40, 40, 40);
 }
 
+.btn{
+	min-height: 2.5rem;
+}
+
 @media only screen and (max-width: 550px) {
 	.bellmanFord{
 		display: flex;

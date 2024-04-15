@@ -187,6 +187,7 @@ class BellmanFord extends AlgorithmHandler {
 			this.endNode.draw(canvas.ctx);
 
 			if(this.startNode.edges.v.first()?.v.constructor.name === ElementUEdge.name) {
+				setErrorPopupText("Can't perform BellmanFord on undirected edge");
 				return;
 			}
 

@@ -35,20 +35,28 @@ const isBottomLayout = ref<boolean>(true);
 			<div :style="{ color: Mode.Simplified === mode ? 'white' : '#444444' }">{{ Mode.Simplified }}</div>
 		</div>
 
-		<div class="custom-select-container" v-if="mode === Mode.Bytes">
-			<pre>Align: </pre>
-			<Select :options="byteAlign as any" :onChange="(value) => curByteAlign = value as any" :value="curByteAlign as string" />
+		<div class="drop-down-container" v-if="mode === Mode.Bytes">
+			<span>Align: </span>
+			<div class="custom-select-container">
+				<Select :options="byteAlign as any" :onChange="(value) => curByteAlign = value as any" :value="curByteAlign as string" />
+			</div>
 		</div>
 
 		<template v-if="mode === Mode.Simplified">
-			<div class="hover-address">
+			<div class="checkbox-container">
 				<input type="checkbox" v-model="showAddressOnHover" />
 				<label>Show address on hover</label>
 			</div>
 
-			<div class="custom-select-container" v-if="showAddressOnHover">
-				<pre>Address Type: </pre>
-				<Select :options="{ hex: 'hex', 'decimal': 'decimal' }" :onChange="(value) => addressType = value as any" :value="addressType" />
+			<div class="drop-down-container" v-if="showAddressOnHover">
+				<span>Address Type: </span>
+				<div class="custom-select-container">
+					<Select
+						:options="{ hex: 'hex', 'decimal': 'decimal' }"
+						:onChange="(value) => addressType = value as any"
+						:value="addressType"
+					/>
+				</div>
 			</div>
 		</template>
 	</div>
@@ -233,21 +241,18 @@ const isBottomLayout = ref<boolean>(true);
 	transform: translateX(100%);
 }
 
-.hover-address{
+.checkbox-container{
 	height: 100%;
+}
+
+.drop-down-container{
 	display: flex;
-	justify-content: center;
+	flex-direction: row;
 	align-items: center;
+}
+
+.drop-down-container span{
 	font-family: monospace;
-	min-width: max-content;
-}
-
-.hover-address input[type="checkbox"] {
-	--size: 0.9rem;
-	width: var(--size);
-	height: var(--size);
 	margin-right: 0.2rem;
-	cursor: pointer;
 }
-
 </style>

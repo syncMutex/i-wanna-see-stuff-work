@@ -2,7 +2,7 @@
 const props = defineProps<{
 	onChange: (s:string) => void,
 	value: string,
-	options: {[_:string]:string},
+	options: {[_:string]:string} | Array<string>,
 	styleClass?: Array<string>
 }>();
 

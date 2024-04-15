@@ -100,6 +100,10 @@ h2{
 }
 
 @media only screen and (max-width: 550px) {
+	.btn{
+		min-height: 2.5rem;
+	}
+
 	.dijkstra{
 		display: flex;
 		flex-direction: column;

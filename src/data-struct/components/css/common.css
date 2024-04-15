@@ -150,3 +150,19 @@ input[type="text"]:focus{
 	background-color: #ff2121;
 }
 
+.checkbox-container{
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-family: monospace;
+	min-width: max-content;
+}
+
+.checkbox-container input[type="checkbox"] {
+	--size: 0.9rem;
+	width: var(--size);
+	height: var(--size);
+	margin-right: 0.2rem;
+	cursor: pointer;
+}
+

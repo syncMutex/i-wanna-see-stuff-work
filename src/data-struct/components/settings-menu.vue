@@ -6,10 +6,47 @@ import Range from "../../common-components/range.vue";
 import ToolIcon from "../assets/icons/spawner.svg";
 import RamIcon from "../assets/icons/ram.svg";
 import { componentMap } from "./tool-component-map";
-import { sampleDGraph, sampleLinkedList, sampleUEdgeMatrix, sampleUGraph } from "./samples";
+import { sampleDBTree, sampleDGraph, sampleLinkedList, sampleUEdgeMatrix, sampleUGraph } from "./samples";
+import Select from "../../common-components/select.vue";
+import { computed, ref } from "vue";
 
 function setDisplayGrid() {
 	playground.canvas.setIsDisplayGrid(!playground.canvas.isDisplayGrid);
+}
+
+const exampleMap = {
+	ll: "Linked List",
+	graph: "Graph",
+	tree: "Tree"
+};
+const curExample = ref(exampleMap.ll);
+const rows = ref(5);
+const cols = ref(5);
+const isDirected = ref<boolean>(false);
+const isMatrixForm = ref<boolean>(false);
+const isWeighted = ref<boolean>(false);
+const exampleTypeCSSClass = computed(() => curExample.value === exampleMap.ll ? "clr-purple" : "clr-orange");
+
+function createExample() {
+	switch(curExample.value) {
+		case exampleMap.ll:
+		sampleLinkedList(playground.canvas, rows.value, cols.value);
+		break;
+		case exampleMap.graph:
+		if(isDirected.value) {
+			sampleDGraph(playground.canvas, rows.value, cols.value, isWeighted.value);
+		} else {
+			if(isMatrixForm.value) {
+				sampleUEdgeMatrix(playground.canvas, rows.value, cols.value, isWeighted.value);
+			} else {
+				sampleUGraph(playground.canvas, rows.value, cols.value, isWeighted.value);
+			}
+		}
+		break;
+		case exampleMap.tree:
+		sampleDBTree(playground.canvas, rows.value, isWeighted.value);
+		break;
+	}
 }
 
 </script>
@@ -36,18 +73,47 @@ function setDisplayGrid() {
 
 			<div class="examples">
 				<div>Examples: </div>
-				<button class="btn btn-nobg clr-purple" @click="sampleLinkedList(playground.canvas)">
-					Linked List
-				</button>
-				<button class="btn btn-nobg clr-orange" @click="sampleUGraph(playground.canvas)">
-					Undirected Graph
-				</button>
-				<button class="btn btn-nobg clr-orange" @click="sampleDGraph(playground.canvas)">
-					Directed Graph
-				</button>
-				<button class="btn btn-nobg clr-orange" @click="sampleUEdgeMatrix(playground.canvas)">
-					UEdge Matrix
-				</button>
+				<div class="custom-select-container">
+					<Select :options="exampleMap" :value="curExample" @change="v => curExample = v" />
+				</div>
+				<div class="input-rows" v-if="curExample !== exampleMap.tree">
+					<div class="input-container">
+						<span>Rows</span>
+						<input placeholder="rows" type="number" v-model="rows" />
+					</div>
+					<div class="input-container">
+						<span>Cols</span>
+						<input placeholder="cols" type="number" v-model="cols" />
+					</div>
+				</div>
+
+				<div v-if="curExample === exampleMap.graph">
+					<div class="checkbox-container">
+						<input type="checkbox" v-model="isDirected" />
+						<label>directed</label>
+					</div>
+					<div class="checkbox-container">
+						<input type="checkbox" v-model="isWeighted" />
+						<label>weighted</label>
+					</div>
+					<div class="checkbox-container" v-if="!isDirected">
+						<input type="checkbox" v-model="isMatrixForm" />
+						<label>adj-matrix form</label>
+					</div>
+				</div>
+
+				<div v-else-if="curExample === exampleMap.tree">
+					<div class="input-container">
+						<span>Depth</span>
+						<input placeholder="depth" type="number" v-model="rows" />
+					</div>
+					<div class="checkbox-container">
+						<input type="checkbox" v-model="isWeighted" />
+						<label>weighted</label>
+					</div>
+				</div>
+
+				<button :class="['btn', 'btn-nobg', exampleTypeCSSClass]" @click="createExample">Create</button>
 			</div>
 		</section>
 	</div>
@@ -92,7 +158,7 @@ function setDisplayGrid() {
 	left: calc(var(--btn-size) + 0.2rem);
 	padding: 0.5rem;
 	width: 10rem;
-	height: 20rem;
+	min-height: 20rem;
 	cursor: default;
 	font-size: 0.9rem;
 	overflow: hidden;
@@ -169,6 +235,42 @@ function setDisplayGrid() {
 	width: 100%;
 	height: 1.5rem;
 	font-size: 0.8rem;
+}
+
+.custom-select{
+	width: 100%;
+	margin: 0 0;
+}
+
+.input-rows{
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.input-container{
+	width: 100%;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+
+.input-container span{
+	display: inline-block;
+	width: 3rem;
+}
+
+.input-container input[type="number"]{
+	width: 3rem;
+	height: 1.5rem;
+	font-size: 0.9rem;
+}
+
+.checkbox-container{
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 0.9rem;
+	min-width: 100%;
+	justify-content: start;
 }
 
 </style>
