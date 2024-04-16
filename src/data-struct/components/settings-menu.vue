@@ -17,11 +17,11 @@ function setDisplayGrid() {
 const exampleMap = {
 	ll: "Linked List",
 	graph: "Graph",
-	tree: "Tree"
+	tree: "BTree"
 };
 const curExample = ref(exampleMap.ll);
-const rows = ref(5);
-const cols = ref(5);
+const rows = ref(3);
+const cols = ref(3);
 const isDirected = ref<boolean>(false);
 const isMatrixForm = ref<boolean>(false);
 const isWeighted = ref<boolean>(false);
@@ -44,7 +44,7 @@ function createExample() {
 		}
 		break;
 		case exampleMap.tree:
-		sampleDBTree(playground.canvas, rows.value, isWeighted.value);
+		sampleDBTree(playground.canvas, rows.value, isWeighted.value, isDirected.value);
 		break;
 	}
 }
@@ -108,6 +108,10 @@ function createExample() {
 						<input placeholder="depth" type="number" v-model="rows" />
 					</div>
 					<div class="checkbox-container">
+						<input type="checkbox" v-model="isDirected" />
+						<label>directed</label>
+					</div>
+					<div class="checkbox-container">
 						<input type="checkbox" v-model="isWeighted" />
 						<label>weighted</label>
 					</div>
@@ -134,7 +138,7 @@ function createExample() {
 </template>
 
 <style scoped>
-@import "./css/common.css";
+@import "@css/common.css";
 
 #btn-container{
 	display: flex;

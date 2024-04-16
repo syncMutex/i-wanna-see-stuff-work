@@ -10,18 +10,18 @@ import { isMemAllocShow } from "./refs";
 </script>
 
 <template>
-<div class="pg-body">
-	<SettingsMenu />
+<div id="pg-body">
 	<ToolBarSection />
-	<PlaygroundSection />
-	<SelectedItem />
-	<Algorithm />
 	<MemoryAlloc v-if="isMemAllocShow" />
+	<SettingsMenu />
+	<SelectedItem />
+	<PlaygroundSection />
+	<Algorithm />
 </div>
 </template>
 
 <style scoped>
-.pg-body{
+#pg-body{
 	width: 100%;
 	height: 100%;
 	display: flex;

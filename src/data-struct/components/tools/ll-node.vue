@@ -75,7 +75,7 @@ function find() {
 </template>
 
 <style scoped>
-@import "../css/common.css";
+@import "@css/common.css";
 
 .tool-node {
 	color: white;

@@ -74,7 +74,7 @@ const isBottomLayout = ref<boolean>(true);
 </template>
 
 <style>
-@import "../css/common.css";
+@import "@css/common.css";
 
 *{
 	--chars: #1a821a;
@@ -90,7 +90,7 @@ const isBottomLayout = ref<boolean>(true);
 
 #memory-alloc{
 	position: absolute;
-	z-index: 100;
+	z-index: 15;
 	display: flex;
 	flex-direction: column;
 	padding: 2px;
@@ -254,5 +254,6 @@ const isBottomLayout = ref<boolean>(true);
 .drop-down-container span{
 	font-family: monospace;
 	margin-right: 0.2rem;
+	white-space: pre;
 }
 </style>

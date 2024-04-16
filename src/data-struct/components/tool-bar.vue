@@ -32,7 +32,7 @@ function selectTool(idx: number) {
 </template>
 
 <style scoped>
-@import "./css/common.css";
+@import "@css/common.css";
 
 #tool-bar-section{
 	position: absolute;

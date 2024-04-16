@@ -66,7 +66,7 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-@import "./css/common.css";
+@import "@css/common.css";
 
 #playground-section{
 	overflow: hidden;
@@ -155,6 +155,7 @@ onUnmounted(() => {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
+	z-index: 100;
 }
 
 .info-text{

@@ -1,12 +1,17 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import { ListElement } from "../algorithms/sorter-iface";
+import { ListElement, Sorter } from "../algorithms/sorter-iface";
 
 const props = defineProps<{
 	elements: Array<ListElement>,
 }>();
 const elementsDiv = ref<HTMLDivElement|null>(null);
-const elementsDivHeight = computed(() => elementsDiv.value?.clientHeight || 1);
+const elementsDivHeight = computed(() => {
+	const h = elementsDiv.value?.clientHeight || 1
+	Sorter.MAX_HEIGHT = h;
+	return h;
+});
+
 </script>
 
 <template>

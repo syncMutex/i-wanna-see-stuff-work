@@ -33,7 +33,7 @@ watch(Dfs.visited, () => {
 </template>
 
 <style scoped>
-@import "../../../components/css/common.css";
+@import "@css/common.css";
 
 .dfs{
 	display: flex;

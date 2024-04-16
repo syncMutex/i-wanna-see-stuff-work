@@ -20,6 +20,10 @@ async function derefPtr(ptr: string) {
 
 	const el = pointerMap[ptr];
 	await scrollIntoViewAndWait(props.parentDiv, el);
+
+	if(ptr === (focusedElement.value as any).ptr?.toString()) {
+		return;
+	}
 	el.classList.add("deref-highlight");
 	el.addEventListener("transitionend", () => el.classList.remove("deref-highlight"), { once: true });
 }

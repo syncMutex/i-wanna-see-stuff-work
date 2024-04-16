@@ -21,6 +21,7 @@ enum SorterState {
 }
 
 export class Sorter {
+	static MAX_HEIGHT = 500;
 	public elements: Array<ListElement>;
 	private delay: number = 50;
 	private state: SorterState = SorterState.NotBegun;
@@ -74,7 +75,7 @@ export class Sorter {
 
 		let newElements = Array<ListElement>(count);
 		for(let i = 0; i < count; i++) {
-			newElements[i] = { value: randomInt(10, 600), state: AnimationState.None };
+			newElements[i] = { value: randomInt(10, Sorter.MAX_HEIGHT), state: AnimationState.None };
 		}
 		this.setElements(newElements);
 	}

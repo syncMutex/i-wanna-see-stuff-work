@@ -2,6 +2,7 @@ import { GAP } from "../canvas";
 import { ElementDEdge } from "../graph/el-d-edge";
 import { ElementGNode } from "../graph/el-node";
 import { ElementUEdge } from "../graph/el-u-edge";
+import { GNode } from "../graph/element-types/node";
 import { CanvasHandler } from "../handler/canvas-handler";
 import { ElementLLNode } from "../linked-list/el-node";
 import { randInt } from "../utils";
@@ -150,41 +151,60 @@ export function sampleUEdgeMatrix(canvas: CanvasHandler, row: number, col: numbe
 	canvas.redraw();
 }
 
-export function sampleDBTree(canvas: CanvasHandler, depth: number, isWeighted: boolean) {
-	let y = (canvas.transform.y * -1 / GAP) + (GAP * 2);
+export function sampleDBTree(canvas: CanvasHandler, depth: number, isWeighted: boolean, isDirected: boolean) {
+	let calcY = (h: number) => (-canvas.transform.y) + (GNode.radius * 2 * h * 2) + (GAP * 5);
+	let yLevel = calcY(depth);
+	let noOfNodesInHeight = (h: number) => Math.pow(2, h - 1);
+	let gap = 10;
 
-	const nodes = [];
-
-	let row = 5;
-	let col = 5;
-
-	for(let i = 0; i < row; i++) {
-		let x = canvas.transform.x * -1 / GAP + (GAP * 2);
-		for(let j = 0; j < col; j++) {
-			const enode = new ElementGNode(x * GAP, y * GAP, String(randInt(1, 500)));
+	const fillNodes = (height: number): Array<ElementGNode> => {
+		const nodes = [];
+		const nodesCount = noOfNodesInHeight(height);
+		let x = -canvas.transform.x / GAP + gap;
+		for(let i = 0; i < nodesCount; i++) {
+			const enode = new ElementGNode(x * GAP, yLevel, String(randInt(1, 500)));
 			canvas.add(enode);
-			x += 10;
+			x += gap + (depth - height) * 5;
 			nodes.push(enode);
 		}
-		y += 10;
+
+		return nodes;
 	}
 
-	for(let i = 0; i < nodes.length - 1; i++) {
-		const a = nodes[i];
-		for(let j = 0; j < 1; j++) {
-			let r = i;
-			while(r === i) r = randInt(0, nodes.length);
-			const b = nodes[r];
-			if(ElementGNode.hasDEdge(a, b)) {
-				continue;
+	let below;
+	const addEdge = (type: any, n1: any, n2: any) => {
+		const edge = new type(n1, n2);
+
+		edge.weight.value = isWeighted ? randInt(1, 50) : 0;
+		edge.rectify();
+		canvas.add(edge);
+	}
+
+	for(let i = depth; i > 0; i--) {
+		yLevel = calcY(i);
+		gap += (depth - i) * 5;
+		const nodes = fillNodes(i);
+
+		if(below) {
+			let i = 0;
+			if(isDirected) {
+				for(let n of nodes) {
+					addEdge(ElementDEdge, n, below[i].ptr);
+					addEdge(ElementDEdge, n, below[i + 1].ptr);
+					i += 2;
+				}
+			} else {
+				for(let n of nodes) {
+					addEdge(ElementUEdge, n.ptr, below[i].ptr);
+					addEdge(ElementUEdge, n.ptr, below[i + 1].ptr);
+					i += 2;
+				}
 			}
-			const edge = new ElementDEdge(a, b.ptr);
-
-			edge.weight.value = randInt(1, 500);
-			edge.rectify();
-			canvas.add(edge);
 		}
+
+		below = nodes;
 	}
+
 
 	canvas.redraw();
 }

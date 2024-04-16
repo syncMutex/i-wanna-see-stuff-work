@@ -41,7 +41,7 @@ async function deleteEdge() {
 </template>
 
 <style scoped>
-@import "../css/common.css";
+@import "@css/common.css";
 
 .tool-edge {
 	color: white;

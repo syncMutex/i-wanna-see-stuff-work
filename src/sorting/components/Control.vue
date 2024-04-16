@@ -106,7 +106,7 @@ onUnmounted(() => {
 
 
 <style scoped>
-@import "../../data-struct/components/css/common.css";
+@import "@css/common.css";
 
 *{
 	--control-bg: rgb(26, 0, 61);
@@ -259,6 +259,10 @@ onUnmounted(() => {
 
 .control-btns > *{
 	margin: 0 0.3rem;
+}
+
+.scroll-bar::-webkit-scrollbar{
+	height: 4px;
 }
 
 </style>

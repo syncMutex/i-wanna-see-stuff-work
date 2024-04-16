@@ -98,7 +98,7 @@ function stop() {
 </template>
 
 <style scoped>
-@import "./css/common.css";
+@import "@css/common.css";
 
 *{
 	--aqua: rgb(3, 252, 161);
@@ -119,6 +119,7 @@ function stop() {
 	border-radius: 4px;
 	padding: 0.5rem;
 	box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+	z-index: 100;
 }
 
 .play-pause-next-container > *{

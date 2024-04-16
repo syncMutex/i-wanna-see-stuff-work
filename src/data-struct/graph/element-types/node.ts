@@ -4,7 +4,7 @@ import { Ptr } from "../../memory-allocator/allocator";
 import { Str } from "../../memory-allocator/types";
 
 export class GNode {
-	static radius = GAP * 5 / 2 + (GAP / 2);
+	public static radius = GAP * 5 / 2 + (GAP / 2);
 
 	bg: string = "";
 	color = "#ffffff";

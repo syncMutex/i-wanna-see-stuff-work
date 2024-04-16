@@ -21,12 +21,12 @@ const className = computed(() => {
 </template>
 
 <style scoped>
-@import "./css/common.css";
+@import "@css/common.css";
 
 .selected-item{
 	left: 1%;
 	top: 15%;
-	z-index: 15;
+	z-index: 20;
 	width: 12rem;
 	height: 30rem;
 	padding: 0.5rem;

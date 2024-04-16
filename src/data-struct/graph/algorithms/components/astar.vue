@@ -33,7 +33,7 @@ function done() {
 </template>
 
 <style scoped>
-@import "../../../components/css/common.css";
+@import "@css/common.css";
 
 .astar{
 	display: flex;

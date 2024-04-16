@@ -49,7 +49,7 @@ watch(kruskal.updateInVue, (newVal) => {
 </template>
 
 <style scoped>
-@import "../../../components/css/common.css";
+@import "@css/common.css";
 
 .kruskal{
 	display: flex;

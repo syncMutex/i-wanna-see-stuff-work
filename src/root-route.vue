@@ -19,7 +19,7 @@ import { RouterLink } from "vue-router";
 </template>
 
 <style scoped>
-@import url("./data-struct/components/css/common.css");
+@import "@css/common.css";
 
 #root-route{
 	display: flex;

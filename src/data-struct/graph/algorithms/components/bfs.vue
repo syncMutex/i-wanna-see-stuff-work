@@ -41,7 +41,7 @@ watch(Bfs.visited, () => {
 </template>
 
 <style scoped>
-@import "../../../components/css/common.css";
+@import "@css/common.css";
 
 .outter{
 	display: flex;
