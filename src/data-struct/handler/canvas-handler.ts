@@ -51,6 +51,9 @@ export class CanvasHandler {
 	width = 0;
 	height = 0;
 
+	domHeight = 0;
+	domWidth = 0;
+
 	halfWidth = 0;
 	halfHeight = 0;
 
@@ -107,6 +110,9 @@ export class CanvasHandler {
 	}
 
 	setSize(w: number, h: number) {
+		this.domWidth = w;
+		this.domHeight = h;
+
 		this.width = w * this.DPR;
 		this.height = h * this.DPR;
 
@@ -247,13 +253,28 @@ export class CanvasHandler {
 		ctx.setTransform(this.DPR, 0, 0, this.DPR, 0, 0);
 	}
 
+	// displayDebug() {
+	// 	line(this.ctx, this.transform.x, 0, this.transform.x, this.height, this.DPR, "#FF0000");
+	// 	line(this.ctx, 0, this.transform.y, this.width, this.transform.y, this.DPR, "#FF0000");
+
+	// 	document.getElementById("debug")?.remove();
+	// 	const d = document.createElement("div");
+	// 	d.id = "debug"
+	// 	d.style.position = "fixed";
+	// 	d.style.color = "white";
+	// 	d.style.bottom = "0";
+	// 	d.style.left = "0";
+	// 	d.style.fontSize = "0.8rem";
+	// 	d.innerText = `transform { x: ${this.transform.x}, y: ${this.transform.y} }`;
+	// 	document.body.appendChild(d);
+	// }
+
 	clear() {
 		this.resetTransform(this.ctx);
 
 		this.ctx.clearRect(0, 0, this.width, this.height);
 
-		// line(this.ctx, this.transform.x, 0, this.transform.x, this.height, this.DPR, "#FF0000");
-		// line(this.ctx, 0, this.transform.y, this.width, this.transform.y, this.DPR, "#FF0000");
+		// this.displayDebug();
 
 		this.setTransform(this.ctx);
 	}

@@ -216,16 +216,21 @@ class FreeBlock {
 	}
 }
 
+enum ToInsertPos {
+	End,
+	Head
+}
+
 class FreeList {
 	head: FreeBlock | null = null;
 
-	prevOfSize(size: number): FreeBlock | null {
+	prevOfSize(size: number): FreeBlock | ToInsertPos {
 		if(this.head === null) {
-			return null;
+			return ToInsertPos.End;
 		}
 
 		if(this.head.ptr.size >= size) {
-			return this.head;
+			return ToInsertPos.Head;
 		}
 
 		let temp = this.head;
@@ -237,7 +242,7 @@ class FreeList {
 			temp = temp.next;
 		}
 
-		return null;
+		return ToInsertPos.End;
 	}
 
 	prevOfPtr(ptr: PtrType): FreeBlock | null {
@@ -297,15 +302,20 @@ class Allocator {
 		this.malloc<Null>(Null.Size, new Null);
 	}
 
-	private insertAfterBlock(prevBlock: FreeBlock, newPtr: PtrType) {
-		const freePtr = prevBlock.next?.ptr || prevBlock.ptr;
+	// prevBlock null meaning i want to insert at the head
+	private insertAfterBlock(prevBlock: FreeBlock | null, newPtr: PtrType) {
+		const freePtr = (prevBlock === null) ? this.freed.head?.ptr as PtrType : (prevBlock.next?.ptr || prevBlock.ptr);
 		const freePtrOldSize = freePtr.size;
 		freePtr.size = freePtrOldSize - newPtr.size;
 
 		this.allocated.insertBefore(freePtr, newPtr);
 
 		if(freePtr.size === 0) {
-			this.freed.deleteNextOf(prevBlock);
+			if(prevBlock === null) {
+				this.freed.head = null;
+			} else {
+				this.freed.deleteNextOf(prevBlock);
+			}
 			this.allocated.deleteNextOf(newPtr);
 		} else {
 			this.freed.cutPtrContent(freePtr, freePtrOldSize);
@@ -375,12 +385,16 @@ class Allocator {
 		const ptr = shallowReactive(new Ptr(size, 0, value));
 		const freeBlockPrev = this.freed.prevOfSize(ptr.size);
 
-		if(freeBlockPrev === null) {
+		if(freeBlockPrev === ToInsertPos.End) {
 			this.allocated.insertEnd(ptr);
 			return ptr;
 		}
 
-		this.insertAfterBlock(freeBlockPrev, ptr);
+		if(freeBlockPrev === ToInsertPos.Head) {
+			this.insertAfterBlock(null, ptr);
+		} else {
+			this.insertAfterBlock(freeBlockPrev, ptr);
+		}
 
 		return ptr;
 	}

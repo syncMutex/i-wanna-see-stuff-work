@@ -67,10 +67,10 @@ export interface ToolType {
 }
 
 export const ToolList: ToolType[] = [
-	{ name: "LLNode", toolClass: ToolLLNode, icon: IconLLNode },
-	{ name: "Graph Node", toolClass: ToolGNode, icon: IconGNode },
-	{ name: "UEdge", toolClass: ToolUEdge, icon: IconUEdge },
-	{ name: "DEdge", toolClass: ToolDEdge, icon: IconDEdge },
-	{ name: "AdjMatrix", toolClass: ToolAdjMatrix, icon: IconMatrix },
+	{ name: "ll-node", toolClass: ToolLLNode, icon: IconLLNode },
+	{ name: "g-node", toolClass: ToolGNode, icon: IconGNode },
+	{ name: "u-edge", toolClass: ToolUEdge, icon: IconUEdge },
+	{ name: "d-edge", toolClass: ToolDEdge, icon: IconDEdge },
+	{ name: "adj-mat", toolClass: ToolAdjMatrix, icon: IconMatrix },
 ];
 

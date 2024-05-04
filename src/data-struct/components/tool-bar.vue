@@ -68,6 +68,11 @@ function selectTool(idx: number) {
 	border-radius: 4px;
 }
 
+.tools-list div:hover{
+	background-color: rgba(80, 80, 80);
+	transition: background-color 0.3s;
+}
+
 .tools-list div > *{
 	width: 100%;
 	height: 100%;
@@ -76,7 +81,6 @@ function selectTool(idx: number) {
 }
 
 .tools-list div.selected{
-	background-color: rgba(50, 50, 50);
 	background-color: #eeeeee;
 }
 
